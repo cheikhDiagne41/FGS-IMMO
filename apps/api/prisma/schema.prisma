@@ -1,0 +1,462 @@
+// FGS_IMMO — Schéma de base de données
+// Plateforme immobilière : sites, coopératives, terrains, clients, paiements, facturation
+// Base : PostgreSQL — ORM : Prisma
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+// ============================================================
+// ENUMS
+// ============================================================
+
+enum Role {
+  ADMIN
+  GESTIONNAIRE
+  COMPTABLE
+  CLIENT
+}
+
+enum Sexe {
+  M
+  F
+}
+
+enum SiteStatus {
+  DISPONIBLE
+  EN_COMMERCIALISATION
+  CLOTURE
+}
+
+enum CooperativeStatus {
+  ACTIVE
+  COMPLETE
+  SUSPENDUE
+  CLOTUREE
+}
+
+enum TerrainType {
+  HABITATION
+  COMMERCIAL
+  AGRICOLE
+  MIXTE
+}
+
+enum TerrainStatus {
+  DISPONIBLE
+  RESERVE
+  VENDU
+}
+
+enum AdhesionStatus {
+  EN_COURS // adhésion validée, paiements en cours
+  COMPLETE // toutes les mensualités payées
+  ATTRIBUE // terrain attribué
+  ANNULEE
+}
+
+enum EcheanceType {
+  ADHESION
+  ACOMPTE
+  COTISATION
+}
+
+enum EcheanceStatus {
+  EN_ATTENTE
+  PARTIELLE
+  PAYEE
+  EN_RETARD
+}
+
+enum PaiementMethode {
+  WAVE
+  ORANGE_MONEY
+  ESPECES
+  VIREMENT
+  CHEQUE
+}
+
+enum PaiementStatut {
+  EN_ATTENTE
+  VALIDE
+  ANNULE
+  REMBOURSE
+}
+
+enum FactureStatut {
+  EMISE
+  PAYEE
+  ANNULEE
+}
+
+enum DocumentType {
+  CNI
+  PASSEPORT
+  JUSTIFICATIF_DOMICILE
+  PHOTO
+  CONTRAT
+  CERTIFICAT_ATTRIBUTION
+  AUTRE
+}
+
+enum NotificationType {
+  RAPPEL_ECHEANCE
+  CONFIRMATION_PAIEMENT
+  FACTURE
+  RETARD_PAIEMENT
+  ATTRIBUTION_TERRAIN
+  SYSTEME
+}
+
+enum NotificationCanal {
+  EMAIL
+  SMS
+  APP
+}
+
+// ============================================================
+// UTILISATEURS & AUTHENTIFICATION
+// ============================================================
+
+model User {
+  id           String   @id @default(uuid())
+  email        String   @unique
+  passwordHash String
+  role         Role     @default(CLIENT)
+  isActive     Boolean  @default(true)
+  lastLoginAt  DateTime?
+  createdAt    DateTime @default(now())
+  updatedAt    DateTime @updatedAt
+
+  // Relations
+  client        Client?
+  notifications Notification[]
+  activityLogs  ActivityLog[]
+  paiementsSaisis Paiement[] @relation("PaiementSaisiPar")
+
+  @@index([role])
+  @@map("users")
+}
+
+// ============================================================
+// CLIENTS (COOPÉRATEURS)
+// ============================================================
+
+model Client {
+  id            String    @id @default(uuid())
+  userId        String    @unique
+  user          User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  photoUrl      String?
+  nom           String
+  prenom        String
+  sexe          Sexe?
+  dateNaissance DateTime?
+  cin           String?   @unique
+  passeport     String?   @unique
+  telephone     String
+  adresse       String?
+  profession    String?
+
+  createdAt     DateTime  @default(now())
+  updatedAt     DateTime  @updatedAt
+
+  adhesions     Adhesion[]
+  documents     Document[]
+  terrains      Terrain[]  // terrains attribués
+
+  @@index([nom, prenom])
+  @@map("clients")
+}
+
+// ============================================================
+// SITES
+// ============================================================
+
+model Site {
+  id             String     @id @default(uuid())
+  code           String     @unique
+  nom            String
+  region         String?
+  departement    String?
+  commune        String?
+  adresse        String?
+  latitude       Float?
+  longitude      Float?
+  superficie     Decimal?   @db.Decimal(14, 2) // m²
+  nbParcelles    Int        @default(0)
+  prixReference  Decimal?   @db.Decimal(14, 2)
+  description    String?
+  planUrl        String?    // plan de lotissement
+  statut         SiteStatus @default(DISPONIBLE)
+
+  createdAt      DateTime   @default(now())
+  updatedAt      DateTime   @updatedAt
+
+  photos         SitePhoto[]
+  cooperatives   Cooperative[]
+  terrains       Terrain[]
+
+  @@map("sites")
+}
+
+model SitePhoto {
+  id      String @id @default(uuid())
+  siteId  String
+  site    Site   @relation(fields: [siteId], references: [id], onDelete: Cascade)
+  url     String
+  legende String?
+
+  @@map("site_photos")
+}
+
+// ============================================================
+// COOPÉRATIVES (obligatoirement rattachées à un site)
+// ============================================================
+
+model Cooperative {
+  id                String            @id @default(uuid())
+  numero            String            @unique
+  nom               String
+  siteId            String
+  site              Site              @relation(fields: [siteId], references: [id])
+
+  dateCreation      DateTime          @default(now())
+  nbMaxAdherents    Int
+  fraisAdhesion     Decimal           @db.Decimal(14, 2) @default(0)
+  montantAcompte    Decimal           @db.Decimal(14, 2)
+  cotisationMensuelle Decimal         @db.Decimal(14, 2)
+  nbMensualites     Int
+  dureeRemboursement Int?             // en mois (souvent = nbMensualites)
+  description       String?
+  responsable       String?
+  statut            CooperativeStatus @default(ACTIVE)
+
+  createdAt         DateTime          @default(now())
+  updatedAt         DateTime          @updatedAt
+
+  adhesions         Adhesion[]
+
+  @@index([siteId])
+  @@map("cooperatives")
+}
+
+// ============================================================
+// TERRAINS / PARCELLES
+// ============================================================
+
+model Terrain {
+  id           String        @id @default(uuid())
+  numeroParcelle String
+  siteId       String
+  site         Site          @relation(fields: [siteId], references: [id])
+  superficie   Decimal       @db.Decimal(14, 2) // m²
+  prix         Decimal?      @db.Decimal(14, 2)
+  type         TerrainType   @default(HABITATION)
+  latitude     Float?
+  longitude    Float?
+  planUrl      String?
+  statut       TerrainStatus @default(DISPONIBLE)
+
+  // Attribution
+  clientId     String?
+  client       Client?       @relation(fields: [clientId], references: [id])
+  adhesionId   String?       @unique
+  adhesion     Adhesion?     @relation(fields: [adhesionId], references: [id])
+  dateAttribution DateTime?
+
+  createdAt    DateTime      @default(now())
+  updatedAt    DateTime      @updatedAt
+
+  images       TerrainImage[]
+
+  @@unique([siteId, numeroParcelle])
+  @@index([statut])
+  @@map("terrains")
+}
+
+model TerrainImage {
+  id        String  @id @default(uuid())
+  terrainId String
+  terrain   Terrain @relation(fields: [terrainId], references: [id], onDelete: Cascade)
+  url       String
+
+  @@map("terrain_images")
+}
+
+// ============================================================
+// ADHÉSIONS (dossier + compte coopérateur)
+// ============================================================
+
+model Adhesion {
+  id              String         @id @default(uuid())
+  numeroDossier   String         @unique
+  clientId        String
+  client          Client         @relation(fields: [clientId], references: [id])
+  cooperativeId   String
+  cooperative     Cooperative    @relation(fields: [cooperativeId], references: [id])
+
+  dateAdhesion    DateTime       @default(now())
+  montantTotal    Decimal        @db.Decimal(14, 2) // acompte + (cotisation * nbMensualites) + frais
+  montantPaye     Decimal        @db.Decimal(14, 2) @default(0)
+  soldeRestant    Decimal        @db.Decimal(14, 2)
+  progression     Int            @default(0) // pourcentage 0-100
+  statut          AdhesionStatus @default(EN_COURS)
+
+  createdAt       DateTime       @default(now())
+  updatedAt       DateTime       @updatedAt
+
+  echeances       Echeance[]
+  paiements       Paiement[]
+  terrain         Terrain?
+
+  @@unique([clientId, cooperativeId])
+  @@index([statut])
+  @@map("adhesions")
+}
+
+// ============================================================
+// ÉCHÉANCIER
+// ============================================================
+
+model Echeance {
+  id            String         @id @default(uuid())
+  adhesionId    String
+  adhesion      Adhesion       @relation(fields: [adhesionId], references: [id], onDelete: Cascade)
+  numero        Int            // ordre de l'échéance
+  type          EcheanceType   @default(COTISATION)
+  libelle       String
+  montantDu     Decimal        @db.Decimal(14, 2)
+  montantPaye   Decimal        @db.Decimal(14, 2) @default(0)
+  dateEcheance  DateTime
+  datePaiement  DateTime?
+  statut        EcheanceStatus @default(EN_ATTENTE)
+
+  createdAt     DateTime       @default(now())
+  updatedAt     DateTime       @updatedAt
+
+  paiements     Paiement[]
+
+  @@index([adhesionId, statut])
+  @@index([dateEcheance])
+  @@map("echeances")
+}
+
+// ============================================================
+// PAIEMENTS
+// ============================================================
+
+model Paiement {
+  id            String          @id @default(uuid())
+  reference     String          @unique // référence interne
+  adhesionId    String
+  adhesion      Adhesion        @relation(fields: [adhesionId], references: [id])
+  echeanceId    String?
+  echeance      Echeance?       @relation(fields: [echeanceId], references: [id])
+
+  montant       Decimal         @db.Decimal(14, 2)
+  methode       PaiementMethode
+  refTransaction String?        // référence Wave / Orange Money
+  statut        PaiementStatut  @default(EN_ATTENTE)
+  datePaiement  DateTime        @default(now())
+
+  saisiParId    String?         // comptable / gestionnaire ayant saisi/confirmé
+  saisiPar      User?           @relation("PaiementSaisiPar", fields: [saisiParId], references: [id])
+  commentaire   String?
+
+  createdAt     DateTime        @default(now())
+  updatedAt     DateTime        @updatedAt
+
+  facture       Facture?
+
+  @@index([adhesionId])
+  @@index([statut])
+  @@index([datePaiement])
+  @@map("paiements")
+}
+
+// ============================================================
+// FACTURES
+// ============================================================
+
+model Facture {
+  id            String        @id @default(uuid())
+  numero        String        @unique
+  paiementId    String        @unique
+  paiement      Paiement      @relation(fields: [paiementId], references: [id])
+
+  dateEmission  DateTime      @default(now())
+  montant       Decimal       @db.Decimal(14, 2)
+  soldeRestant  Decimal       @db.Decimal(14, 2)
+  qrCodeData    String?       // contenu encodé du QR code
+  signatureHash String?       // signature électronique
+  pdfUrl        String?
+  statut        FactureStatut @default(EMISE)
+
+  createdAt     DateTime      @default(now())
+  updatedAt     DateTime      @updatedAt
+
+  @@index([dateEmission])
+  @@map("factures")
+}
+
+// ============================================================
+// DOCUMENTS / PIÈCES JUSTIFICATIVES
+// ============================================================
+
+model Document {
+  id        String       @id @default(uuid())
+  clientId  String
+  client    Client       @relation(fields: [clientId], references: [id], onDelete: Cascade)
+  type      DocumentType
+  nom       String
+  url       String
+  createdAt DateTime     @default(now())
+
+  @@map("documents")
+}
+
+// ============================================================
+// NOTIFICATIONS
+// ============================================================
+
+model Notification {
+  id        String             @id @default(uuid())
+  userId    String
+  user      User               @relation(fields: [userId], references: [id], onDelete: Cascade)
+  type      NotificationType
+  canal     NotificationCanal  @default(APP)
+  titre     String
+  message   String
+  lu        Boolean            @default(false)
+  envoye    Boolean            @default(false)
+  createdAt DateTime           @default(now())
+
+  @@index([userId, lu])
+  @@map("notifications")
+}
+
+// ============================================================
+// JOURNAL D'ACTIVITÉ (audit)
+// ============================================================
+
+model ActivityLog {
+  id        String   @id @default(uuid())
+  userId    String?
+  user      User?    @relation(fields: [userId], references: [id])
+  action    String
+  entite    String?  // ex: "Paiement", "Site"
+  entiteId  String?
+  details   String?
+  ip        String?
+  createdAt DateTime @default(now())
+
+  @@index([userId])
+  @@index([createdAt])
+  @@map("activity_logs")
+}
