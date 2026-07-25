@@ -98,4 +98,52 @@ export class TerrainsService {
     }
     return this.prisma.terrain.delete({ where: { id } });
   }
+
+  /** Enregistre les médias (images / vidéos) uploadés pour un terrain */
+  async addMedia(
+    terrainId: string,
+    files: Array<{ filename: string; mimetype: string }>,
+  ) {
+    await this.findOne(terrainId);
+    if (!files?.length) {
+      throw new BadRequestException('Aucun fichier reçu.');
+    }
+    await this.prisma.terrainImage.createMany({
+      data: files.map((f) => ({
+        terrainId,
+        url: `/uploads/terrains/${f.filename}`,
+        mediaType: f.mimetype.startsWith('video') ? 'VIDEO' : 'IMAGE',
+      })),
+    });
+    return this.findOne(terrainId);
+  }
+
+  async removeMedia(mediaId: string) {
+    const media = await this.prisma.terrainImage.findUnique({
+      where: { id: mediaId },
+    });
+    if (!media) throw new NotFoundException('Média introuvable.');
+    await this.prisma.terrainImage.delete({ where: { id: mediaId } });
+    return { ok: true };
+  }
+
+  /** Détail terrain enrichi des modalités de paiement (coops du site) */
+  async detail(id: string) {
+    const terrain = await this.findOne(id);
+    const cooperatives = await this.prisma.cooperative.findMany({
+      where: { siteId: terrain.siteId },
+      select: {
+        id: true,
+        nom: true,
+        numero: true,
+        montantAcompte: true,
+        cotisationMensuelle: true,
+        nbMensualites: true,
+        fraisAdhesion: true,
+        nbMaxAdherents: true,
+        _count: { select: { adhesions: true } },
+      },
+    });
+    return { ...terrain, modalites: cooperatives };
+  }
 }

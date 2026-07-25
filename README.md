@@ -74,4 +74,7 @@ npm run dev             # API (:3000) + Web (:5173) simultanément
 - [x] Attribution automatique des terrains (dossier soldé → parcelle + certificat PDF)
 - [x] Rapports PDF / Excel (9 rapports : encaissements, clients, coopératives, sites, retards, paiements, factures, ventes, comptabilité)
 - [x] Recherche multicritère des terrains
-- [ ] Carte interactive des sites, i18n FR/EN
+- [x] Fiche terrain détaillée : localisation + carte OSM, galerie photos/vidéos, infos, modalités de paiement
+- [x] Admin : création de sites et de terrains, upload de médias (images/vidéos)
+- [x] Assignation d'un numéro de parcelle dès l'acompte (réservé), finalisation au solde
+- [ ] Notifications Email/SMS, i18n FR/EN

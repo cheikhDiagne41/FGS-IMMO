@@ -53,6 +53,11 @@ enum TerrainStatus {
   VENDU
 }
 
+enum MediaType {
+  IMAGE
+  VIDEO
+}
+
 enum AdhesionStatus {
   EN_COURS // adhésion validée, paiements en cours
   COMPLETE // toutes les mensualités payées
@@ -281,10 +286,13 @@ model Terrain {
 }
 
 model TerrainImage {
-  id        String  @id @default(uuid())
+  id        String    @id @default(uuid())
   terrainId String
-  terrain   Terrain @relation(fields: [terrainId], references: [id], onDelete: Cascade)
+  terrain   Terrain   @relation(fields: [terrainId], references: [id], onDelete: Cascade)
   url       String
+  mediaType MediaType @default(IMAGE)
+  legende   String?
+  createdAt DateTime  @default(now())
 
   @@map("terrain_images")
 }

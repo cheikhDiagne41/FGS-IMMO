@@ -1,6 +1,9 @@
 import { useState } from 'react';
 import { useQuery } from '@tanstack/react-query';
 import { api, formatFCFA } from '../lib/api';
+import { useAuth } from '../context/AuthContext';
+import TerrainDetailModal from '../components/TerrainDetailModal';
+import TerrainFormModal from '../components/TerrainFormModal';
 
 interface Terrain {
   id: string;
@@ -19,6 +22,10 @@ const statutStyle: Record<string, string> = {
 };
 
 export default function Terrains() {
+  const { user } = useAuth();
+  const isAdmin = user?.role === 'ADMIN' || user?.role === 'GESTIONNAIRE';
+  const [selected, setSelected] = useState<string | null>(null);
+  const [showForm, setShowForm] = useState(false);
   const [filters, setFilters] = useState({
     statut: '',
     type: '',
@@ -39,11 +46,18 @@ export default function Terrains() {
 
   return (
     <div className="space-y-6">
-      <div>
-        <h1 className="text-2xl font-bold text-slate-800">Terrains</h1>
-        <p className="text-sm text-slate-500">
-          Catalogue des parcelles — recherche multicritère
-        </p>
+      <div className="flex flex-wrap items-center justify-between gap-3">
+        <div>
+          <h1 className="text-2xl font-bold text-slate-800">Terrains</h1>
+          <p className="text-sm text-slate-500">
+            Catalogue des parcelles — cliquez sur une parcelle pour voir sa fiche
+          </p>
+        </div>
+        {isAdmin && (
+          <button onClick={() => setShowForm(true)} className="btn-primary">
+            ＋ Nouveau terrain
+          </button>
+        )}
       </div>
 
       {/* Barre de filtres */}
@@ -101,7 +115,11 @@ export default function Terrains() {
 
       <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
         {terrains.map((t) => (
-          <div key={t.id} className="card">
+          <button
+            key={t.id}
+            onClick={() => setSelected(t.id)}
+            className="card cursor-pointer text-left transition hover:shadow-md hover:ring-2 hover:ring-brand-200"
+          >
             <div className="mb-3 flex h-24 items-center justify-center rounded-xl bg-gradient-to-br from-brand-100 to-brand-50 text-4xl">
               🗺️
             </div>
@@ -131,7 +149,7 @@ export default function Terrains() {
                 </div>
               </div>
             </div>
-          </div>
+          </button>
         ))}
       </div>
 
@@ -140,6 +158,14 @@ export default function Terrains() {
           Aucun terrain ne correspond à ces critères.
         </div>
       )}
+
+      {selected && (
+        <TerrainDetailModal
+          terrainId={selected}
+          onClose={() => setSelected(null)}
+        />
+      )}
+      {showForm && <TerrainFormModal onClose={() => setShowForm(false)} />}
     </div>
   );
 }

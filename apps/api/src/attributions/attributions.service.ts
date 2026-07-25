@@ -5,6 +5,7 @@ import {
 } from '@nestjs/common';
 import {
   AdhesionStatus,
+  EcheanceType,
   NotificationCanal,
   NotificationType,
   Prisma,
@@ -19,46 +20,117 @@ import { PrismaService } from '../prisma/prisma.service';
 export class AttributionsService {
   constructor(private prisma: PrismaService) {}
 
+  /** Sélectionne la parcelle disponible au plus petit numéro d'un site */
+  private async prochaineParcelleDisponible(
+    tx: Prisma.TransactionClient,
+    siteId: string,
+  ) {
+    const dispo = await tx.terrain.findMany({
+      where: { siteId, statut: TerrainStatus.DISPONIBLE },
+    });
+    if (dispo.length === 0) return null;
+    return dispo.sort(
+      (a, b) => Number(a.numeroParcelle) - Number(b.numeroParcelle),
+    )[0];
+  }
+
   /**
-   * Attribution automatique, exécutée DANS la transaction de paiement
-   * lorsque l'adhésion vient d'être soldée. Attribue la première parcelle
-   * disponible du site de la coopérative. Sans effet si déjà attribuée
-   * ou si aucune parcelle n'est disponible.
+   * Assigne (réserve) un numéro de parcelle dès que l'acompte est payé.
+   * Exécuté DANS la transaction de paiement. Sans effet si un numéro est
+   * déjà assigné ou si l'acompte n'est pas encore soldé.
    */
-  async autoAttribuer(tx: Prisma.TransactionClient, adhesionId: string) {
+  async assignerNumeroSiAcompte(
+    tx: Prisma.TransactionClient,
+    adhesionId: string,
+  ) {
     const adhesion = await tx.adhesion.findUnique({
       where: { id: adhesionId },
       include: {
-        cooperative: { select: { siteId: true, nom: true } },
+        cooperative: { select: { siteId: true } },
         terrain: true,
+        echeances: { where: { type: EcheanceType.ACOMPTE } },
         client: { select: { id: true, userId: true } },
       },
     });
-    if (!adhesion) return null;
-    if (adhesion.terrain) return adhesion.terrain; // déjà attribué
-    if (Number(adhesion.soldeRestant) > 0) return null; // pas encore soldé
+    if (!adhesion || adhesion.terrain) return null; // déjà assigné
 
-    const terrain = await tx.terrain.findFirst({
-      where: {
-        siteId: adhesion.cooperative.siteId,
-        statut: TerrainStatus.DISPONIBLE,
-      },
-      orderBy: { numeroParcelle: 'asc' },
-    });
+    const acompte = adhesion.echeances[0];
+    if (!acompte || acompte.statut !== 'PAYEE') return null; // acompte pas encore soldé
 
+    const terrain = await this.prochaineParcelleDisponible(
+      tx,
+      adhesion.cooperative.siteId,
+    );
     if (!terrain) {
-      // Aucune parcelle disponible : on notifie l'admin via le client (à défaut)
       await tx.notification.create({
         data: {
           userId: adhesion.client.userId,
           type: NotificationType.SYSTEME,
           canal: NotificationCanal.APP,
-          titre: 'Attribution en attente',
+          titre: 'Numéro en attente',
           message:
-            "Votre dossier est soldé. Aucune parcelle n'est disponible actuellement, l'attribution se fera dès qu'une parcelle sera libérée.",
+            "Votre acompte est validé. Aucune parcelle n'est disponible pour le moment ; un numéro vous sera assigné dès qu'une parcelle se libère.",
         },
       });
       return null;
+    }
+
+    const updated = await tx.terrain.update({
+      where: { id: terrain.id },
+      data: {
+        statut: TerrainStatus.RESERVE,
+        clientId: adhesion.client.id,
+        adhesionId: adhesion.id,
+      },
+    });
+
+    await tx.notification.create({
+      data: {
+        userId: adhesion.client.userId,
+        type: NotificationType.ATTRIBUTION_TERRAIN,
+        canal: NotificationCanal.APP,
+        titre: 'Numéro de parcelle assigné 📍',
+        message: `Votre acompte est validé : la parcelle N° ${updated.numeroParcelle} vous est réservée. Elle deviendra définitivement vôtre une fois le dossier soldé.`,
+      },
+    });
+
+    await tx.activityLog.create({
+      data: {
+        userId: adhesion.client.userId,
+        action: 'NUMERO_ASSIGNE',
+        entite: 'Terrain',
+        entiteId: updated.id,
+        details: `Parcelle ${updated.numeroParcelle} réservée → dossier ${adhesion.numeroDossier}`,
+      },
+    });
+
+    return updated;
+  }
+
+  /**
+   * Finalise l'attribution lorsque le dossier est entièrement soldé :
+   * la parcelle réservée passe VENDU et l'adhésion ATTRIBUE.
+   * Si aucun numéro n'était réservé, en assigne un directement.
+   */
+  async finaliserSiSolde(tx: Prisma.TransactionClient, adhesionId: string) {
+    const adhesion = await tx.adhesion.findUnique({
+      where: { id: adhesionId },
+      include: {
+        cooperative: { select: { siteId: true } },
+        terrain: true,
+        client: { select: { id: true, userId: true } },
+      },
+    });
+    if (!adhesion) return null;
+    if (Number(adhesion.soldeRestant) > 0) return null;
+
+    let terrain = adhesion.terrain;
+    if (!terrain) {
+      terrain = await this.prochaineParcelleDisponible(
+        tx,
+        adhesion.cooperative.siteId,
+      );
+      if (!terrain) return null;
     }
 
     const updated = await tx.terrain.update({
@@ -82,7 +154,7 @@ export class AttributionsService {
         type: NotificationType.ATTRIBUTION_TERRAIN,
         canal: NotificationCanal.APP,
         titre: 'Terrain attribué 🎉',
-        message: `Félicitations ! La parcelle ${updated.numeroParcelle} vous a été attribuée. Votre certificat d'attribution est disponible.`,
+        message: `Félicitations ! La parcelle N° ${updated.numeroParcelle} vous est définitivement attribuée. Votre certificat d'attribution est disponible.`,
       },
     });
 
@@ -156,7 +228,7 @@ export class AttributionsService {
         });
         return updated;
       }
-      return this.autoAttribuer(tx, adhesionId);
+      return this.finaliserSiSolde(tx, adhesionId);
     });
   }
 
@@ -187,9 +259,9 @@ export class AttributionsService {
     ) {
       throw new NotFoundException('Certificat introuvable.');
     }
-    if (!adhesion.terrain) {
+    if (!adhesion.terrain || adhesion.terrain.statut !== TerrainStatus.VENDU) {
       throw new BadRequestException(
-        "Aucun terrain n'est encore attribué à ce dossier.",
+        "Le certificat n'est disponible qu'une fois le dossier entièrement soldé et le terrain définitivement attribué.",
       );
     }
 

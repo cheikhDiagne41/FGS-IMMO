@@ -59,8 +59,8 @@ async function main() {
       adresse: 'Pôle urbain de Diamniadio',
       latitude: 14.7167,
       longitude: -17.1833,
-      superficie: 50000,
-      nbParcelles: 120,
+      superficie: 15000,
+      nbParcelles: 50,
       prixReference: 15000000,
       description: 'Site résidentiel viabilisé à proximité de la nouvelle ville.',
       statut: SiteStatus.EN_COMMERCIALISATION,
@@ -85,21 +85,19 @@ async function main() {
     },
   });
 
-  // --- Quelques terrains ---
+  // --- Parcelles numérotées 1..N (toutes disponibles au départ) ---
   const existingTerrains = await prisma.terrain.count({ where: { siteId: site.id } });
   if (existingTerrains === 0) {
-    for (let i = 1; i <= 10; i++) {
-      await prisma.terrain.create({
-        data: {
-          numeroParcelle: `P-${String(i).padStart(3, '0')}`,
-          siteId: site.id,
-          superficie: 300,
-          prix: 15000000,
-          type: TerrainType.HABITATION,
-          statut: i <= 8 ? TerrainStatus.DISPONIBLE : TerrainStatus.RESERVE,
-        },
-      });
-    }
+    await prisma.terrain.createMany({
+      data: Array.from({ length: site.nbParcelles }, (_, k) => ({
+        numeroParcelle: String(k + 1),
+        siteId: site.id,
+        superficie: 300,
+        prix: 15000000,
+        type: TerrainType.HABITATION,
+        statut: TerrainStatus.DISPONIBLE,
+      })),
+    });
   }
 
   console.log('✅ Seed terminé.');

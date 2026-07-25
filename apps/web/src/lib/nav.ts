@@ -29,6 +29,7 @@ export const navByRole: Record<Role, NavItem[]> = {
   ],
   CLIENT: [
     { label: 'Mon espace', path: '/' },
+    { label: 'Sites', path: '/sites' },
     { label: 'Coopératives', path: '/cooperatives' },
     { label: 'Terrains', path: '/terrains' },
     { label: 'Mes factures', path: '/factures' },

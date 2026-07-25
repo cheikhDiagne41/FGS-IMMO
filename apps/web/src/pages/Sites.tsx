@@ -1,5 +1,8 @@
+import { useState } from 'react';
 import { useQuery } from '@tanstack/react-query';
 import { api, formatFCFA } from '../lib/api';
+import { useAuth } from '../context/AuthContext';
+import SiteFormModal from '../components/SiteFormModal';
 
 interface Site {
   id: string;
@@ -21,6 +24,10 @@ const statutStyle: Record<string, string> = {
 };
 
 export default function Sites() {
+  const { user } = useAuth();
+  const isAdmin = user?.role === 'ADMIN' || user?.role === 'GESTIONNAIRE';
+  const [showForm, setShowForm] = useState(false);
+
   const { data: sites = [], isLoading } = useQuery<Site[]>({
     queryKey: ['sites'],
     queryFn: async () => (await api.get('/sites')).data,
@@ -28,11 +35,18 @@ export default function Sites() {
 
   return (
     <div className="space-y-6">
-      <div>
-        <h1 className="text-2xl font-bold text-slate-800">Sites immobiliers</h1>
-        <p className="text-sm text-slate-500">
-          Gestion des sites et de leurs lotissements
-        </p>
+      <div className="flex flex-wrap items-center justify-between gap-3">
+        <div>
+          <h1 className="text-2xl font-bold text-slate-800">Sites immobiliers</h1>
+          <p className="text-sm text-slate-500">
+            Gestion des sites et de leurs lotissements
+          </p>
+        </div>
+        {isAdmin && (
+          <button onClick={() => setShowForm(true)} className="btn-primary">
+            ＋ Nouveau site
+          </button>
+        )}
       </div>
 
       {isLoading && <div className="text-slate-400">Chargement…</div>}
@@ -91,6 +105,8 @@ export default function Sites() {
       {sites.length === 0 && !isLoading && (
         <div className="card text-center text-slate-500">Aucun site.</div>
       )}
+
+      {showForm && <SiteFormModal onClose={() => setShowForm(false)} />}
     </div>
   );
 }

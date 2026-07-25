@@ -182,9 +182,11 @@ export class PaiementsService {
           },
         });
 
-        // Attribution automatique d'une parcelle si le dossier est soldé
+        // Assignation d'un numéro de parcelle dès l'acompte payé
+        await this.attributions.assignerNumeroSiAcompte(tx, dto.adhesionId);
+        // Finalisation (VENDU + certificat) si le dossier est entièrement soldé
         if (recompute.soldeRestant <= 0) {
-          await this.attributions.autoAttribuer(tx, dto.adhesionId);
+          await this.attributions.finaliserSiSolde(tx, dto.adhesionId);
         }
       }
 
@@ -220,8 +222,9 @@ export class PaiementsService {
         montant: Number(paiement.montant),
         soldeRestant: recompute.soldeRestant,
       });
+      await this.attributions.assignerNumeroSiAcompte(tx, paiement.adhesionId);
       if (recompute.soldeRestant <= 0) {
-        await this.attributions.autoAttribuer(tx, paiement.adhesionId);
+        await this.attributions.finaliserSiSolde(tx, paiement.adhesionId);
       }
       return { ok: true, facture };
     });

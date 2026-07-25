@@ -15,6 +15,10 @@ import { CreateSiteDto, UpdateSiteDto } from './dto/site.dto';
 import { JwtAuthGuard } from '../auth/guards/jwt-auth.guard';
 import { RolesGuard } from '../auth/guards/roles.guard';
 import { Roles } from '../auth/decorators/roles.decorator';
+import {
+  AuthUser,
+  CurrentUser,
+} from '../auth/decorators/current-user.decorator';
 
 @ApiTags('Sites')
 @ApiBearerAuth()
@@ -39,6 +43,12 @@ export class SitesController {
   @Roles(Role.ADMIN, Role.GESTIONNAIRE, Role.COMPTABLE, Role.CLIENT)
   findOne(@Param('id') id: string) {
     return this.sitesService.findOne(id);
+  }
+
+  @Get(':id/parcelles')
+  @Roles(Role.ADMIN, Role.GESTIONNAIRE, Role.COMPTABLE, Role.CLIENT)
+  parcelles(@Param('id') id: string, @CurrentUser() user: AuthUser) {
+    return this.sitesService.parcelles(id, user.clientId);
   }
 
   @Patch(':id')
