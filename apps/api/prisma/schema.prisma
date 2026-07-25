@@ -450,6 +450,30 @@ model Notification {
 }
 
 // ============================================================
+// VENDEUR / SOCIÉTÉ (profil unique, éditable par l'admin)
+// ============================================================
+
+model Vendeur {
+  id            String   @id @default(uuid())
+  nom           String   @default("FGS_IMMO")
+  raisonSociale String?
+  slogan        String?
+  adresse       String?
+  telephone     String?
+  email         String?
+  siteWeb       String?
+  ninea         String?
+  rccm          String?
+  responsable   String?
+  description   String?
+  logoUrl       String?
+  createdAt     DateTime @default(now())
+  updatedAt     DateTime @updatedAt
+
+  @@map("vendeur")
+}
+
+// ============================================================
 // JOURNAL D'ACTIVITÉ (audit)
 // ============================================================
 

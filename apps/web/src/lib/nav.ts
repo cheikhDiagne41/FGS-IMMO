@@ -13,6 +13,7 @@ export const navByRole: Record<Role, NavItem[]> = {
     { label: 'Terrains', path: '/terrains' },
     { label: 'Paiements', path: '/paiements' },
     { label: 'Rapports', path: '/rapports' },
+    { label: 'Vendeur', path: '/vendeur' },
   ],
   GESTIONNAIRE: [
     { label: 'Tableau de bord', path: '/' },

@@ -4,10 +4,14 @@ import * as crypto from 'crypto';
 import * as QRCode from 'qrcode';
 import PDFDocument from 'pdfkit';
 import { PrismaService } from '../prisma/prisma.service';
+import { VendeurService } from '../vendeur/vendeur.service';
 
 @Injectable()
 export class FacturesService {
-  constructor(private prisma: PrismaService) {}
+  constructor(
+    private prisma: PrismaService,
+    private vendeur: VendeurService,
+  ) {}
 
   private async genererNumero(tx: Prisma.TransactionClient): Promise<string> {
     const annee = new Date().getFullYear();
@@ -112,6 +116,7 @@ export class FacturesService {
     requester?: { clientId?: string | null; role: string },
   ): Promise<Buffer> {
     const f = await this.getFullFacture(id, requester);
+    const vendeur = await this.vendeur.get();
     const client = f.paiement.adhesion.client;
     const coop = f.paiement.adhesion.cooperative;
     const fmt = (n: number | Prisma.Decimal) =>
@@ -133,14 +138,18 @@ export class FacturesService {
     const brand = '#0f9253';
     const gold = '#e6a817';
 
-    // En-tête
+    // En-tête (informations du vendeur)
     doc.rect(0, 0, doc.page.width, 90).fill(brand);
-    doc.fillColor('white').fontSize(26).font('Helvetica-Bold').text('FGS_IMMO', 50, 30);
+    doc.fillColor('white').fontSize(26).font('Helvetica-Bold').text(vendeur.nom, 50, 26);
     doc
-      .fontSize(10)
+      .fontSize(9)
       .font('Helvetica')
       .fillColor('#d6f9e1')
-      .text('Plateforme immobilière · Vente de terrains & coopératives', 50, 62);
+      .text(vendeur.slogan ?? 'Vente de terrains & coopératives d\'habitat', 50, 56);
+    const contactHeader = [vendeur.telephone, vendeur.email]
+      .filter(Boolean)
+      .join('  ·  ');
+    if (contactHeader) doc.fontSize(8).text(contactHeader, 50, 70);
 
     doc.fillColor(gold).fontSize(20).font('Helvetica-Bold').text('FACTURE', 400, 32, {
       align: 'right',
@@ -228,15 +237,24 @@ export class FacturesService {
       y + 50,
     );
 
-    // Pied de page
+    // Pied de page (coordonnées légales du vendeur)
+    const pied = [
+      vendeur.raisonSociale ?? vendeur.nom,
+      vendeur.adresse,
+      vendeur.ninea ? `NINEA ${vendeur.ninea}` : null,
+      vendeur.rccm ? `RCCM ${vendeur.rccm}` : null,
+      vendeur.siteWeb,
+    ]
+      .filter(Boolean)
+      .join(' · ');
     doc
       .fillColor('#94a3b8')
       .fontSize(8)
       .font('Helvetica')
       .text(
-        'FGS_IMMO — Facture générée automatiquement. Ce document ne nécessite pas de signature manuscrite.',
+        `${pied}\nFacture générée automatiquement — ne nécessite pas de signature manuscrite.`,
         50,
-        doc.page.height - 60,
+        doc.page.height - 65,
         { align: 'center', width: doc.page.width - 100 },
       );
 

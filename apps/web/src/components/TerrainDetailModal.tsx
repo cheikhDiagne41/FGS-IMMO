@@ -19,6 +19,18 @@ interface Modalite {
   nbMaxAdherents: number;
   _count: { adhesions: number };
 }
+interface Vendeur {
+  nom: string;
+  raisonSociale?: string;
+  slogan?: string;
+  adresse?: string;
+  telephone?: string;
+  email?: string;
+  siteWeb?: string;
+  ninea?: string;
+  rccm?: string;
+  responsable?: string;
+}
 interface TerrainDetail {
   id: string;
   numeroParcelle: string;
@@ -31,6 +43,7 @@ interface TerrainDetail {
   site: { nom: string; commune?: string; region?: string };
   images: Media[];
   modalites: Modalite[];
+  vendeur: Vendeur;
 }
 
 const statutStyle: Record<string, string> = {
@@ -282,10 +295,61 @@ export default function TerrainDetailModal({
                   </div>
                 )}
               </div>
+
+              {/* Vendeur */}
+              <div>
+                <h3 className="mb-2 font-semibold text-slate-700">Vendeur</h3>
+                <div className="rounded-xl border border-brand-100 bg-brand-50/50 p-4">
+                  <div className="flex items-center gap-2">
+                    <span className="flex h-9 w-9 items-center justify-center rounded-lg bg-brand-600 text-sm font-bold text-white">
+                      {t.vendeur.nom?.[0] ?? 'F'}
+                    </span>
+                    <div>
+                      <div className="font-bold text-slate-800">
+                        {t.vendeur.raisonSociale ?? t.vendeur.nom}
+                      </div>
+                      {t.vendeur.slogan && (
+                        <div className="text-xs text-slate-500">
+                          {t.vendeur.slogan}
+                        </div>
+                      )}
+                    </div>
+                  </div>
+                  <div className="mt-3 grid grid-cols-2 gap-x-4 gap-y-1 text-sm">
+                    {t.vendeur.adresse && (
+                      <VInfo label="Adresse" value={t.vendeur.adresse} />
+                    )}
+                    {t.vendeur.telephone && (
+                      <VInfo label="Téléphone" value={t.vendeur.telephone} />
+                    )}
+                    {t.vendeur.email && (
+                      <VInfo label="Email" value={t.vendeur.email} />
+                    )}
+                    {t.vendeur.responsable && (
+                      <VInfo label="Responsable" value={t.vendeur.responsable} />
+                    )}
+                    {t.vendeur.ninea && (
+                      <VInfo label="NINEA" value={t.vendeur.ninea} />
+                    )}
+                    {t.vendeur.rccm && (
+                      <VInfo label="RCCM" value={t.vendeur.rccm} />
+                    )}
+                  </div>
+                </div>
+              </div>
             </div>
           </div>
         )}
       </div>
+    </div>
+  );
+}
+
+function VInfo({ label, value }: { label: string; value: string }) {
+  return (
+    <div>
+      <span className="text-slate-400">{label} : </span>
+      <span className="font-medium text-slate-700">{value}</span>
     </div>
   );
 }

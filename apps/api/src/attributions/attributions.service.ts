@@ -15,10 +15,14 @@ import * as crypto from 'crypto';
 import * as QRCode from 'qrcode';
 import PDFDocument from 'pdfkit';
 import { PrismaService } from '../prisma/prisma.service';
+import { VendeurService } from '../vendeur/vendeur.service';
 
 @Injectable()
 export class AttributionsService {
-  constructor(private prisma: PrismaService) {}
+  constructor(
+    private prisma: PrismaService,
+    private vendeur: VendeurService,
+  ) {}
 
   /** Sélectionne la parcelle disponible au plus petit numéro d'un site */
   private async prochaineParcelleDisponible(
@@ -265,6 +269,7 @@ export class AttributionsService {
       );
     }
 
+    const vendeur = await this.vendeur.get();
     const t = adhesion.terrain;
     const c = adhesion.client;
     const site = adhesion.cooperative.site;
@@ -289,15 +294,18 @@ export class AttributionsService {
     doc.rect(20, 20, W - 40, doc.page.height - 40).lineWidth(3).stroke(gold);
     doc.rect(28, 28, W - 56, doc.page.height - 56).lineWidth(1).stroke(brand);
 
-    // En-tête
-    doc.fillColor(brand).fontSize(30).font('Helvetica-Bold').text('FGS_IMMO', 0, 60, {
+    // En-tête (vendeur)
+    doc.fillColor(brand).fontSize(30).font('Helvetica-Bold').text(vendeur.nom, 0, 60, {
       align: 'center',
     });
     doc
       .fillColor('#64748b')
       .fontSize(11)
       .font('Helvetica')
-      .text('Plateforme immobilière · Coopératives d\'habitat', { align: 'center' });
+      .text(
+        vendeur.slogan ?? "Plateforme immobilière · Coopératives d'habitat",
+        { align: 'center' },
+      );
 
     doc.moveDown(1.5);
     doc
@@ -378,7 +386,7 @@ export class AttributionsService {
       .fillColor(brand)
       .fontSize(10)
       .font('Helvetica-Oblique')
-      .text('Pour FGS_IMMO', boxX + 230, y + 30);
+      .text(`Pour ${vendeur.raisonSociale ?? vendeur.nom}`, boxX + 230, y + 30);
     doc
       .fillColor('#94a3b8')
       .fontSize(6)
@@ -390,9 +398,9 @@ export class AttributionsService {
       .fontSize(8)
       .font('Helvetica')
       .text(
-        'Document généré automatiquement par FGS_IMMO — authentifié par signature électronique.',
+        `${[vendeur.raisonSociale ?? vendeur.nom, vendeur.adresse, vendeur.telephone].filter(Boolean).join(' · ')}\nDocument authentifié par signature électronique.`,
         50,
-        doc.page.height - 70,
+        doc.page.height - 75,
         { align: 'center', width: W - 100 },
       );
 

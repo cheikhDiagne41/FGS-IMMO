@@ -5,6 +5,7 @@ import {
 } from '@nestjs/common';
 import { Prisma, TerrainStatus } from '@prisma/client';
 import { PrismaService } from '../prisma/prisma.service';
+import { VendeurService } from '../vendeur/vendeur.service';
 import {
   CreateTerrainDto,
   SearchTerrainDto,
@@ -13,7 +14,10 @@ import {
 
 @Injectable()
 export class TerrainsService {
-  constructor(private prisma: PrismaService) {}
+  constructor(
+    private prisma: PrismaService,
+    private vendeur: VendeurService,
+  ) {}
 
   async create(dto: CreateTerrainDto) {
     const site = await this.prisma.site.findUnique({
@@ -144,6 +148,7 @@ export class TerrainsService {
         _count: { select: { adhesions: true } },
       },
     });
-    return { ...terrain, modalites: cooperatives };
+    const vendeur = await this.vendeur.get();
+    return { ...terrain, modalites: cooperatives, vendeur };
   }
 }
