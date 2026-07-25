@@ -4,6 +4,9 @@ import { PrismaModule } from './prisma/prisma.module';
 import { AuthModule } from './auth/auth.module';
 import { DashboardModule } from './dashboard/dashboard.module';
 import { SitesModule } from './sites/sites.module';
+import { CooperativesModule } from './cooperatives/cooperatives.module';
+import { TerrainsModule } from './terrains/terrains.module';
+import { AdhesionsModule } from './adhesions/adhesions.module';
 
 @Module({
   imports: [
@@ -12,6 +15,9 @@ import { SitesModule } from './sites/sites.module';
     AuthModule,
     DashboardModule,
     SitesModule,
+    CooperativesModule,
+    TerrainsModule,
+    AdhesionsModule,
   ],
 })
 export class AppModule {}

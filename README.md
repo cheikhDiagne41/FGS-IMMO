@@ -65,9 +65,9 @@ npm run dev             # API (:3000) + Web (:5173) simultanément
 - [x] Tableau de bord Administrateur (KPIs + graphiques)
 - [x] Tableau de bord Client (progression, échéances)
 - [x] Gestion des Sites (CRUD)
-- [ ] Gestion des Coopératives (rattachées à un site)
-- [ ] Gestion des Terrains / parcelles
-- [ ] Adhésion à une coopérative + échéancier automatique
+- [x] Gestion des Coopératives (rattachées à un site, contrôle des places)
+- [x] Gestion des Terrains / parcelles (recherche multicritère, réservation)
+- [x] Adhésion à une coopérative + échéancier automatique (dossier + compte coopérateur)
 - [ ] Paiements Wave / Orange Money
 - [ ] Facturation PDF + QR Code + signature électronique
 - [ ] Notifications (Email / SMS / in-app)

@@ -3,6 +3,9 @@ import { useAuth } from './context/AuthContext';
 import Login from './pages/Login';
 import AdminDashboard from './pages/AdminDashboard';
 import ClientDashboard from './pages/ClientDashboard';
+import Sites from './pages/Sites';
+import Cooperatives from './pages/Cooperatives';
+import Terrains from './pages/Terrains';
 import AppLayout from './components/AppLayout';
 
 function Protected({ children }: { children: JSX.Element }) {
@@ -37,6 +40,9 @@ export default function App() {
             user?.role === 'CLIENT' ? <ClientDashboard /> : <AdminDashboard />
           }
         />
+        <Route path="sites" element={<Sites />} />
+        <Route path="cooperatives" element={<Cooperatives />} />
+        <Route path="terrains" element={<Terrains />} />
       </Route>
       <Route path="*" element={<Navigate to="/" replace />} />
     </Routes>

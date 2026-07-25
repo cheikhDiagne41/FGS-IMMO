@@ -1,5 +1,6 @@
-import { Outlet } from 'react-router-dom';
+import { NavLink, Outlet } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
+import { navByRole } from '../lib/nav';
 import Logo from './Logo';
 
 const roleLabels: Record<string, string> = {
@@ -9,16 +10,9 @@ const roleLabels: Record<string, string> = {
   CLIENT: 'Client',
 };
 
-const menuByRole: Record<string, string[]> = {
-  ADMIN: ['Tableau de bord', 'Sites', 'Coopératives', 'Terrains', 'Clients', 'Paiements', 'Factures', 'Rapports'],
-  GESTIONNAIRE: ['Tableau de bord', 'Sites', 'Coopératives', 'Terrains', 'Clients'],
-  COMPTABLE: ['Tableau de bord', 'Paiements', 'Factures', 'Rapports'],
-  CLIENT: ['Mon espace', 'Ma coopérative', 'Mes paiements', 'Mes factures'],
-};
-
 export default function AppLayout() {
   const { user, logout } = useAuth();
-  const menu = menuByRole[user?.role ?? 'CLIENT'];
+  const menu = navByRole[user?.role ?? 'CLIENT'];
 
   return (
     <div className="flex min-h-screen">
@@ -30,18 +24,21 @@ export default function AppLayout() {
           </div>
         </div>
         <nav className="flex-1 space-y-1 p-3">
-          {menu.map((item, i) => (
-            <a
-              key={item}
-              href="#"
-              className={`block rounded-lg px-3 py-2 text-sm font-medium transition ${
-                i === 0
-                  ? 'bg-white/15 text-white'
-                  : 'text-brand-100 hover:bg-white/10'
-              }`}
+          {menu.map((item) => (
+            <NavLink
+              key={item.path}
+              to={item.path}
+              end={item.path === '/'}
+              className={({ isActive }) =>
+                `block rounded-lg px-3 py-2 text-sm font-medium transition ${
+                  isActive
+                    ? 'bg-white/15 text-white'
+                    : 'text-brand-100 hover:bg-white/10'
+                }`
+              }
             >
-              {item}
-            </a>
+              {item.label}
+            </NavLink>
           ))}
         </nav>
         <div className="border-t border-white/10 p-4 text-xs text-brand-200">
@@ -75,6 +72,26 @@ export default function AppLayout() {
             </button>
           </div>
         </header>
+
+        {/* Nav mobile */}
+        <nav className="flex gap-1 overflow-x-auto border-b border-slate-200 bg-white px-3 py-2 md:hidden">
+          {menu.map((item) => (
+            <NavLink
+              key={item.path}
+              to={item.path}
+              end={item.path === '/'}
+              className={({ isActive }) =>
+                `whitespace-nowrap rounded-lg px-3 py-1.5 text-xs font-medium ${
+                  isActive
+                    ? 'bg-brand-600 text-white'
+                    : 'text-slate-600 hover:bg-slate-100'
+                }`
+              }
+            >
+              {item.label}
+            </NavLink>
+          ))}
+        </nav>
 
         <main className="flex-1 overflow-y-auto p-6">
           <Outlet />
