@@ -10,6 +10,7 @@ import { AdhesionsModule } from './adhesions/adhesions.module';
 import { FacturesModule } from './factures/factures.module';
 import { PaiementsModule } from './paiements/paiements.module';
 import { AttributionsModule } from './attributions/attributions.module';
+import { ReportsModule } from './reports/reports.module';
 
 @Module({
   imports: [
@@ -24,6 +25,7 @@ import { AttributionsModule } from './attributions/attributions.module';
     FacturesModule,
     PaiementsModule,
     AttributionsModule,
+    ReportsModule,
   ],
 })
 export class AppModule {}

@@ -8,6 +8,7 @@ import Cooperatives from './pages/Cooperatives';
 import Terrains from './pages/Terrains';
 import Paiements from './pages/Paiements';
 import MesFactures from './pages/MesFactures';
+import Rapports from './pages/Rapports';
 import AppLayout from './components/AppLayout';
 
 function Protected({ children }: { children: JSX.Element }) {
@@ -47,6 +48,7 @@ export default function App() {
         <Route path="terrains" element={<Terrains />} />
         <Route path="paiements" element={<Paiements />} />
         <Route path="factures" element={<MesFactures />} />
+        <Route path="rapports" element={<Rapports />} />
       </Route>
       <Route path="*" element={<Navigate to="/" replace />} />
     </Routes>

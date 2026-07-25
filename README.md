@@ -72,5 +72,6 @@ npm run dev             # API (:3000) + Web (:5173) simultanément
 - [x] Facturation PDF + QR Code + signature électronique (SHA-256)
 - [~] Notifications (in-app fait ; Email / SMS à brancher)
 - [x] Attribution automatique des terrains (dossier soldé → parcelle + certificat PDF)
-- [ ] Rapports (PDF / Excel)
-- [ ] Carte interactive, recherche multicritère, i18n FR/EN
+- [x] Rapports PDF / Excel (9 rapports : encaissements, clients, coopératives, sites, retards, paiements, factures, ventes, comptabilité)
+- [x] Recherche multicritère des terrains
+- [ ] Carte interactive des sites, i18n FR/EN
