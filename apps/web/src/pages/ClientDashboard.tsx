@@ -1,5 +1,8 @@
+import { useState } from 'react';
 import { useQuery } from '@tanstack/react-query';
+import { useNavigate } from 'react-router-dom';
 import { api, formatFCFA } from '../lib/api';
+import PaiementModal from '../components/PaiementModal';
 
 interface AdhesionDashboard {
   adhesionId: string;
@@ -38,6 +41,10 @@ function ProgressBar({ value }: { value: number }) {
 }
 
 export default function ClientDashboard() {
+  const navigate = useNavigate();
+  const [payFor, setPayFor] = useState<AdhesionDashboard | null>(null);
+  const [flash, setFlash] = useState('');
+
   const { data: adhesions = [], isLoading } = useQuery<AdhesionDashboard[]>({
     queryKey: ['client-dashboard'],
     queryFn: async () => (await api.get('/dashboard/client')).data,
@@ -51,6 +58,18 @@ export default function ClientDashboard() {
           Suivi de vos adhésions et paiements
         </p>
       </div>
+
+      {flash && (
+        <div className="rounded-lg bg-brand-50 px-4 py-3 text-sm font-medium text-brand-700">
+          ✓ Paiement confirmé — facture {flash} générée.{' '}
+          <button
+            onClick={() => navigate('/factures')}
+            className="underline"
+          >
+            Voir mes factures
+          </button>
+        </div>
+      )}
 
       {isLoading && <div className="text-slate-400">Chargement…</div>}
 
@@ -140,11 +159,34 @@ export default function ClientDashboard() {
           )}
 
           <div className="flex gap-2">
-            <button className="btn-primary">Payer une cotisation</button>
-            <button className="btn-ghost">Voir mes factures</button>
+            <button
+              className="btn-primary"
+              onClick={() => setPayFor(a)}
+              disabled={a.soldeRestant <= 0}
+            >
+              {a.soldeRestant <= 0 ? 'Soldé ✓' : 'Payer une échéance'}
+            </button>
+            <button className="btn-ghost" onClick={() => navigate('/factures')}>
+              Voir mes factures
+            </button>
           </div>
         </div>
       ))}
+
+      {payFor && (
+        <PaiementModal
+          adhesionId={payFor.adhesionId}
+          montantSuggere={payFor.prochaineEcheance?.montant ?? 0}
+          libelle={`${payFor.cooperative} — ${
+            payFor.prochaineEcheance?.libelle ?? 'Paiement'
+          }`}
+          onClose={() => setPayFor(null)}
+          onSuccess={(numero) => {
+            setPayFor(null);
+            setFlash(numero);
+          }}
+        />
+      )}
     </div>
   );
 }

@@ -32,6 +32,8 @@
     "class-validator": "^0.14.1",
     "passport": "^0.7.0",
     "passport-jwt": "^4.0.1",
+    "pdfkit": "^0.19.1",
+    "qrcode": "^1.5.4",
     "reflect-metadata": "^0.2.2",
     "rxjs": "^7.8.1"
   },
@@ -42,6 +44,8 @@
     "@types/express": "^5.0.0",
     "@types/node": "^22.10.0",
     "@types/passport-jwt": "^4.0.1",
+    "@types/pdfkit": "^0.17.6",
+    "@types/qrcode": "^1.5.6",
     "prisma": "^6.2.0",
     "ts-node": "^10.9.2",
     "typescript": "^5.7.0"

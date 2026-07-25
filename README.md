@@ -68,9 +68,9 @@ npm run dev             # API (:3000) + Web (:5173) simultanément
 - [x] Gestion des Coopératives (rattachées à un site, contrôle des places)
 - [x] Gestion des Terrains / parcelles (recherche multicritère, réservation)
 - [x] Adhésion à une coopérative + échéancier automatique (dossier + compte coopérateur)
-- [ ] Paiements Wave / Orange Money
-- [ ] Facturation PDF + QR Code + signature électronique
-- [ ] Notifications (Email / SMS / in-app)
+- [x] Paiements Wave / Orange Money (simulé) + gestion comptable (confirmer/annuler/rembourser)
+- [x] Facturation PDF + QR Code + signature électronique (SHA-256)
+- [~] Notifications (in-app fait ; Email / SMS à brancher)
 - [ ] Attribution automatique des terrains
 - [ ] Rapports (PDF / Excel)
 - [ ] Carte interactive, recherche multicritère, i18n FR/EN

@@ -7,6 +7,8 @@ import { SitesModule } from './sites/sites.module';
 import { CooperativesModule } from './cooperatives/cooperatives.module';
 import { TerrainsModule } from './terrains/terrains.module';
 import { AdhesionsModule } from './adhesions/adhesions.module';
+import { FacturesModule } from './factures/factures.module';
+import { PaiementsModule } from './paiements/paiements.module';
 
 @Module({
   imports: [
@@ -18,6 +20,8 @@ import { AdhesionsModule } from './adhesions/adhesions.module';
     CooperativesModule,
     TerrainsModule,
     AdhesionsModule,
+    FacturesModule,
+    PaiementsModule,
   ],
 })
 export class AppModule {}
