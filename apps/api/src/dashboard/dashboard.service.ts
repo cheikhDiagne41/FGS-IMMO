@@ -100,6 +100,28 @@ export class DashboardService {
     return rows.map((r) => ({ mois: r.mois, total: Number(r.total) }));
   }
 
+  /** Parcelles achetées en vente directe (hors coopérative) par le client */
+  async mesAcquisitionsDirectes(clientId: string) {
+    const terrains = await this.prisma.terrain.findMany({
+      where: {
+        clientId,
+        adhesionId: null,
+        statut: TerrainStatus.VENDU,
+      },
+      include: { site: { select: { nom: true, commune: true } } },
+      orderBy: { dateAttribution: 'desc' },
+    });
+    return terrains.map((t) => ({
+      id: t.id,
+      numeroParcelle: t.numeroParcelle,
+      site: t.site.nom,
+      commune: t.site.commune,
+      superficie: Number(t.superficie),
+      prix: t.prix ? Number(t.prix) : null,
+      dateAttribution: t.dateAttribution,
+    }));
+  }
+
   /** Tableau de bord d'un client : progression, soldes, prochaine échéance */
   async clientDashboard(clientId: string) {
     const adhesions = await this.prisma.adhesion.findMany({

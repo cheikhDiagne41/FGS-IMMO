@@ -12,6 +12,8 @@ import {
   PaiementMethode,
   PaiementStatut,
   Prisma,
+  SiteType,
+  TerrainStatus,
 } from '@prisma/client';
 import { PrismaService } from '../prisma/prisma.service';
 import { FacturesService } from '../factures/factures.service';
@@ -211,20 +213,26 @@ export class PaiementsService {
     if (paiement.statut !== PaiementStatut.EN_ATTENTE) {
       throw new BadRequestException('Seul un paiement en attente peut être confirmé.');
     }
+    if (!paiement.adhesionId) {
+      throw new BadRequestException(
+        'Ce paiement direct est déjà finalisé et ne nécessite pas de confirmation.',
+      );
+    }
+    const adhesionId = paiement.adhesionId;
     return this.prisma.$transaction(async (tx) => {
       await tx.paiement.update({
         where: { id },
         data: { statut: PaiementStatut.VALIDE, saisiParId },
       });
-      const recompute = await this.recomputeAdhesion(tx, paiement.adhesionId);
+      const recompute = await this.recomputeAdhesion(tx, adhesionId);
       const facture = await this.factures.createForPaiement(tx, {
         paiementId: id,
         montant: Number(paiement.montant),
         soldeRestant: recompute.soldeRestant,
       });
-      await this.attributions.assignerNumeroSiAcompte(tx, paiement.adhesionId);
+      await this.attributions.assignerNumeroSiAcompte(tx, adhesionId);
       if (recompute.soldeRestant <= 0) {
-        await this.attributions.finaliserSiSolde(tx, paiement.adhesionId);
+        await this.attributions.finaliserSiSolde(tx, adhesionId);
       }
       return { ok: true, facture };
     });
@@ -264,8 +272,112 @@ export class PaiementsService {
           data: { statut: factureStatut },
         });
       }
-      await this.recomputeAdhesion(tx, paiement.adhesionId);
+      if (paiement.adhesionId) {
+        // Paiement de coopérative : réajuste l'échéancier
+        await this.recomputeAdhesion(tx, paiement.adhesionId);
+      } else if (paiement.terrainId) {
+        // Achat direct annulé : la parcelle redevient disponible
+        await tx.terrain.update({
+          where: { id: paiement.terrainId },
+          data: {
+            statut: TerrainStatus.DISPONIBLE,
+            clientId: null,
+            dateAttribution: null,
+          },
+        });
+      }
       return { ok: true };
+    });
+  }
+
+  /**
+   * Achat direct d'une parcelle (site en vente directe) : paiement unique
+   * du prix, sans acompte ni mensualité. Marque le terrain VENDU + facture.
+   */
+  async acheterTerrainDirect(
+    terrainId: string,
+    dto: { montant: number; methode: PaiementMethode; refTransaction?: string },
+    options: { requesterClientId?: string | null; requesterRole: string; saisiParId?: string },
+  ) {
+    const terrain = await this.prisma.terrain.findUnique({
+      where: { id: terrainId },
+      include: { site: true },
+    });
+    if (!terrain) throw new NotFoundException('Terrain introuvable.');
+    if (terrain.site.type !== SiteType.VENTE_DIRECTE) {
+      throw new BadRequestException(
+        "Ce terrain appartient à un site coopératif : l'achat se fait via une adhésion.",
+      );
+    }
+    if (
+      terrain.statut === TerrainStatus.VENDU ||
+      (terrain.clientId && terrain.clientId !== options.requesterClientId)
+    ) {
+      throw new BadRequestException("Cette parcelle n'est plus disponible.");
+    }
+
+    // Identifie l'acheteur
+    let clientId = options.requesterClientId ?? undefined;
+    if (options.requesterRole !== 'CLIENT') {
+      clientId = terrain.clientId ?? undefined; // réservé au préalable le cas échéant
+      if (!clientId)
+        throw new BadRequestException(
+          'Aucun client associé : réservez la parcelle à un client avant la vente.',
+        );
+    }
+    if (!clientId) throw new ForbiddenException('Aucun profil client.');
+
+    const prix = Number(terrain.prix ?? 0);
+    if (prix > 0 && dto.montant + 0.5 < prix) {
+      throw new BadRequestException(
+        `Le paiement direct doit couvrir le prix total (${prix} FCFA).`,
+      );
+    }
+
+    const client = await this.prisma.client.findUnique({ where: { id: clientId } });
+
+    return this.prisma.$transaction(async (tx) => {
+      const paiement = await tx.paiement.create({
+        data: {
+          reference: this.genererReference(),
+          terrainId,
+          clientId,
+          montant: dto.montant,
+          methode: dto.methode,
+          refTransaction: dto.refTransaction,
+          statut: PaiementStatut.VALIDE,
+          saisiParId: options.saisiParId,
+        },
+      });
+
+      const updated = await tx.terrain.update({
+        where: { id: terrainId },
+        data: {
+          statut: TerrainStatus.VENDU,
+          clientId,
+          dateAttribution: new Date(),
+        },
+      });
+
+      const facture = await this.factures.createForPaiement(tx, {
+        paiementId: paiement.id,
+        montant: dto.montant,
+        soldeRestant: 0,
+      });
+
+      if (client) {
+        await tx.notification.create({
+          data: {
+            userId: client.userId,
+            type: NotificationType.ATTRIBUTION_TERRAIN,
+            canal: NotificationCanal.APP,
+            titre: 'Achat confirmé 🎉',
+            message: `Votre achat de la parcelle N° ${updated.numeroParcelle} est confirmé. Facture ${facture.numero}.`,
+          },
+        });
+      }
+
+      return { paiement, facture, terrain: updated };
     });
   }
 
@@ -279,6 +391,8 @@ export class PaiementsService {
             cooperative: { select: { nom: true } },
           },
         },
+        client: { select: { nom: true, prenom: true } },
+        terrain: { select: { numeroParcelle: true } },
         facture: { select: { id: true, numero: true } },
       },
       orderBy: { datePaiement: 'desc' },

@@ -43,4 +43,13 @@ export class DashboardController {
     }
     return this.dashboardService.clientDashboard(user.clientId);
   }
+
+  @Get('mes-acquisitions')
+  @Roles(Role.CLIENT)
+  mesAcquisitions(@CurrentUser() user: AuthUser) {
+    if (!user.clientId) {
+      throw new ForbiddenException('Aucun profil client associé.');
+    }
+    return this.dashboardService.mesAcquisitionsDirectes(user.clientId);
+  }
 }

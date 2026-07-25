@@ -6,6 +6,7 @@ import ClientDashboard from './pages/ClientDashboard';
 import Sites from './pages/Sites';
 import Cooperatives from './pages/Cooperatives';
 import Terrains from './pages/Terrains';
+import TerrainDetail from './pages/TerrainDetail';
 import Paiements from './pages/Paiements';
 import MesFactures from './pages/MesFactures';
 import Rapports from './pages/Rapports';
@@ -47,6 +48,7 @@ export default function App() {
         <Route path="sites" element={<Sites />} />
         <Route path="cooperatives" element={<Cooperatives />} />
         <Route path="terrains" element={<Terrains />} />
+        <Route path="terrains/:id" element={<TerrainDetail />} />
         <Route path="paiements" element={<Paiements />} />
         <Route path="factures" element={<MesFactures />} />
         <Route path="rapports" element={<Rapports />} />

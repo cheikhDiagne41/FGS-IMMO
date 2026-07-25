@@ -1,4 +1,9 @@
-import { Injectable, NotFoundException } from '@nestjs/common';
+import {
+  BadRequestException,
+  Injectable,
+  NotFoundException,
+} from '@nestjs/common';
+import { SiteType } from '@prisma/client';
 import { PrismaService } from '../prisma/prisma.service';
 import { CreateSiteDto, UpdateSiteDto } from './dto/site.dto';
 
@@ -6,8 +11,39 @@ import { CreateSiteDto, UpdateSiteDto } from './dto/site.dto';
 export class SitesService {
   constructor(private prisma: PrismaService) {}
 
-  create(dto: CreateSiteDto) {
-    return this.prisma.site.create({ data: dto });
+  async create(dto: CreateSiteDto) {
+    const { cooperative, ...siteData } = dto;
+    const type = dto.type ?? SiteType.COOPERATIVE;
+
+    if (type === SiteType.COOPERATIVE && !cooperative) {
+      throw new BadRequestException(
+        'Un site coopératif nécessite la configuration de sa coopérative (acompte, mensualités…).',
+      );
+    }
+
+    return this.prisma.$transaction(async (tx) => {
+      const site = await tx.site.create({ data: { ...siteData, type } });
+
+      if (type === SiteType.COOPERATIVE && cooperative) {
+        const count = await tx.cooperative.count();
+        await tx.cooperative.create({
+          data: {
+            numero: cooperative.numero ?? `COOP-${String(count + 1).padStart(3, '0')}`,
+            nom: cooperative.nom ?? `Coopérative ${site.nom}`,
+            siteId: site.id,
+            nbMaxAdherents: cooperative.nbMaxAdherents,
+            fraisAdhesion: cooperative.fraisAdhesion ?? 0,
+            montantAcompte: cooperative.montantAcompte,
+            cotisationMensuelle: cooperative.cotisationMensuelle,
+            nbMensualites: cooperative.nbMensualites,
+            dureeRemboursement: cooperative.nbMensualites,
+            responsable: cooperative.responsable,
+          },
+        });
+      }
+
+      return site;
+    });
   }
 
   findAll() {
@@ -79,7 +115,8 @@ export class SitesService {
 
   async update(id: string, dto: UpdateSiteDto) {
     await this.findOne(id);
-    return this.prisma.site.update({ where: { id }, data: dto });
+    const { cooperative, ...siteData } = dto;
+    return this.prisma.site.update({ where: { id }, data: siteData });
   }
 
   async remove(id: string) {

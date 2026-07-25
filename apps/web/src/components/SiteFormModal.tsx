@@ -18,16 +18,39 @@ export default function SiteFormModal({ onClose }: { onClose: () => void }) {
     prixReference: '',
     description: '',
     statut: 'DISPONIBLE',
+    type: 'COOPERATIVE',
+    // config coopérative
+    coopMontantAcompte: '',
+    coopCotisation: '',
+    coopNbMensualites: '',
+    coopFraisAdhesion: '',
+    coopNbMaxAdherents: '',
+    coopResponsable: '',
   });
   const set = (k: string, v: string) => setF((s) => ({ ...s, [k]: v }));
 
   const create = useMutation({
     mutationFn: async () => {
-      const payload: any = { code: f.code, nom: f.nom, statut: f.statut };
+      const payload: any = {
+        code: f.code,
+        nom: f.nom,
+        statut: f.statut,
+        type: f.type,
+      };
       for (const k of ['region', 'departement', 'commune', 'adresse', 'description'])
         if ((f as any)[k]) payload[k] = (f as any)[k];
       for (const k of ['latitude', 'longitude', 'superficie', 'nbParcelles', 'prixReference'])
         if ((f as any)[k]) payload[k] = Number((f as any)[k]);
+      if (f.type === 'COOPERATIVE') {
+        payload.cooperative = {
+          nbMaxAdherents: Number(f.coopNbMaxAdherents || f.nbParcelles || 1),
+          montantAcompte: Number(f.coopMontantAcompte || 0),
+          cotisationMensuelle: Number(f.coopCotisation || 0),
+          nbMensualites: Number(f.coopNbMensualites || 1),
+          fraisAdhesion: Number(f.coopFraisAdhesion || 0),
+          responsable: f.coopResponsable || undefined,
+        };
+      }
       return (await api.post('/sites', payload)).data;
     },
     onSuccess: () => {
@@ -43,6 +66,38 @@ export default function SiteFormModal({ onClose }: { onClose: () => void }) {
         <p className="mb-4 text-sm text-slate-500">
           Renseignez les informations du site immobilier.
         </p>
+
+        {/* Type de site */}
+        <div className="mb-4 grid grid-cols-2 gap-3">
+          <button
+            type="button"
+            onClick={() => set('type', 'COOPERATIVE')}
+            className={`rounded-xl border-2 p-3 text-left text-sm transition ${
+              f.type === 'COOPERATIVE'
+                ? 'border-brand-500 bg-brand-50'
+                : 'border-slate-200 hover:border-slate-300'
+            }`}
+          >
+            <div className="font-semibold text-slate-800">🏘️ Coopérative</div>
+            <div className="text-xs text-slate-500">
+              Acompte + mensualités (adhésion & échéancier)
+            </div>
+          </button>
+          <button
+            type="button"
+            onClick={() => set('type', 'VENTE_DIRECTE')}
+            className={`rounded-xl border-2 p-3 text-left text-sm transition ${
+              f.type === 'VENTE_DIRECTE'
+                ? 'border-brand-500 bg-brand-50'
+                : 'border-slate-200 hover:border-slate-300'
+            }`}
+          >
+            <div className="font-semibold text-slate-800">🏷️ Vente directe</div>
+            <div className="text-xs text-slate-500">
+              Paiement unique, sans acompte ni mensualité
+            </div>
+          </button>
+        </div>
 
         <div className="grid grid-cols-2 gap-3 md:grid-cols-3">
           <Field label="Code *" v={f.code} on={(v) => set('code', v)} placeholder="DKR-002" />
@@ -65,6 +120,23 @@ export default function SiteFormModal({ onClose }: { onClose: () => void }) {
             </select>
           </div>
         </div>
+
+        {/* Configuration coopérative */}
+        {f.type === 'COOPERATIVE' && (
+          <div className="mt-4 rounded-xl border border-brand-100 bg-brand-50/40 p-4">
+            <div className="mb-3 text-sm font-semibold text-brand-800">
+              Configuration de la coopérative
+            </div>
+            <div className="grid grid-cols-2 gap-3 md:grid-cols-3">
+              <Field label="Acompte obligatoire *" v={f.coopMontantAcompte} on={(v) => set('coopMontantAcompte', v)} type="number" placeholder="2000000" />
+              <Field label="Cotisation mensuelle *" v={f.coopCotisation} on={(v) => set('coopCotisation', v)} type="number" placeholder="250000" />
+              <Field label="Nombre de mois *" v={f.coopNbMensualites} on={(v) => set('coopNbMensualites', v)} type="number" placeholder="48" />
+              <Field label="Frais d'adhésion" v={f.coopFraisAdhesion} on={(v) => set('coopFraisAdhesion', v)} type="number" placeholder="25000" />
+              <Field label="Nb max adhérents" v={f.coopNbMaxAdherents} on={(v) => set('coopNbMaxAdherents', v)} type="number" placeholder="ex : nb parcelles" />
+              <Field label="Responsable (assigné à)" v={f.coopResponsable} on={(v) => set('coopResponsable', v)} placeholder="Nom du responsable" />
+            </div>
+          </div>
+        )}
 
         {create.isError && (
           <div className="mt-3 rounded-lg bg-red-50 px-3 py-2 text-sm text-red-600">

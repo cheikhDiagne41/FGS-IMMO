@@ -1,4 +1,5 @@
 import {
+  IsBoolean,
   IsEnum,
   IsNumber,
   IsOptional,
@@ -27,6 +28,13 @@ export class CreateTerrainDto {
   @IsOptional() @IsNumber() longitude?: number;
   @IsOptional() @IsString() planUrl?: string;
   @IsOptional() @IsEnum(TerrainStatus) statut?: TerrainStatus;
+
+  @IsOptional() @IsString() titre?: string;
+  @IsOptional() @IsString() description?: string;
+  @IsOptional() @IsString() document?: string;
+  @IsOptional() @IsBoolean() enVedette?: boolean;
+  @IsOptional() @IsString() vendeurNom?: string;
+  @IsOptional() @IsString() vendeurTelephone?: string;
 }
 
 export class UpdateTerrainDto extends PartialType(CreateTerrainDto) {}

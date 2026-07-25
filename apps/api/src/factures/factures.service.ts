@@ -74,10 +74,15 @@ export class FacturesService {
 
   findByClient(clientId: string) {
     return this.prisma.facture.findMany({
-      where: { paiement: { adhesion: { clientId } } },
+      where: {
+        paiement: { OR: [{ adhesion: { clientId } }, { clientId }] },
+      },
       include: {
         paiement: {
-          include: { adhesion: { include: { cooperative: true } } },
+          include: {
+            adhesion: { include: { cooperative: true } },
+            terrain: true,
+          },
         },
       },
       orderBy: { dateEmission: 'desc' },
@@ -96,15 +101,16 @@ export class FacturesService {
                 cooperative: { include: { site: true } },
               },
             },
+            terrain: { include: { site: true } },
+            client: true,
           },
         },
       },
     });
     if (!facture) throw new NotFoundException('Facture introuvable.');
-    if (
-      requester?.role === 'CLIENT' &&
-      facture.paiement.adhesion.clientId !== requester.clientId
-    ) {
+    const ownerClientId =
+      facture.paiement.adhesion?.clientId ?? facture.paiement.clientId;
+    if (requester?.role === 'CLIENT' && ownerClientId !== requester.clientId) {
       throw new NotFoundException('Facture introuvable.');
     }
     return facture;
@@ -117,8 +123,14 @@ export class FacturesService {
   ): Promise<Buffer> {
     const f = await this.getFullFacture(id, requester);
     const vendeur = await this.vendeur.get();
-    const client = f.paiement.adhesion.client;
-    const coop = f.paiement.adhesion.cooperative;
+    const isDirect = !f.paiement.adhesion;
+    const client = f.paiement.adhesion?.client ?? f.paiement.client!;
+    const coopNom = f.paiement.adhesion?.cooperative.nom ?? 'Vente directe';
+    const siteNom =
+      f.paiement.adhesion?.cooperative.site.nom ??
+      f.paiement.terrain?.site.nom ??
+      '—';
+    const parcelle = f.paiement.terrain?.numeroParcelle;
     const fmt = (n: number | Prisma.Decimal) =>
       new Intl.NumberFormat('fr-FR').format(Math.round(Number(n))) + ' FCFA';
 
@@ -178,8 +190,12 @@ export class FacturesService {
       .text(`${client.prenom} ${client.nom}`, 65, y + 26);
     doc.fontSize(10).font('Helvetica').fillColor('#334155');
     doc.text(`Tél : ${client.telephone}`, 65, y + 44);
-    doc.text(`Coopérative : ${coop.nom}`, 65, y + 58);
-    doc.text(`Site : ${coop.site.nom}`, 300, y + 58);
+    doc.text(
+      isDirect ? `Parcelle : N° ${parcelle}` : `Coopérative : ${coopNom}`,
+      65,
+      y + 58,
+    );
+    doc.text(`Site : ${siteNom}`, 300, y + 58);
 
     // Tableau paiement
     y = 310;
@@ -193,7 +209,11 @@ export class FacturesService {
     doc.fillColor('#111').font('Helvetica').fontSize(10);
     doc.rect(50, y, doc.page.width - 100, 26).fill('#ffffff').stroke('#e2e8f0');
     doc.fillColor('#111');
-    doc.text('Paiement coopérative', 65, y + 8);
+    doc.text(
+      isDirect ? `Achat parcelle N° ${parcelle}` : 'Paiement coopérative',
+      65,
+      y + 8,
+    );
     doc.text(
       f.paiement.methode.replace('_', ' '),
       300,

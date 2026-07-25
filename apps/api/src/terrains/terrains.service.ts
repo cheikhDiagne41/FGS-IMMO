@@ -24,7 +24,10 @@ export class TerrainsService {
       where: { id: dto.siteId },
     });
     if (!site) throw new BadRequestException('Site introuvable.');
-    return this.prisma.terrain.create({ data: dto });
+    const annee = new Date().getFullYear();
+    const count = await this.prisma.terrain.count();
+    const reference = `TER-${annee}-${String(count + 1).padStart(5, '0')}`;
+    return this.prisma.terrain.create({ data: { ...dto, reference } });
   }
 
   /** Recherche multicritère */
@@ -131,8 +134,8 @@ export class TerrainsService {
     return { ok: true };
   }
 
-  /** Détail terrain enrichi des modalités de paiement (coops du site) */
-  async detail(id: string) {
+  /** Détail terrain enrichi : modalités, vendeur (annonce ou société), favori */
+  async detail(id: string, requesterClientId?: string | null) {
     const terrain = await this.findOne(id);
     const cooperatives = await this.prisma.cooperative.findMany({
       where: { siteId: terrain.siteId },
@@ -148,7 +151,70 @@ export class TerrainsService {
         _count: { select: { adhesions: true } },
       },
     });
-    const vendeur = await this.vendeur.get();
-    return { ...terrain, modalites: cooperatives, vendeur };
+    const societe = await this.vendeur.get();
+
+    // Vendeur affiché : contact propre à l'annonce sinon société
+    const vendeur = {
+      nom: terrain.vendeurNom ?? societe.nom,
+      telephone: terrain.vendeurTelephone ?? societe.telephone,
+      estAnnonce: !!terrain.vendeurNom,
+      societe,
+    };
+
+    const [favorisCount, monFavori] = await Promise.all([
+      this.prisma.favori.count({ where: { terrainId: id } }),
+      requesterClientId
+        ? this.prisma.favori.findUnique({
+            where: {
+              clientId_terrainId: { clientId: requesterClientId, terrainId: id },
+            },
+          })
+        : Promise.resolve(null),
+    ]);
+
+    return {
+      ...terrain,
+      reference: terrain.reference ?? `TER-${terrain.numeroParcelle}`,
+      modalites: cooperatives,
+      vendeur,
+      favorisCount,
+      isFavori: !!monFavori,
+    };
+  }
+
+  /** Ajoute / retire un terrain des favoris du client */
+  async toggleFavori(terrainId: string, clientId: string) {
+    await this.findOne(terrainId);
+    const existing = await this.prisma.favori.findUnique({
+      where: { clientId_terrainId: { clientId, terrainId } },
+    });
+    if (existing) {
+      await this.prisma.favori.delete({ where: { id: existing.id } });
+      return { isFavori: false };
+    }
+    await this.prisma.favori.create({ data: { clientId, terrainId } });
+    return { isFavori: true };
+  }
+
+  /** Demande de visite : notifie les administrateurs */
+  async demanderVisite(terrainId: string, clientId: string, message?: string) {
+    const terrain = await this.findOne(terrainId);
+    const client = await this.prisma.client.findUnique({
+      where: { id: clientId },
+    });
+    const admins = await this.prisma.user.findMany({
+      where: { role: { in: ['ADMIN', 'GESTIONNAIRE'] } },
+      select: { id: true },
+    });
+    await this.prisma.notification.createMany({
+      data: admins.map((a) => ({
+        userId: a.id,
+        type: 'SYSTEME' as const,
+        canal: 'APP' as const,
+        titre: 'Demande de visite',
+        message: `${client?.prenom ?? ''} ${client?.nom ?? ''} souhaite visiter la parcelle N° ${terrain.numeroParcelle} (${terrain.reference ?? ''}).${message ? ' Message : ' + message : ''}`,
+      })),
+    });
+    return { ok: true };
   }
 }

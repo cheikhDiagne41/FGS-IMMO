@@ -27,6 +27,10 @@ import {
 import { JwtAuthGuard } from '../auth/guards/jwt-auth.guard';
 import { RolesGuard } from '../auth/guards/roles.guard';
 import { Roles } from '../auth/decorators/roles.decorator';
+import {
+  AuthUser,
+  CurrentUser,
+} from '../auth/decorators/current-user.decorator';
 
 const UPLOAD_DIR = 'uploads/terrains';
 
@@ -72,8 +76,24 @@ export class TerrainsController {
 
   @Get(':id')
   @Roles(Role.ADMIN, Role.GESTIONNAIRE, Role.COMPTABLE, Role.CLIENT)
-  findOne(@Param('id') id: string) {
-    return this.terrainsService.detail(id);
+  findOne(@Param('id') id: string, @CurrentUser() user: AuthUser) {
+    return this.terrainsService.detail(id, user.clientId);
+  }
+
+  @Post(':id/favori')
+  @Roles(Role.CLIENT)
+  toggleFavori(@Param('id') id: string, @CurrentUser() user: AuthUser) {
+    return this.terrainsService.toggleFavori(id, user.clientId!);
+  }
+
+  @Post(':id/visite')
+  @Roles(Role.CLIENT)
+  visite(
+    @Param('id') id: string,
+    @Body('message') message: string | undefined,
+    @CurrentUser() user: AuthUser,
+  ) {
+    return this.terrainsService.demanderVisite(id, user.clientId!, message);
   }
 
   /** Upload d'images / vidéos pour un terrain (max 10 fichiers, 50 Mo chacun) */

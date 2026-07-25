@@ -41,6 +41,21 @@ export class PaiementsController {
     });
   }
 
+  /** Achat direct d'une parcelle (site en vente directe) — paiement unique */
+  @Post('achat-direct/:terrainId')
+  @Roles(Role.CLIENT, Role.ADMIN, Role.GESTIONNAIRE)
+  acheterDirect(
+    @Param('terrainId') terrainId: string,
+    @Body() body: { montant: number; methode: PaiementMethode; refTransaction?: string },
+    @CurrentUser() user: AuthUser,
+  ) {
+    return this.paiementsService.acheterTerrainDirect(terrainId, body, {
+      requesterClientId: user.clientId,
+      requesterRole: user.role,
+      saisiParId: user.userId,
+    });
+  }
+
   /** Enregistrement d'un paiement manuel par le comptable (en attente de confirmation) */
   @Post('manuel')
   @Roles(Role.COMPTABLE, Role.ADMIN)

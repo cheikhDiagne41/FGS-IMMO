@@ -5,9 +5,24 @@ import {
   IsOptional,
   IsString,
   Min,
+  ValidateNested,
 } from 'class-validator';
+import { Type } from 'class-transformer';
 import { PartialType } from '@nestjs/swagger';
-import { SiteStatus } from '@prisma/client';
+import { SiteStatus, SiteType } from '@prisma/client';
+
+/** Configuration de la coopérative créée en même temps qu'un site coopératif */
+export class CooperativeConfigDto {
+  @IsOptional() @IsString() numero?: string;
+  @IsOptional() @IsString() nom?: string;
+
+  @IsInt() @Min(1) nbMaxAdherents: number;
+  @IsOptional() @IsNumber() @Min(0) fraisAdhesion?: number;
+  @IsNumber() @Min(0) montantAcompte: number;
+  @IsNumber() @Min(0) cotisationMensuelle: number;
+  @IsInt() @Min(1) nbMensualites: number;
+  @IsOptional() @IsString() responsable?: string;
+}
 
 export class CreateSiteDto {
   @IsString()
@@ -29,7 +44,14 @@ export class CreateSiteDto {
   @IsOptional() @IsString() description?: string;
   @IsOptional() @IsString() planUrl?: string;
 
+  @IsOptional() @IsEnum(SiteType) type?: SiteType;
   @IsOptional() @IsEnum(SiteStatus) statut?: SiteStatus;
+
+  /** Requis si type = COOPERATIVE : paramètres de la coopérative à créer */
+  @IsOptional()
+  @ValidateNested()
+  @Type(() => CooperativeConfigDto)
+  cooperative?: CooperativeConfigDto;
 }
 
 export class UpdateSiteDto extends PartialType(CreateSiteDto) {}

@@ -19,8 +19,15 @@ export default function TerrainFormModal({ onClose }: { onClose: () => void }) {
     latitude: '',
     longitude: '',
     statut: 'DISPONIBLE',
+    titre: '',
+    document: '',
+    description: '',
+    vendeurNom: '',
+    vendeurTelephone: '',
+    enVedette: false,
   });
-  const set = (k: string, v: string) => setF((s) => ({ ...s, [k]: v }));
+  const set = (k: string, v: string | boolean) =>
+    setF((s) => ({ ...s, [k]: v }));
 
   const { data: sites = [] } = useQuery<SiteOpt[]>({
     queryKey: ['sites'],
@@ -39,6 +46,9 @@ export default function TerrainFormModal({ onClose }: { onClose: () => void }) {
       if (f.prix) payload.prix = Number(f.prix);
       if (f.latitude) payload.latitude = Number(f.latitude);
       if (f.longitude) payload.longitude = Number(f.longitude);
+      for (const k of ['titre', 'document', 'description', 'vendeurNom', 'vendeurTelephone'])
+        if ((f as any)[k]) payload[k] = (f as any)[k];
+      payload.enVedette = f.enVedette;
       return (await api.post('/terrains', payload)).data;
     },
     onSuccess: () => {
@@ -126,6 +136,42 @@ export default function TerrainFormModal({ onClose }: { onClose: () => void }) {
               onChange={(e) => set('longitude', e.target.value)}
               placeholder="-17.18"
             />
+          </div>
+          <div className="col-span-2">
+            <label className="label">Titre de l'annonce</label>
+            <input className="input" value={f.titre}
+              onChange={(e) => set('titre', e.target.value)}
+              placeholder="ex : Grand terrain à Diamniadio" />
+          </div>
+          <div>
+            <label className="label">Document</label>
+            <input className="input" value={f.document}
+              onChange={(e) => set('document', e.target.value)}
+              placeholder="Délibération, Titre foncier…" />
+          </div>
+          <div className="flex items-end pb-2">
+            <label className="flex items-center gap-2 text-sm font-medium text-slate-700">
+              <input type="checkbox" checked={f.enVedette}
+                onChange={(e) => set('enVedette', e.target.checked)} />
+              ★ En vedette
+            </label>
+          </div>
+          <div>
+            <label className="label">Vendeur (nom)</label>
+            <input className="input" value={f.vendeurNom}
+              onChange={(e) => set('vendeurNom', e.target.value)}
+              placeholder="ex : Fatou Sow" />
+          </div>
+          <div>
+            <label className="label">Vendeur (téléphone)</label>
+            <input className="input" value={f.vendeurTelephone}
+              onChange={(e) => set('vendeurTelephone', e.target.value)}
+              placeholder="+221 77 000 00 06" />
+          </div>
+          <div className="col-span-2">
+            <label className="label">Description</label>
+            <textarea className="input min-h-[70px]" value={f.description}
+              onChange={(e) => set('description', e.target.value)} />
           </div>
         </div>
 

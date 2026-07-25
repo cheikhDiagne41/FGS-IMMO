@@ -33,6 +33,11 @@ enum SiteStatus {
   CLOTURE
 }
 
+enum SiteType {
+  COOPERATIVE   // parcelles vendues via coopérative (acompte + mensualités)
+  VENTE_DIRECTE // parcelles vendues directement (paiement unique, sans acompte)
+}
+
 enum CooperativeStatus {
   ACTIVE
   COMPLETE
@@ -171,9 +176,11 @@ model Client {
   createdAt     DateTime  @default(now())
   updatedAt     DateTime  @updatedAt
 
-  adhesions     Adhesion[]
-  documents     Document[]
-  terrains      Terrain[]  // terrains attribués
+  adhesions        Adhesion[]
+  documents        Document[]
+  terrains         Terrain[]  // terrains attribués
+  paiementsDirects Paiement[] @relation("PaiementClient")
+  favoris          Favori[]
 
   @@index([nom, prenom])
   @@map("clients")
@@ -198,6 +205,7 @@ model Site {
   prixReference  Decimal?   @db.Decimal(14, 2)
   description    String?
   planUrl        String?    // plan de lotissement
+  type           SiteType   @default(COOPERATIVE)
   statut         SiteStatus @default(DISPONIBLE)
 
   createdAt      DateTime   @default(now())
@@ -258,6 +266,11 @@ model Cooperative {
 model Terrain {
   id           String        @id @default(uuid())
   numeroParcelle String
+  reference    String?       @unique // ex : TER-2026-01003
+  titre        String?       // ex : "Grand terrain à Diamniadio"
+  description  String?
+  document     String?       // ex : "Délibération", "Titre foncier", "Bail"
+  enVedette    Boolean       @default(false)
   siteId       String
   site         Site          @relation(fields: [siteId], references: [id])
   superficie   Decimal       @db.Decimal(14, 2) // m²
@@ -267,6 +280,9 @@ model Terrain {
   longitude    Float?
   planUrl      String?
   statut       TerrainStatus @default(DISPONIBLE)
+  // Contact vendeur propre à l'annonce (sinon vendeur global de la société)
+  vendeurNom       String?
+  vendeurTelephone String?
 
   // Attribution
   clientId     String?
@@ -279,6 +295,8 @@ model Terrain {
   updatedAt    DateTime      @updatedAt
 
   images       TerrainImage[]
+  paiements    Paiement[]    @relation("PaiementTerrain")
+  favoris      Favori[]
 
   @@unique([siteId, numeroParcelle])
   @@index([statut])
@@ -362,10 +380,16 @@ model Echeance {
 model Paiement {
   id            String          @id @default(uuid())
   reference     String          @unique // référence interne
-  adhesionId    String
-  adhesion      Adhesion        @relation(fields: [adhesionId], references: [id])
+  // Paiement de coopérative (échéancier)
+  adhesionId    String?
+  adhesion      Adhesion?       @relation(fields: [adhesionId], references: [id])
   echeanceId    String?
   echeance      Echeance?       @relation(fields: [echeanceId], references: [id])
+  // Vente directe (paiement unique d'une parcelle)
+  terrainId     String?
+  terrain       Terrain?        @relation("PaiementTerrain", fields: [terrainId], references: [id])
+  clientId      String?
+  client        Client?         @relation("PaiementClient", fields: [clientId], references: [id])
 
   montant       Decimal         @db.Decimal(14, 2)
   methode       PaiementMethode
@@ -447,6 +471,22 @@ model Notification {
 
   @@index([userId, lu])
   @@map("notifications")
+}
+
+// ============================================================
+// FAVORIS (terrains mis en favori par un client)
+// ============================================================
+
+model Favori {
+  id        String   @id @default(uuid())
+  clientId  String
+  client    Client   @relation(fields: [clientId], references: [id], onDelete: Cascade)
+  terrainId String
+  terrain   Terrain  @relation(fields: [terrainId], references: [id], onDelete: Cascade)
+  createdAt DateTime @default(now())
+
+  @@unique([clientId, terrainId])
+  @@map("favoris")
 }
 
 // ============================================================

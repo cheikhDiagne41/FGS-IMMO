@@ -104,6 +104,8 @@ export class ReportsService {
             cooperative: { select: { nom: true } },
           },
         },
+        client: { select: { nom: true, prenom: true } },
+        terrain: { select: { numeroParcelle: true } },
       },
       orderBy: { datePaiement: 'desc' },
     });
@@ -113,19 +115,24 @@ export class ReportsService {
       colonnes: [
         { key: 'date', label: 'Date', format: 'date' },
         { key: 'client', label: 'Client', width: 1.6 },
-        { key: 'cooperative', label: 'Coopérative', width: 1.6 },
+        { key: 'cooperative', label: 'Origine', width: 1.6 },
         { key: 'methode', label: 'Mode' },
         { key: 'reference', label: 'Référence', width: 1.5 },
         { key: 'montant', label: 'Montant', align: 'right', format: 'money', width: 1.3 },
       ],
-      lignes: paiements.map((p) => ({
-        date: p.datePaiement,
-        client: `${p.adhesion.client.prenom} ${p.adhesion.client.nom}`,
-        cooperative: p.adhesion.cooperative.nom,
-        methode: p.methode.replace('_', ' '),
-        reference: p.refTransaction ?? p.reference,
-        montant: p.montant,
-      })),
+      lignes: paiements.map((p) => {
+        const c = p.adhesion?.client ?? p.client;
+        return {
+          date: p.datePaiement,
+          client: c ? `${c.prenom} ${c.nom}` : '—',
+          cooperative:
+            p.adhesion?.cooperative.nom ??
+            (p.terrain ? `Vente directe · N° ${p.terrain.numeroParcelle}` : '—'),
+          methode: p.methode.replace('_', ' '),
+          reference: p.refTransaction ?? p.reference,
+          montant: p.montant,
+        };
+      }),
       resume: [
         { label: 'Nombre de paiements', value: String(paiements.length) },
         { label: 'Total encaissé', value: this.money(total) },
@@ -281,6 +288,7 @@ export class ReportsService {
         adhesion: {
           include: { client: { select: { nom: true, prenom: true } } },
         },
+        client: { select: { nom: true, prenom: true } },
         facture: { select: { numero: true } },
       },
       orderBy: { datePaiement: 'desc' },
@@ -295,14 +303,17 @@ export class ReportsService {
         { key: 'statut', label: 'Statut' },
         { key: 'facture', label: 'Facture', width: 1.2 },
       ],
-      lignes: paiements.map((p) => ({
-        date: p.datePaiement,
-        client: `${p.adhesion.client.prenom} ${p.adhesion.client.nom}`,
-        methode: p.methode.replace('_', ' '),
-        montant: p.montant,
-        statut: p.statut,
-        facture: p.facture?.numero ?? '—',
-      })),
+      lignes: paiements.map((p) => {
+        const c = p.adhesion?.client ?? p.client;
+        return {
+          date: p.datePaiement,
+          client: c ? `${c.prenom} ${c.nom}` : '—',
+          methode: p.methode.replace('_', ' '),
+          montant: p.montant,
+          statut: p.statut,
+          facture: p.facture?.numero ?? '—',
+        };
+      }),
       resume: [{ label: 'Total paiements', value: String(paiements.length) }],
     };
   }
@@ -317,6 +328,7 @@ export class ReportsService {
             adhesion: {
               include: { client: { select: { nom: true, prenom: true } } },
             },
+            client: { select: { nom: true, prenom: true } },
           },
         },
       },
@@ -332,13 +344,16 @@ export class ReportsService {
         { key: 'montant', label: 'Montant', align: 'right', format: 'money', width: 1.3 },
         { key: 'statut', label: 'Statut' },
       ],
-      lignes: factures.map((ff) => ({
-        numero: ff.numero,
-        date: ff.dateEmission,
-        client: `${ff.paiement.adhesion.client.prenom} ${ff.paiement.adhesion.client.nom}`,
-        montant: ff.montant,
-        statut: ff.statut,
-      })),
+      lignes: factures.map((ff) => {
+        const c = ff.paiement.adhesion?.client ?? ff.paiement.client;
+        return {
+          numero: ff.numero,
+          date: ff.dateEmission,
+          client: c ? `${c.prenom} ${c.nom}` : '—',
+          montant: ff.montant,
+          statut: ff.statut,
+        };
+      }),
       resume: [
         { label: 'Nombre de factures', value: String(factures.length) },
         { label: 'Montant total facturé', value: this.money(total) },

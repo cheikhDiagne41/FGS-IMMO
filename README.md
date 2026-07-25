@@ -77,5 +77,7 @@ npm run dev             # API (:3000) + Web (:5173) simultanément
 - [x] Fiche terrain détaillée : localisation + carte OSM, galerie photos/vidéos, infos, modalités de paiement
 - [x] Admin : création de sites et de terrains, upload de médias (images/vidéos)
 - [x] Informations du vendeur (société) éditables, affichées sur la fiche terrain + factures + certificats
+- [x] Sites coopérative vs vente directe (achat en paiement unique, sans acompte ni mensualité)
+- [x] Page terrain type annonce : carrousel médias, badges, référence, document, prix, carte, contact vendeur (Appel/SMS/WhatsApp), favoris, demande de visite
 - [x] Assignation d'un numéro de parcelle dès l'acompte (réservé), finalisation au solde
 - [ ] Notifications Email/SMS, i18n FR/EN

@@ -1,8 +1,8 @@
 import { useState } from 'react';
+import { useNavigate } from 'react-router-dom';
 import { useQuery } from '@tanstack/react-query';
 import { api, formatFCFA } from '../lib/api';
 import { useAuth } from '../context/AuthContext';
-import TerrainDetailModal from '../components/TerrainDetailModal';
 import TerrainFormModal from '../components/TerrainFormModal';
 
 interface Terrain {
@@ -23,8 +23,8 @@ const statutStyle: Record<string, string> = {
 
 export default function Terrains() {
   const { user } = useAuth();
+  const navigate = useNavigate();
   const isAdmin = user?.role === 'ADMIN' || user?.role === 'GESTIONNAIRE';
-  const [selected, setSelected] = useState<string | null>(null);
   const [showForm, setShowForm] = useState(false);
   const [filters, setFilters] = useState({
     statut: '',
@@ -117,7 +117,7 @@ export default function Terrains() {
         {terrains.map((t) => (
           <button
             key={t.id}
-            onClick={() => setSelected(t.id)}
+            onClick={() => navigate(`/terrains/${t.id}`)}
             className="card cursor-pointer text-left transition hover:shadow-md hover:ring-2 hover:ring-brand-200"
           >
             <div className="mb-3 flex h-24 items-center justify-center rounded-xl bg-gradient-to-br from-brand-100 to-brand-50 text-4xl">
@@ -159,12 +159,6 @@ export default function Terrains() {
         </div>
       )}
 
-      {selected && (
-        <TerrainDetailModal
-          terrainId={selected}
-          onClose={() => setSelected(null)}
-        />
-      )}
       {showForm && <TerrainFormModal onClose={() => setShowForm(false)} />}
     </div>
   );
