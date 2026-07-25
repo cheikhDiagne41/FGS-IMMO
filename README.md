@@ -71,6 +71,6 @@ npm run dev             # API (:3000) + Web (:5173) simultanément
 - [x] Paiements Wave / Orange Money (simulé) + gestion comptable (confirmer/annuler/rembourser)
 - [x] Facturation PDF + QR Code + signature électronique (SHA-256)
 - [~] Notifications (in-app fait ; Email / SMS à brancher)
-- [ ] Attribution automatique des terrains
+- [x] Attribution automatique des terrains (dossier soldé → parcelle + certificat PDF)
 - [ ] Rapports (PDF / Excel)
 - [ ] Carte interactive, recherche multicritère, i18n FR/EN

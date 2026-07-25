@@ -15,6 +15,7 @@ import {
 } from '@prisma/client';
 import { PrismaService } from '../prisma/prisma.service';
 import { FacturesService } from '../factures/factures.service';
+import { AttributionsService } from '../attributions/attributions.service';
 import { CreatePaiementDto } from './dto/paiement.dto';
 
 @Injectable()
@@ -22,6 +23,7 @@ export class PaiementsService {
   constructor(
     private prisma: PrismaService,
     private factures: FacturesService,
+    private attributions: AttributionsService,
   ) {}
 
   private genererReference(): string {
@@ -179,6 +181,11 @@ export class PaiementsService {
             message: `Votre paiement de ${dto.montant} FCFA a été enregistré. Facture ${facture.numero}.`,
           },
         });
+
+        // Attribution automatique d'une parcelle si le dossier est soldé
+        if (recompute.soldeRestant <= 0) {
+          await this.attributions.autoAttribuer(tx, dto.adhesionId);
+        }
       }
 
       await tx.activityLog.create({
@@ -213,6 +220,9 @@ export class PaiementsService {
         montant: Number(paiement.montant),
         soldeRestant: recompute.soldeRestant,
       });
+      if (recompute.soldeRestant <= 0) {
+        await this.attributions.autoAttribuer(tx, paiement.adhesionId);
+      }
       return { ok: true, facture };
     });
   }

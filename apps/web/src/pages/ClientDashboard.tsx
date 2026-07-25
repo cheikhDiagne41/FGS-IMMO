@@ -4,6 +4,19 @@ import { useNavigate } from 'react-router-dom';
 import { api, formatFCFA } from '../lib/api';
 import PaiementModal from '../components/PaiementModal';
 
+async function telechargerCertificat(adhesionId: string, dossier: string) {
+  const res = await api.get(`/attributions/${adhesionId}/certificat`, {
+    responseType: 'blob',
+  });
+  const url = URL.createObjectURL(res.data);
+  const a = document.createElement('a');
+  a.href = url;
+  a.target = '_blank';
+  a.download = `CERT-${dossier}.pdf`;
+  a.click();
+  setTimeout(() => URL.revokeObjectURL(url), 1000);
+}
+
 interface AdhesionDashboard {
   adhesionId: string;
   numeroDossier: string;
@@ -147,14 +160,24 @@ export default function ClientDashboard() {
           </div>
 
           {a.terrain && (
-            <div className="flex items-center gap-2 rounded-xl bg-gradient-to-r from-brand-600 to-brand-700 p-3 text-white">
-              <span className="text-lg">🏡</span>
-              <div>
-                <div className="text-xs text-brand-100">Terrain attribué</div>
-                <div className="font-bold">
-                  Parcelle {a.terrain.numeroParcelle} — {a.terrain.statut}
+            <div className="flex flex-wrap items-center justify-between gap-2 rounded-xl bg-gradient-to-r from-brand-600 to-brand-700 p-3 text-white">
+              <div className="flex items-center gap-2">
+                <span className="text-lg">🏡</span>
+                <div>
+                  <div className="text-xs text-brand-100">Terrain attribué</div>
+                  <div className="font-bold">
+                    Parcelle {a.terrain.numeroParcelle} — {a.terrain.statut}
+                  </div>
                 </div>
               </div>
+              <button
+                onClick={() =>
+                  telechargerCertificat(a.adhesionId, a.numeroDossier)
+                }
+                className="rounded-lg bg-white/20 px-3 py-1.5 text-xs font-semibold hover:bg-white/30"
+              >
+                📜 Certificat d'attribution
+              </button>
             </div>
           )}
 
