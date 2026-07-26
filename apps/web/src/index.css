@@ -30,4 +30,33 @@
   .label {
     @apply mb-1 block text-sm font-medium text-slate-700;
   }
+  /* Image avec léger zoom au survol (style éditorial) */
+  .zoom {
+    @apply overflow-hidden;
+  }
+  .zoom img {
+    @apply h-full w-full object-cover transition-transform duration-700 ease-out;
+  }
+  .zoom:hover img {
+    transform: scale(1.06);
+  }
+  /* Section aérée */
+  .section {
+    @apply py-16 md:py-24;
+  }
+  .eyebrow {
+    @apply mb-3 inline-block text-xs font-bold uppercase tracking-[0.2em] text-brand-600;
+  }
+  .h-display {
+    @apply font-extrabold tracking-tight text-slate-900;
+  }
+  /* Élément pleine largeur (déborde d'un conteneur centré) */
+  .bleed {
+    position: relative;
+    width: 100vw;
+    left: 50%;
+    right: 50%;
+    margin-left: -50vw;
+    margin-right: -50vw;
+  }
 }
