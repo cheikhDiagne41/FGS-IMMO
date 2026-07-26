@@ -37,7 +37,16 @@ export class CooperativesService {
     return this.prisma.cooperative.findMany({
       where: siteId ? { siteId } : undefined,
       include: {
-        site: { select: { id: true, nom: true, code: true } },
+        site: {
+          select: {
+            id: true,
+            nom: true,
+            code: true,
+            commune: true,
+            gerantNom: true,
+            gerantTelephone: true,
+          },
+        },
         _count: { select: { adhesions: true } },
       },
       orderBy: { createdAt: 'desc' },

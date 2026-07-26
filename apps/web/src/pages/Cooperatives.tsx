@@ -1,4 +1,5 @@
 import { useState } from 'react';
+import { Link } from 'react-router-dom';
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { api, formatFCFA } from '../lib/api';
 import { useAuth } from '../context/AuthContext';
@@ -14,7 +15,14 @@ interface Cooperative {
   nbMaxAdherents: number;
   responsable?: string;
   statut: string;
-  site: { nom: string; code: string };
+  site: {
+    id: string;
+    nom: string;
+    code: string;
+    commune?: string;
+    gerantNom?: string;
+    gerantTelephone?: string;
+  };
   _count: { adhesions: number };
 }
 
@@ -187,7 +195,9 @@ export default function Cooperatives() {
                     {c.numero}
                   </div>
                   <h3 className="font-bold text-slate-800">{c.nom}</h3>
-                  <div className="text-sm text-slate-500">🏘️ {c.site.nom}</div>
+                  <Link to={`/sites/${c.site.id}`} className="text-sm text-brand-600 hover:underline">
+                    🏘️ {c.site.nom}
+                  </Link>
                 </div>
                 <span
                   className={`rounded-full px-2 py-0.5 text-[10px] font-bold ${
@@ -217,6 +227,17 @@ export default function Cooperatives() {
               <div className="mt-2 text-xs text-slate-400">
                 {c.nbMensualites} mensualités · Responsable : {c.responsable ?? '—'}
               </div>
+              {c.site.gerantNom && (
+                <div className="mt-2 flex items-center gap-2 rounded-lg bg-slate-50 px-2 py-1.5 text-xs">
+                  <span className="flex h-6 w-6 items-center justify-center rounded-full bg-brand-600 text-[10px] font-bold text-white">
+                    {c.site.gerantNom[0]}
+                  </span>
+                  <span className="text-slate-600">
+                    Gérant : <b>{c.site.gerantNom}</b>
+                    {c.site.gerantTelephone ? ` · ${c.site.gerantTelephone}` : ''}
+                  </span>
+                </div>
+              )}
 
               {user?.role === 'CLIENT' && (
                 <button

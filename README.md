@@ -73,6 +73,10 @@ npm run dev             # API (:3000) + Web (:5173) simultanément
 - [~] Notifications (in-app fait ; Email / SMS à brancher)
 - [x] Attribution automatique des terrains (dossier soldé → parcelle + certificat PDF)
 - [x] Rapports PDF / Excel (9 rapports : encaissements, clients, coopératives, sites, retards, paiements, factures, ventes, comptabilité)
+- [x] Espace visiteur public (sans compte) : accueil, terrains, sites, coopératives
+- [x] Carte interactive (Leaflet/OSM) des terrains géolocalisés
+- [x] Page site : localisation sur carte + informations du gérant du site
+- [x] Inscription visiteur → client
 - [x] Recherche multicritère des terrains
 - [x] Fiche terrain détaillée : localisation + carte OSM, galerie photos/vidéos, infos, modalités de paiement
 - [x] Admin : création de sites et de terrains, upload de médias (images/vidéos)

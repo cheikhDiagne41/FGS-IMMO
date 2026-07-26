@@ -1,4 +1,5 @@
 import { useState } from 'react';
+import { Link } from 'react-router-dom';
 import { useQuery } from '@tanstack/react-query';
 import { api, formatFCFA } from '../lib/api';
 import { useAuth } from '../context/AuthContext';
@@ -55,7 +56,7 @@ export default function Sites() {
 
       <div className="grid gap-4 md:grid-cols-2 xl:grid-cols-3">
         {sites.map((s) => (
-          <div key={s.id} className="card overflow-hidden">
+          <Link key={s.id} to={`/sites/${s.id}`} className="card block overflow-hidden transition hover:shadow-md hover:ring-2 hover:ring-brand-200">
             {s.photos && s.photos[0] && (
               <div className="-mx-5 -mt-5 mb-4 h-36 overflow-hidden">
                 <img src={s.photos[0].url} alt="" className="h-full w-full object-cover" />
@@ -105,7 +106,7 @@ export default function Sites() {
                 </span>
               </div>
             )}
-          </div>
+          </Link>
         ))}
       </div>
 

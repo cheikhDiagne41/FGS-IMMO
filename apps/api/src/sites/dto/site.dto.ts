@@ -47,6 +47,10 @@ export class CreateSiteDto {
   @IsOptional() @IsEnum(SiteType) type?: SiteType;
   @IsOptional() @IsEnum(SiteStatus) statut?: SiteStatus;
 
+  @IsOptional() @IsString() gerantNom?: string;
+  @IsOptional() @IsString() gerantTelephone?: string;
+  @IsOptional() @IsString() gerantEmail?: string;
+
   /** Requis si type = COOPERATIVE : paramètres de la coopérative à créer */
   @IsOptional()
   @ValidateNested()

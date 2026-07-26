@@ -19,6 +19,9 @@ export default function SiteFormModal({ onClose }: { onClose: () => void }) {
     description: '',
     statut: 'DISPONIBLE',
     type: 'COOPERATIVE',
+    gerantNom: '',
+    gerantTelephone: '',
+    gerantEmail: '',
     // config coopérative
     coopMontantAcompte: '',
     coopCotisation: '',
@@ -39,7 +42,7 @@ export default function SiteFormModal({ onClose }: { onClose: () => void }) {
         statut: f.statut,
         type: f.type,
       };
-      for (const k of ['region', 'departement', 'commune', 'adresse', 'description'])
+      for (const k of ['region', 'departement', 'commune', 'adresse', 'description', 'gerantNom', 'gerantTelephone', 'gerantEmail'])
         if ((f as any)[k]) payload[k] = (f as any)[k];
       for (const k of ['latitude', 'longitude', 'superficie', 'nbParcelles', 'prixReference'])
         if ((f as any)[k]) payload[k] = Number((f as any)[k]);
@@ -145,6 +148,16 @@ export default function SiteFormModal({ onClose }: { onClose: () => void }) {
             </div>
           </div>
         )}
+
+        {/* Gérant du site */}
+        <div className="mt-4 rounded-xl border border-slate-100 p-4">
+          <div className="mb-3 text-sm font-semibold text-slate-700">Gérant du site</div>
+          <div className="grid grid-cols-2 gap-3 md:grid-cols-3">
+            <Field label="Nom du gérant" v={f.gerantNom} on={(v) => set('gerantNom', v)} placeholder="ex : Fatou Sow" />
+            <Field label="Téléphone" v={f.gerantTelephone} on={(v) => set('gerantTelephone', v)} placeholder="+221 …" />
+            <Field label="Email" v={f.gerantEmail} on={(v) => set('gerantEmail', v)} />
+          </div>
+        </div>
 
         {/* Photos du site */}
         <div className="mt-4">

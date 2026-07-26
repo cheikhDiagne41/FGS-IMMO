@@ -11,6 +11,7 @@ export const navByRole: Record<Role, NavItem[]> = {
     { label: 'Sites', path: '/sites' },
     { label: 'Coopératives', path: '/cooperatives' },
     { label: 'Terrains', path: '/terrains' },
+    { label: 'Carte', path: '/carte' },
     { label: 'Paiements', path: '/paiements' },
     { label: 'Rapports', path: '/rapports' },
     { label: 'Vendeur', path: '/vendeur' },
@@ -20,6 +21,7 @@ export const navByRole: Record<Role, NavItem[]> = {
     { label: 'Sites', path: '/sites' },
     { label: 'Coopératives', path: '/cooperatives' },
     { label: 'Terrains', path: '/terrains' },
+    { label: 'Carte', path: '/carte' },
   ],
   COMPTABLE: [
     { label: 'Tableau de bord', path: '/' },
@@ -27,12 +29,14 @@ export const navByRole: Record<Role, NavItem[]> = {
     { label: 'Rapports', path: '/rapports' },
     { label: 'Coopératives', path: '/cooperatives' },
     { label: 'Terrains', path: '/terrains' },
+    { label: 'Carte', path: '/carte' },
   ],
   CLIENT: [
     { label: 'Mon espace', path: '/' },
     { label: 'Sites', path: '/sites' },
     { label: 'Coopératives', path: '/cooperatives' },
     { label: 'Terrains', path: '/terrains' },
+    { label: 'Carte', path: '/carte' },
     { label: 'Mes factures', path: '/factures' },
   ],
 };

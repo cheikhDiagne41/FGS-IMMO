@@ -12,6 +12,7 @@ import { PaiementsModule } from './paiements/paiements.module';
 import { AttributionsModule } from './attributions/attributions.module';
 import { ReportsModule } from './reports/reports.module';
 import { VendeurModule } from './vendeur/vendeur.module';
+import { PublicModule } from './public/public.module';
 
 @Module({
   imports: [
@@ -28,6 +29,7 @@ import { VendeurModule } from './vendeur/vendeur.module';
     AttributionsModule,
     ReportsModule,
     VendeurModule,
+    PublicModule,
   ],
 })
 export class AppModule {}

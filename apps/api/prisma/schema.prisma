@@ -207,6 +207,10 @@ model Site {
   planUrl        String?    // plan de lotissement
   type           SiteType   @default(COOPERATIVE)
   statut         SiteStatus @default(DISPONIBLE)
+  // Gérant du site (responsable sur le terrain)
+  gerantNom       String?
+  gerantTelephone String?
+  gerantEmail     String?
 
   createdAt      DateTime   @default(now())
   updatedAt      DateTime   @updatedAt
