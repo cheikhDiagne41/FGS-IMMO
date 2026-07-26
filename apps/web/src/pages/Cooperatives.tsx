@@ -120,8 +120,11 @@ function AdhesionModal({
         </div>
 
         {/* Pièce d'identité */}
-        <div className="mt-4">
-          <div className="mb-2 text-sm font-semibold text-slate-700">Pièce d'identité</div>
+        <div className="mt-4 rounded-xl border-2 border-brand-100 bg-brand-50/40 p-4">
+          <div className="text-sm font-bold text-brand-800">📎 Pièce d'identité à fournir</div>
+          <div className="mb-2 text-xs text-slate-500">
+            Choisissez votre pièce, saisissez le numéro et joignez la ou les photos.
+          </div>
           <div className="grid grid-cols-3 gap-2">
             {pieceTypes.map((p) => (
               <button key={p.value} type="button"
