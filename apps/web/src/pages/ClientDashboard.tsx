@@ -95,7 +95,33 @@ export default function ClientDashboard() {
         </div>
       )}
 
-      {adhesions.map((a) => (
+      {adhesions.map((a) =>
+        a.statut === 'EN_ATTENTE' ? (
+          <div
+            key={a.adhesionId}
+            className="card border-2 border-amber-200 bg-amber-50/40"
+          >
+            <div className="flex flex-wrap items-start justify-between gap-3">
+              <div>
+                <div className="text-xs font-semibold uppercase text-amber-500">
+                  Demande {a.numeroDossier}
+                </div>
+                <h3 className="text-lg font-bold text-slate-800">
+                  {a.cooperative}
+                </h3>
+                <div className="text-sm text-slate-500">Site : {a.site}</div>
+              </div>
+              <span className="rounded-full bg-amber-100 px-3 py-1 text-xs font-bold text-amber-700">
+                ⏳ En attente de validation
+              </span>
+            </div>
+            <p className="mt-3 text-sm text-slate-600">
+              Votre demande d'adhésion et vos pièces ont bien été reçues. Un
+              gestionnaire doit la valider : votre dossier, votre échéancier et le
+              paiement de l'acompte apparaîtront ici une fois la demande validée.
+            </p>
+          </div>
+        ) : (
         <div key={a.adhesionId} className="card space-y-5">
           <div className="flex flex-wrap items-start justify-between gap-3">
             <div>
@@ -194,7 +220,8 @@ export default function ClientDashboard() {
             </button>
           </div>
         </div>
-      ))}
+        ),
+      )}
 
       {payFor && (
         <PaiementModal

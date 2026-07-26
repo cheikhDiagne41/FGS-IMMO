@@ -8,6 +8,7 @@ export interface NavItem {
 export const navByRole: Record<Role, NavItem[]> = {
   ADMIN: [
     { label: 'Tableau de bord', path: '/' },
+    { label: 'Demandes', path: '/demandes' },
     { label: 'Sites', path: '/sites' },
     { label: 'Coopératives', path: '/cooperatives' },
     { label: 'Terrains', path: '/terrains' },
@@ -18,6 +19,7 @@ export const navByRole: Record<Role, NavItem[]> = {
   ],
   GESTIONNAIRE: [
     { label: 'Tableau de bord', path: '/' },
+    { label: 'Demandes', path: '/demandes' },
     { label: 'Sites', path: '/sites' },
     { label: 'Coopératives', path: '/cooperatives' },
     { label: 'Terrains', path: '/terrains' },

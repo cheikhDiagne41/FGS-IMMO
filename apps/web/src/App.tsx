@@ -8,6 +8,7 @@ import AdminDashboard from './pages/AdminDashboard';
 import ClientDashboard from './pages/ClientDashboard';
 import Sites from './pages/Sites';
 import Cooperatives from './pages/Cooperatives';
+import Demandes from './pages/Demandes';
 import Terrains from './pages/Terrains';
 import TerrainDetail from './pages/TerrainDetail';
 import Paiements from './pages/Paiements';
@@ -46,6 +47,7 @@ export default function App() {
           <Route path="sites" element={<Sites />} />
           <Route path="sites/:id" element={<SiteDetail />} />
           <Route path="cooperatives" element={<Cooperatives />} />
+          <Route path="demandes" element={<Demandes />} />
           <Route path="terrains" element={<Terrains />} />
           <Route path="terrains/:id" element={<TerrainDetail />} />
           <Route path="carte" element={<Carte />} />

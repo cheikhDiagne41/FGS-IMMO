@@ -135,6 +135,27 @@ export class AdhesionsController {
     return this.adhesionsService.findAll();
   }
 
+  /** Demandes d'adhésion en attente de validation */
+  @Get('demandes')
+  @Roles(Role.ADMIN, Role.GESTIONNAIRE)
+  demandes() {
+    return this.adhesionsService.findDemandes();
+  }
+
+  /** Valider une demande → dossier affecté au client */
+  @Post(':id/valider')
+  @Roles(Role.ADMIN, Role.GESTIONNAIRE)
+  valider(@Param('id') id: string) {
+    return this.adhesionsService.valider(id);
+  }
+
+  /** Rejeter une demande en attente */
+  @Post(':id/rejeter')
+  @Roles(Role.ADMIN, Role.GESTIONNAIRE)
+  rejeter(@Param('id') id: string, @Body('motif') motif?: string) {
+    return this.adhesionsService.rejeter(id, motif);
+  }
+
   @Get('mine')
   @Roles(Role.CLIENT)
   mine(@CurrentUser() user: AuthUser) {

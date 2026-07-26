@@ -64,9 +64,10 @@ enum MediaType {
 }
 
 enum AdhesionStatus {
-  EN_COURS // adhésion validée, paiements en cours
-  COMPLETE // toutes les mensualités payées
-  ATTRIBUE // terrain attribué
+  EN_ATTENTE // demande soumise, en attente de validation par l'admin/gérant
+  EN_COURS   // demande validée, dossier affecté, paiements en cours
+  COMPLETE   // toutes les mensualités payées
+  ATTRIBUE   // terrain attribué
   ANNULEE
 }
 

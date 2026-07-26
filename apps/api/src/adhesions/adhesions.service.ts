@@ -165,7 +165,7 @@ export class AdhesionsService {
           montantPaye: 0,
           soldeRestant: montantTotal,
           progression: 0,
-          statut: AdhesionStatus.EN_COURS,
+          statut: AdhesionStatus.EN_ATTENTE,
           pieceType: piece?.pieceType,
           pieceNumero: piece?.pieceNumero,
           echeances: {
@@ -217,19 +217,130 @@ export class AdhesionsService {
         }
       }
 
-      // Journal d'activité
       const client = await tx.client.findUnique({ where: { id: clientId } });
+
+      // Notifie les admins/gestionnaires de la nouvelle demande à valider
+      const gestionnaires = await tx.user.findMany({
+        where: { role: { in: ['ADMIN', 'GESTIONNAIRE'] } },
+        select: { id: true },
+      });
+      await tx.notification.createMany({
+        data: gestionnaires.map((g) => ({
+          userId: g.id,
+          type: 'SYSTEME' as const,
+          canal: 'APP' as const,
+          titre: "Nouvelle demande d'adhésion",
+          message: `${client?.prenom ?? ''} ${client?.nom ?? ''} demande à rejoindre ${coop.nom} (dossier ${numeroDossier}). Pièce ${piece?.pieceType ?? '—'} fournie.`,
+        })),
+      });
+
+      // Confirmation au client : demande reçue, en attente de validation
+      if (client) {
+        await tx.notification.create({
+          data: {
+            userId: client.userId,
+            type: 'SYSTEME' as const,
+            canal: 'APP' as const,
+            titre: 'Demande enregistrée',
+            message: `Votre demande d'adhésion à ${coop.nom} a bien été reçue. Elle est en attente de validation par nos services.`,
+          },
+        });
+      }
+
       await tx.activityLog.create({
         data: {
           userId: client?.userId,
-          action: 'ADHESION_CREEE',
+          action: 'ADHESION_DEMANDE',
           entite: 'Adhesion',
           entiteId: adhesion.id,
-          details: `Dossier ${numeroDossier} — ${coop.nom}`,
+          details: `Demande ${numeroDossier} — ${coop.nom}`,
         },
       });
 
       return adhesion;
+    });
+  }
+
+  /** Demandes d'adhésion en attente de validation (admin/gestionnaire) */
+  findDemandes() {
+    return this.prisma.adhesion.findMany({
+      where: { statut: AdhesionStatus.EN_ATTENTE },
+      include: {
+        client: true,
+        cooperative: { select: { nom: true, site: { select: { nom: true } } } },
+        documents: true,
+      },
+      orderBy: { createdAt: 'asc' },
+    });
+  }
+
+  /** Valide une demande : le dossier est affecté au compte du client */
+  async valider(id: string) {
+    const adhesion = await this.prisma.adhesion.findUnique({
+      where: { id },
+      include: { client: true, cooperative: true },
+    });
+    if (!adhesion) throw new NotFoundException('Demande introuvable.');
+    if (adhesion.statut !== AdhesionStatus.EN_ATTENTE) {
+      throw new BadRequestException('Cette demande a déjà été traitée.');
+    }
+    return this.prisma.$transaction(async (tx) => {
+      const updated = await tx.adhesion.update({
+        where: { id },
+        data: { statut: AdhesionStatus.EN_COURS },
+      });
+      await tx.notification.create({
+        data: {
+          userId: adhesion.client.userId,
+          type: 'SYSTEME',
+          canal: 'APP',
+          titre: 'Dossier validé 🎉',
+          message: `Votre adhésion à ${adhesion.cooperative.nom} est validée. Votre dossier ${adhesion.numeroDossier} et votre échéancier sont maintenant disponibles dans votre compte. Vous pouvez régler votre acompte.`,
+        },
+      });
+      await tx.activityLog.create({
+        data: {
+          userId: adhesion.client.userId,
+          action: 'ADHESION_VALIDEE',
+          entite: 'Adhesion',
+          entiteId: id,
+          details: `Dossier ${adhesion.numeroDossier} affecté`,
+        },
+      });
+      return updated;
+    });
+  }
+
+  /** Rejette une demande en attente : la place est libérée */
+  async rejeter(id: string, motif?: string) {
+    const adhesion = await this.prisma.adhesion.findUnique({
+      where: { id },
+      include: { client: true, cooperative: true },
+    });
+    if (!adhesion) throw new NotFoundException('Demande introuvable.');
+    if (adhesion.statut !== AdhesionStatus.EN_ATTENTE) {
+      throw new BadRequestException('Seule une demande en attente peut être rejetée.');
+    }
+    return this.prisma.$transaction(async (tx) => {
+      await tx.notification.create({
+        data: {
+          userId: adhesion.client.userId,
+          type: 'SYSTEME',
+          canal: 'APP',
+          titre: "Demande d'adhésion refusée",
+          message: `Votre demande d'adhésion à ${adhesion.cooperative.nom} n'a pas été retenue.${motif ? ' Motif : ' + motif : ''}`,
+        },
+      });
+      // Supprime la demande (libère la place ; échéances et documents en cascade)
+      await tx.adhesion.delete({ where: { id } });
+      // Réouvre la coopérative si elle était marquée complète
+      if (adhesion.cooperative.statut === 'COMPLETE') {
+        await tx.cooperative.update({
+          where: { id: adhesion.cooperativeId },
+          data: { statut: 'ACTIVE' },
+        });
+      }
+      return { ok: true };
     });
   }
 

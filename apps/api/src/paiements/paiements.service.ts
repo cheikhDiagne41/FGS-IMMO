@@ -138,6 +138,13 @@ export class PaiementsService {
       throw new ForbiddenException("Ce dossier ne vous appartient pas.");
     }
 
+    // Le dossier doit être validé avant tout paiement
+    if (adhesion.statut === AdhesionStatus.EN_ATTENTE) {
+      throw new BadRequestException(
+        "Votre demande d'adhésion est en attente de validation. Vous pourrez payer une fois le dossier affecté.",
+      );
+    }
+
     const solde = Number(adhesion.soldeRestant);
     if (dto.montant > solde + 0.5) {
       throw new BadRequestException(
