@@ -13,14 +13,16 @@ api.interceptors.request.use((config) => {
   return config;
 });
 
-// Déconnexion automatique si le token est invalide/expiré
+// Session expirée / token invalide → retour à l'espace visiteur
 api.interceptors.response.use(
   (res) => res,
   (error) => {
     if (error.response?.status === 401) {
+      const hadToken = !!localStorage.getItem('fgs_token');
       localStorage.removeItem('fgs_token');
-      if (!location.pathname.startsWith('/login')) {
-        location.href = '/login';
+      // Ne redirige que si une session existait (évite les boucles côté public)
+      if (hadToken && location.pathname !== '/') {
+        location.href = '/';
       }
     }
     return Promise.reject(error);

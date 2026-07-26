@@ -53,7 +53,8 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   const logout = () => {
     localStorage.removeItem('fgs_token');
     setUser(null);
-    location.href = '/login';
+    // Retour sur l'espace visiteur (accueil public)
+    location.href = '/';
   };
 
   const refresh = async () => {
