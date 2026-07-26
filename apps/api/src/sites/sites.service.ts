@@ -123,4 +123,31 @@ export class SitesService {
     await this.findOne(id);
     return this.prisma.site.delete({ where: { id } });
   }
+
+  /** Ajoute des photos à un site */
+  async addPhotos(
+    id: string,
+    files: Array<{ filename: string }>,
+  ) {
+    await this.findOne(id);
+    if (!files?.length) {
+      throw new BadRequestException('Aucun fichier reçu.');
+    }
+    await this.prisma.sitePhoto.createMany({
+      data: files.map((f) => ({
+        siteId: id,
+        url: `/uploads/sites/${f.filename}`,
+      })),
+    });
+    return this.findOne(id);
+  }
+
+  async removePhoto(photoId: string) {
+    const photo = await this.prisma.sitePhoto.findUnique({
+      where: { id: photoId },
+    });
+    if (!photo) throw new NotFoundException('Photo introuvable.');
+    await this.prisma.sitePhoto.delete({ where: { id: photoId } });
+    return { ok: true };
+  }
 }

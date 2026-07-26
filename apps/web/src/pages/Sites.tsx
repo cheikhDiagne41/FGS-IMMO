@@ -14,6 +14,8 @@ interface Site {
   nbParcelles: number;
   prixReference?: number;
   statut: string;
+  type?: string;
+  photos?: { id: string; url: string }[];
   _count: { cooperatives: number; terrains: number };
 }
 
@@ -53,7 +55,12 @@ export default function Sites() {
 
       <div className="grid gap-4 md:grid-cols-2 xl:grid-cols-3">
         {sites.map((s) => (
-          <div key={s.id} className="card">
+          <div key={s.id} className="card overflow-hidden">
+            {s.photos && s.photos[0] && (
+              <div className="-mx-5 -mt-5 mb-4 h-36 overflow-hidden">
+                <img src={s.photos[0].url} alt="" className="h-full w-full object-cover" />
+              </div>
+            )}
             <div className="flex items-start justify-between">
               <div>
                 <div className="text-xs font-semibold uppercase text-slate-400">

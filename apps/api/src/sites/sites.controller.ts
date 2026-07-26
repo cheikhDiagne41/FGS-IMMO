@@ -1,4 +1,5 @@
 import {
+  BadRequestException,
   Body,
   Controller,
   Delete,
@@ -6,8 +7,14 @@ import {
   Param,
   Patch,
   Post,
+  UploadedFiles,
   UseGuards,
+  UseInterceptors,
 } from '@nestjs/common';
+import { FilesInterceptor } from '@nestjs/platform-express';
+import { diskStorage } from 'multer';
+import { extname } from 'path';
+import { mkdirSync } from 'fs';
 import { ApiBearerAuth, ApiTags } from '@nestjs/swagger';
 import { Role } from '@prisma/client';
 import { SitesService } from './sites.service';
@@ -19,6 +26,26 @@ import {
   AuthUser,
   CurrentUser,
 } from '../auth/decorators/current-user.decorator';
+
+const SITE_UPLOAD_DIR = 'uploads/sites';
+const sitePhotoStorage = diskStorage({
+  destination: (_req, _file, cb) => {
+    mkdirSync(SITE_UPLOAD_DIR, { recursive: true });
+    cb(null, SITE_UPLOAD_DIR);
+  },
+  filename: (_req, file, cb) => {
+    const unique = `${Date.now()}-${Math.round(Math.random() * 1e9)}`;
+    cb(null, `${unique}${extname(file.originalname)}`);
+  },
+});
+const imageFilter = (
+  _req: any,
+  file: { mimetype: string },
+  cb: (err: Error | null, ok: boolean) => void,
+) => {
+  const ok = file.mimetype.startsWith('image/');
+  cb(ok ? null : new BadRequestException('Seules les images sont acceptées.'), ok);
+};
 
 @ApiTags('Sites')
 @ApiBearerAuth()
@@ -55,6 +82,28 @@ export class SitesController {
   @Roles(Role.ADMIN, Role.GESTIONNAIRE)
   update(@Param('id') id: string, @Body() dto: UpdateSiteDto) {
     return this.sitesService.update(id, dto);
+  }
+
+  @Post(':id/media')
+  @Roles(Role.ADMIN, Role.GESTIONNAIRE)
+  @UseInterceptors(
+    FilesInterceptor('files', 10, {
+      storage: sitePhotoStorage,
+      fileFilter: imageFilter,
+      limits: { fileSize: 20 * 1024 * 1024 },
+    }),
+  )
+  addPhotos(
+    @Param('id') id: string,
+    @UploadedFiles() files: Array<{ filename: string }>,
+  ) {
+    return this.sitesService.addPhotos(id, files);
+  }
+
+  @Delete('photo/:photoId')
+  @Roles(Role.ADMIN, Role.GESTIONNAIRE)
+  removePhoto(@Param('photoId') photoId: string) {
+    return this.sitesService.removePhoto(photoId);
   }
 
   @Delete(':id')

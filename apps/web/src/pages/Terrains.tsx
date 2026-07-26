@@ -8,11 +8,14 @@ import TerrainFormModal from '../components/TerrainFormModal';
 interface Terrain {
   id: string;
   numeroParcelle: string;
+  titre?: string;
   superficie: number;
   prix: number | null;
   type: string;
   statut: 'DISPONIBLE' | 'RESERVE' | 'VENDU';
+  enVedette?: boolean;
   site: { nom: string; commune?: string };
+  images?: { url: string; mediaType: string }[];
 }
 
 const statutStyle: Record<string, string> = {
@@ -120,8 +123,17 @@ export default function Terrains() {
             onClick={() => navigate(`/terrains/${t.id}`)}
             className="card cursor-pointer text-left transition hover:shadow-md hover:ring-2 hover:ring-brand-200"
           >
-            <div className="mb-3 flex h-24 items-center justify-center rounded-xl bg-gradient-to-br from-brand-100 to-brand-50 text-4xl">
-              🗺️
+            <div className="relative mb-3 h-32 overflow-hidden rounded-xl bg-gradient-to-br from-brand-100 to-brand-50">
+              {t.images && t.images[0] ? (
+                <img src={t.images[0].url} alt="" className="h-full w-full object-cover" />
+              ) : (
+                <div className="flex h-full items-center justify-center text-4xl">🗺️</div>
+              )}
+              {t.enVedette && (
+                <span className="absolute left-2 top-2 rounded-full bg-gold-500 px-2 py-0.5 text-[10px] font-bold text-white">
+                  ★ Vedette
+                </span>
+              )}
             </div>
             <div className="flex items-start justify-between">
               <div>

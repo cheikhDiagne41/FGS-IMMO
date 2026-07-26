@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useRef, useState } from 'react';
 import { useMutation, useQueryClient } from '@tanstack/react-query';
 import { api } from '../lib/api';
 
@@ -28,6 +28,8 @@ export default function SiteFormModal({ onClose }: { onClose: () => void }) {
     coopResponsable: '',
   });
   const set = (k: string, v: string) => setF((s) => ({ ...s, [k]: v }));
+  const fileInput = useRef<HTMLInputElement>(null);
+  const [photos, setPhotos] = useState<File[]>([]);
 
   const create = useMutation({
     mutationFn: async () => {
@@ -51,7 +53,13 @@ export default function SiteFormModal({ onClose }: { onClose: () => void }) {
           responsable: f.coopResponsable || undefined,
         };
       }
-      return (await api.post('/sites', payload)).data;
+      const site = (await api.post('/sites', payload)).data;
+      if (photos.length > 0) {
+        const fd = new FormData();
+        photos.forEach((p) => fd.append('files', p));
+        await api.post(`/sites/${site.id}/media`, fd);
+      }
+      return site;
     },
     onSuccess: () => {
       qc.invalidateQueries({ queryKey: ['sites'] });
@@ -137,6 +145,24 @@ export default function SiteFormModal({ onClose }: { onClose: () => void }) {
             </div>
           </div>
         )}
+
+        {/* Photos du site */}
+        <div className="mt-4">
+          <label className="label">Photos du site</label>
+          <input ref={fileInput} type="file" accept="image/*" multiple className="hidden"
+            onChange={(e) => setPhotos((p) => [...p, ...Array.from(e.target.files ?? [])])} />
+          <div className="flex flex-wrap gap-2">
+            {photos.map((p, i) => (
+              <div key={i} className="relative">
+                <img src={URL.createObjectURL(p)} alt="" className="h-16 w-20 rounded-lg object-cover" />
+                <button type="button" onClick={() => setPhotos((prev) => prev.filter((_, j) => j !== i))}
+                  className="absolute -right-1 -top-1 rounded-full bg-rose-500 px-1.5 text-xs text-white">×</button>
+              </div>
+            ))}
+            <button type="button" onClick={() => fileInput.current?.click()}
+              className="flex h-16 w-20 items-center justify-center rounded-lg border-2 border-dashed border-slate-300 text-2xl text-slate-400 hover:border-brand-400">+</button>
+          </div>
+        </div>
 
         {create.isError && (
           <div className="mt-3 rounded-lg bg-red-50 px-3 py-2 text-sm text-red-600">
