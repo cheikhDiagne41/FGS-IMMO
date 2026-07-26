@@ -6,11 +6,17 @@ import {
   Get,
   Param,
   Post,
+  UploadedFiles,
   UseGuards,
+  UseInterceptors,
 } from '@nestjs/common';
+import { FileFieldsInterceptor } from '@nestjs/platform-express';
+import { diskStorage } from 'multer';
+import { extname } from 'path';
+import { mkdirSync } from 'fs';
 import { ApiBearerAuth, ApiTags } from '@nestjs/swagger';
-import { Role } from '@prisma/client';
-import { AdhesionsService } from './adhesions.service';
+import { DocumentType, PieceType, Role } from '@prisma/client';
+import { AdhesionsService, PieceIdentite } from './adhesions.service';
 import { CreateAdhesionDto, PreviewAdhesionDto } from './dto/adhesion.dto';
 import { JwtAuthGuard } from '../auth/guards/jwt-auth.guard';
 import { RolesGuard } from '../auth/guards/roles.guard';
@@ -19,6 +25,26 @@ import {
   AuthUser,
   CurrentUser,
 } from '../auth/decorators/current-user.decorator';
+
+const DOC_DIR = 'uploads/documents';
+const docStorage = diskStorage({
+  destination: (_req, _file, cb) => {
+    mkdirSync(DOC_DIR, { recursive: true });
+    cb(null, DOC_DIR);
+  },
+  filename: (_req, file, cb) => {
+    const unique = `${Date.now()}-${Math.round(Math.random() * 1e9)}`;
+    cb(null, `${unique}${extname(file.originalname)}`);
+  },
+});
+const imgFilter = (
+  _req: any,
+  file: { mimetype: string },
+  cb: (err: Error | null, ok: boolean) => void,
+) => {
+  const ok = file.mimetype.startsWith('image/');
+  cb(ok ? null : new BadRequestException('Photos uniquement (image).'), ok);
+};
 
 @ApiTags('Adhésions')
 @ApiBearerAuth()
@@ -32,6 +58,56 @@ export class AdhesionsController {
   @Roles(Role.CLIENT, Role.ADMIN, Role.GESTIONNAIRE)
   preview(@Body() dto: PreviewAdhesionDto) {
     return this.adhesionsService.preview(dto.cooperativeId);
+  }
+
+  /** Adhésion du client avec pièce d'identité (CNI recto/verso, passeport ou extrait) */
+  @Post('rejoindre')
+  @Roles(Role.CLIENT)
+  @UseInterceptors(
+    FileFieldsInterceptor(
+      [
+        { name: 'recto', maxCount: 1 },
+        { name: 'verso', maxCount: 1 },
+      ],
+      { storage: docStorage, fileFilter: imgFilter, limits: { fileSize: 15 * 1024 * 1024 } },
+    ),
+  )
+  rejoindre(
+    @Body() body: { cooperativeId: string; pieceType: PieceType; pieceNumero: string },
+    @UploadedFiles()
+    files: { recto?: { filename: string }[]; verso?: { filename: string }[] },
+    @CurrentUser() user: AuthUser,
+  ) {
+    if (!user.clientId) throw new ForbiddenException('Aucun profil client.');
+    if (!body.cooperativeId) throw new BadRequestException('Coopérative requise.');
+    if (!body.pieceType || !body.pieceNumero)
+      throw new BadRequestException("Type et numéro de pièce d'identité requis.");
+
+    const recto = files?.recto?.[0];
+    const verso = files?.verso?.[0];
+    const documents: PieceIdentite['documents'] = [];
+
+    if (body.pieceType === PieceType.CNI) {
+      if (!recto || !verso)
+        throw new BadRequestException('CNI : photos recto ET verso requises.');
+      documents.push({ type: DocumentType.CNI_RECTO, nom: 'CNI recto', url: `/uploads/documents/${recto.filename}` });
+      documents.push({ type: DocumentType.CNI_VERSO, nom: 'CNI verso', url: `/uploads/documents/${verso.filename}` });
+    } else {
+      if (!recto)
+        throw new BadRequestException(
+          body.pieceType === PieceType.PASSEPORT
+            ? 'Passeport : photo requise.'
+            : 'Extrait : photo requise.',
+        );
+      const type = body.pieceType === PieceType.PASSEPORT ? DocumentType.PASSEPORT : DocumentType.EXTRAIT;
+      documents.push({ type, nom: type, url: `/uploads/documents/${recto.filename}` });
+    }
+
+    return this.adhesionsService.create(user.clientId, body.cooperativeId, {
+      pieceType: body.pieceType,
+      pieceNumero: body.pieceNumero,
+      documents,
+    });
   }
 
   /** Le client rejoint une coopérative (ou un gestionnaire inscrit un client) */

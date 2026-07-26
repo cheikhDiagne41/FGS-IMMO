@@ -105,13 +105,21 @@ enum FactureStatut {
 }
 
 enum DocumentType {
-  CNI
+  CNI_RECTO
+  CNI_VERSO
   PASSEPORT
+  EXTRAIT
   JUSTIFICATIF_DOMICILE
   PHOTO
   CONTRAT
   CERTIFICAT_ATTRIBUTION
   AUTRE
+}
+
+enum PieceType {
+  CNI
+  PASSEPORT
+  EXTRAIT
 }
 
 enum NotificationType {
@@ -338,12 +346,17 @@ model Adhesion {
   progression     Int            @default(0) // pourcentage 0-100
   statut          AdhesionStatus @default(EN_COURS)
 
+  // Pièce d'identité fournie à l'adhésion
+  pieceType       PieceType?
+  pieceNumero     String?
+
   createdAt       DateTime       @default(now())
   updatedAt       DateTime       @updatedAt
 
   echeances       Echeance[]
   paiements       Paiement[]
   terrain         Terrain?
+  documents       Document[]
 
   @@unique([clientId, cooperativeId])
   @@index([statut])
@@ -446,13 +459,15 @@ model Facture {
 // ============================================================
 
 model Document {
-  id        String       @id @default(uuid())
-  clientId  String
-  client    Client       @relation(fields: [clientId], references: [id], onDelete: Cascade)
-  type      DocumentType
-  nom       String
-  url       String
-  createdAt DateTime     @default(now())
+  id          String       @id @default(uuid())
+  clientId    String
+  client      Client       @relation(fields: [clientId], references: [id], onDelete: Cascade)
+  adhesionId  String?
+  adhesion    Adhesion?    @relation(fields: [adhesionId], references: [id], onDelete: Cascade)
+  type        DocumentType
+  nom         String
+  url         String
+  createdAt   DateTime     @default(now())
 
   @@map("documents")
 }

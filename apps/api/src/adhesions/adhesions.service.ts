@@ -6,11 +6,19 @@ import {
 } from '@nestjs/common';
 import {
   AdhesionStatus,
+  DocumentType,
   EcheanceStatus,
   EcheanceType,
+  PieceType,
   Prisma,
 } from '@prisma/client';
 import { PrismaService } from '../prisma/prisma.service';
+
+export interface PieceIdentite {
+  pieceType: PieceType;
+  pieceNumero: string;
+  documents: { type: DocumentType; nom: string; url: string }[];
+}
 
 interface EcheancePlan {
   numero: number;
@@ -116,7 +124,11 @@ export class AdhesionsService {
    * Crée l'adhésion : dossier + échéancier + compte coopérateur,
    * le tout dans une transaction (tout ou rien).
    */
-  async create(clientId: string, cooperativeId: string) {
+  async create(
+    clientId: string,
+    cooperativeId: string,
+    piece?: PieceIdentite,
+  ) {
     const coop = await this.prisma.cooperative.findUnique({
       where: { id: cooperativeId },
       include: { _count: { select: { adhesions: true } } },
@@ -154,6 +166,8 @@ export class AdhesionsService {
           soldeRestant: montantTotal,
           progression: 0,
           statut: AdhesionStatus.EN_COURS,
+          pieceType: piece?.pieceType,
+          pieceNumero: piece?.pieceNumero,
           echeances: {
             create: plan.map((e) => ({
               numero: e.numero,
@@ -177,6 +191,30 @@ export class AdhesionsService {
           where: { id: cooperativeId },
           data: { statut: 'COMPLETE' },
         });
+      }
+
+      // Pièce d'identité : documents + mise à jour du profil client
+      if (piece) {
+        await tx.document.createMany({
+          data: piece.documents.map((d) => ({
+            clientId,
+            adhesionId: adhesion.id,
+            type: d.type,
+            nom: d.nom,
+            url: d.url,
+          })),
+        });
+        if (piece.pieceType === PieceType.PASSEPORT) {
+          await tx.client.update({
+            where: { id: clientId },
+            data: { passeport: piece.pieceNumero },
+          });
+        } else if (piece.pieceType === PieceType.CNI) {
+          await tx.client.update({
+            where: { id: clientId },
+            data: { cin: piece.pieceNumero },
+          });
+        }
       }
 
       // Journal d'activité
@@ -214,6 +252,7 @@ export class AdhesionsService {
         echeances: { orderBy: { numero: 'asc' } },
         paiements: { orderBy: { datePaiement: 'desc' } },
         terrain: true,
+        documents: true,
       },
     });
     if (!adhesion) throw new NotFoundException('Adhésion introuvable.');

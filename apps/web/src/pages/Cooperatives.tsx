@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useRef, useState } from 'react';
 import { Link } from 'react-router-dom';
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { api, formatFCFA } from '../lib/api';
@@ -39,6 +39,37 @@ interface Preview {
   complete: boolean;
 }
 
+const pieceTypes = [
+  { value: 'CNI', label: "CNI (recto + verso)" },
+  { value: 'PASSEPORT', label: 'Passeport' },
+  { value: 'EXTRAIT', label: 'Extrait de naissance' },
+];
+
+function FilePick({
+  label, file, onPick,
+}: { label: string; file: File | null; onPick: (f: File | null) => void }) {
+  const ref = useRef<HTMLInputElement>(null);
+  return (
+    <div>
+      <div className="mb-1 text-xs font-medium text-slate-500">{label}</div>
+      <input ref={ref} type="file" accept="image/*" className="hidden"
+        onChange={(e) => onPick(e.target.files?.[0] ?? null)} />
+      {file ? (
+        <div className="relative">
+          <img src={URL.createObjectURL(file)} alt="" className="h-24 w-full rounded-lg object-cover" />
+          <button type="button" onClick={() => onPick(null)}
+            className="absolute right-1 top-1 rounded-full bg-rose-500 px-1.5 text-xs text-white">×</button>
+        </div>
+      ) : (
+        <button type="button" onClick={() => ref.current?.click()}
+          className="flex h-24 w-full items-center justify-center rounded-lg border-2 border-dashed border-slate-300 text-sm text-slate-400 hover:border-brand-400">
+          📷 Ajouter
+        </button>
+      )}
+    </div>
+  );
+}
+
 function AdhesionModal({
   preview,
   onClose,
@@ -48,16 +79,32 @@ function AdhesionModal({
 }: {
   preview: Preview;
   onClose: () => void;
-  onConfirm: () => void;
+  onConfirm: (fd: FormData) => void;
   loading: boolean;
   error?: string;
 }) {
+  const [pieceType, setPieceType] = useState('CNI');
+  const [pieceNumero, setPieceNumero] = useState('');
+  const [recto, setRecto] = useState<File | null>(null);
+  const [verso, setVerso] = useState<File | null>(null);
+
+  const filesOk = pieceType === 'CNI' ? !!recto && !!verso : !!recto;
+  const canSubmit = !preview.complete && !!pieceNumero && filesOk;
+
+  const submit = () => {
+    const fd = new FormData();
+    fd.append('cooperativeId', preview.cooperativeId);
+    fd.append('pieceType', pieceType);
+    fd.append('pieceNumero', pieceNumero);
+    if (recto) fd.append('recto', recto);
+    if (verso && pieceType === 'CNI') fd.append('verso', verso);
+    onConfirm(fd);
+  };
+
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40 p-4">
-      <div className="w-full max-w-md rounded-2xl bg-white p-6 shadow-xl">
-        <h3 className="text-lg font-bold text-slate-800">
-          Rejoindre la coopérative
-        </h3>
+    <div className="fixed inset-0 z-50 flex items-start justify-center overflow-y-auto bg-black/40 p-4">
+      <div className="my-8 w-full max-w-md rounded-2xl bg-white p-6 shadow-xl">
+        <h3 className="text-lg font-bold text-slate-800">Rejoindre la coopérative</h3>
         <p className="text-sm text-slate-500">{preview.cooperative}</p>
 
         <div className="mt-4 space-y-2 rounded-xl bg-slate-50 p-4 text-sm">
@@ -66,38 +113,45 @@ function AdhesionModal({
             <Row label="Frais d'adhésion" value={formatFCFA(preview.fraisAdhesion)} />
           )}
           <Row label="Acompte obligatoire" value={formatFCFA(preview.montantAcompte)} />
-          <Row
-            label="Cotisation mensuelle"
-            value={`${formatFCFA(preview.cotisationMensuelle)} × ${preview.nbMensualites}`}
-          />
+          <Row label="Cotisation mensuelle"
+            value={`${formatFCFA(preview.cotisationMensuelle)} × ${preview.nbMensualites}`} />
           <div className="my-2 border-t border-slate-200" />
-          <Row
-            label="Montant total à payer"
-            value={formatFCFA(preview.montantTotal)}
-            strong
-          />
+          <Row label="Montant total à payer" value={formatFCFA(preview.montantTotal)} strong />
+        </div>
+
+        {/* Pièce d'identité */}
+        <div className="mt-4">
+          <div className="mb-2 text-sm font-semibold text-slate-700">Pièce d'identité</div>
+          <div className="grid grid-cols-3 gap-2">
+            {pieceTypes.map((p) => (
+              <button key={p.value} type="button"
+                onClick={() => { setPieceType(p.value); setRecto(null); setVerso(null); }}
+                className={`rounded-lg border-2 px-2 py-2 text-[11px] font-semibold ${pieceType === p.value ? 'border-brand-500 bg-brand-50 text-brand-700' : 'border-slate-200 text-slate-600'}`}>
+                {p.value}
+              </button>
+            ))}
+          </div>
+          <input className="input mt-3" placeholder="Numéro de la pièce"
+            value={pieceNumero} onChange={(e) => setPieceNumero(e.target.value)} />
+
+          <div className={`mt-3 grid gap-2 ${pieceType === 'CNI' ? 'grid-cols-2' : 'grid-cols-1'}`}>
+            <FilePick label={pieceType === 'CNI' ? 'Photo recto' : 'Photo de la pièce'} file={recto} onPick={setRecto} />
+            {pieceType === 'CNI' && <FilePick label="Photo verso" file={verso} onPick={setVerso} />}
+          </div>
         </div>
 
         <p className="mt-3 text-xs text-slate-400">
-          En validant, votre dossier, votre échéancier ({preview.nbMensualites + 2}{' '}
-          échéances) et votre compte coopérateur seront créés automatiquement.
+          En validant, votre dossier, votre échéancier et votre compte coopérateur
+          seront créés. Vos pièces sont jointes à votre dossier.
         </p>
 
         {error && (
-          <div className="mt-3 rounded-lg bg-red-50 px-3 py-2 text-sm text-red-600">
-            {error}
-          </div>
+          <div className="mt-3 rounded-lg bg-red-50 px-3 py-2 text-sm text-red-600">{error}</div>
         )}
 
         <div className="mt-5 flex gap-2">
-          <button onClick={onClose} className="btn-ghost flex-1">
-            Annuler
-          </button>
-          <button
-            onClick={onConfirm}
-            className="btn-primary flex-1"
-            disabled={loading || preview.complete}
-          >
+          <button onClick={onClose} className="btn-ghost flex-1">Annuler</button>
+          <button onClick={submit} className="btn-primary flex-1" disabled={loading || !canSubmit}>
             {loading ? 'Validation…' : 'Valider mon adhésion'}
           </button>
         </div>
@@ -147,8 +201,8 @@ export default function Cooperatives() {
   });
 
   const joinMut = useMutation({
-    mutationFn: async (cooperativeId: string) =>
-      (await api.post('/adhesions', { cooperativeId })).data,
+    mutationFn: async (fd: FormData) =>
+      (await api.post('/adhesions/rejoindre', fd)).data,
     onSuccess: (data) => {
       setPreview(null);
       setSuccess(`Adhésion validée — dossier ${data.numeroDossier} créé.`);
@@ -270,7 +324,7 @@ export default function Cooperatives() {
             (joinMut.error as any)?.response?.data?.message ?? undefined
           }
           onClose={() => setPreview(null)}
-          onConfirm={() => joinMut.mutate(preview.cooperativeId)}
+          onConfirm={(fd) => joinMut.mutate(fd)}
         />
       )}
 
