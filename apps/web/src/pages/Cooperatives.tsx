@@ -2,6 +2,7 @@ import { useState } from 'react';
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { api, formatFCFA } from '../lib/api';
 import { useAuth } from '../context/AuthContext';
+import CooperativeFormModal from '../components/CooperativeFormModal';
 
 interface Cooperative {
   id: string;
@@ -121,8 +122,10 @@ function Row({
 export default function Cooperatives() {
   const { user } = useAuth();
   const qc = useQueryClient();
+  const isAdmin = user?.role === 'ADMIN' || user?.role === 'GESTIONNAIRE';
   const [preview, setPreview] = useState<Preview | null>(null);
   const [success, setSuccess] = useState<string>('');
+  const [showForm, setShowForm] = useState(false);
 
   const { data: coops = [], isLoading } = useQuery<Cooperative[]>({
     queryKey: ['cooperatives'],
@@ -148,13 +151,20 @@ export default function Cooperatives() {
 
   return (
     <div className="space-y-6">
-      <div>
-        <h1 className="text-2xl font-bold text-slate-800">Coopératives</h1>
-        <p className="text-sm text-slate-500">
-          {user?.role === 'CLIENT'
-            ? 'Choisissez une coopérative pour lancer votre adhésion.'
-            : "Gestion des coopératives d'habitat (rattachées à un site)."}
-        </p>
+      <div className="flex flex-wrap items-center justify-between gap-3">
+        <div>
+          <h1 className="text-2xl font-bold text-slate-800">Coopératives</h1>
+          <p className="text-sm text-slate-500">
+            {user?.role === 'CLIENT'
+              ? 'Choisissez une coopérative pour lancer votre adhésion.'
+              : "Gestion des coopératives d'habitat (rattachées à un site)."}
+          </p>
+        </div>
+        {isAdmin && (
+          <button onClick={() => setShowForm(true)} className="btn-primary">
+            ＋ Nouvelle coopérative
+          </button>
+        )}
       </div>
 
       {success && (
@@ -242,6 +252,8 @@ export default function Cooperatives() {
           onConfirm={() => joinMut.mutate(preview.cooperativeId)}
         />
       )}
+
+      {showForm && <CooperativeFormModal onClose={() => setShowForm(false)} />}
     </div>
   );
 }

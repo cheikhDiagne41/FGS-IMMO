@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useRef, useState } from 'react';
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { api } from '../lib/api';
 
@@ -28,6 +28,8 @@ export default function TerrainFormModal({ onClose }: { onClose: () => void }) {
   });
   const set = (k: string, v: string | boolean) =>
     setF((s) => ({ ...s, [k]: v }));
+  const fileInput = useRef<HTMLInputElement>(null);
+  const [medias, setMedias] = useState<File[]>([]);
 
   const { data: sites = [] } = useQuery<SiteOpt[]>({
     queryKey: ['sites'],
@@ -49,7 +51,14 @@ export default function TerrainFormModal({ onClose }: { onClose: () => void }) {
       for (const k of ['titre', 'document', 'description', 'vendeurNom', 'vendeurTelephone'])
         if ((f as any)[k]) payload[k] = (f as any)[k];
       payload.enVedette = f.enVedette;
-      return (await api.post('/terrains', payload)).data;
+      const terrain = (await api.post('/terrains', payload)).data;
+      // Upload des médias sélectionnés
+      if (medias.length > 0) {
+        const fd = new FormData();
+        medias.forEach((file) => fd.append('files', file));
+        await api.post(`/terrains/${terrain.id}/media`, fd);
+      }
+      return terrain;
     },
     onSuccess: () => {
       qc.invalidateQueries({ queryKey: ['terrains'] });
@@ -172,6 +181,46 @@ export default function TerrainFormModal({ onClose }: { onClose: () => void }) {
             <label className="label">Description</label>
             <textarea className="input min-h-[70px]" value={f.description}
               onChange={(e) => set('description', e.target.value)} />
+          </div>
+        </div>
+
+        {/* Photos & vidéos */}
+        <div className="mt-3">
+          <label className="label">Photos & vidéos</label>
+          <input
+            ref={fileInput}
+            type="file"
+            accept="image/*,video/*"
+            multiple
+            className="hidden"
+            onChange={(e) =>
+              setMedias((prev) => [...prev, ...Array.from(e.target.files ?? [])])
+            }
+          />
+          <div className="flex flex-wrap gap-2">
+            {medias.map((m, i) => (
+              <div key={i} className="relative">
+                {m.type.startsWith('video') ? (
+                  <div className="flex h-16 w-20 items-center justify-center rounded-lg bg-slate-800 text-white">▶</div>
+                ) : (
+                  <img src={URL.createObjectURL(m)} alt="" className="h-16 w-20 rounded-lg object-cover" />
+                )}
+                <button
+                  type="button"
+                  onClick={() => setMedias((prev) => prev.filter((_, j) => j !== i))}
+                  className="absolute -right-1 -top-1 rounded-full bg-rose-500 px-1.5 text-xs text-white"
+                >
+                  ×
+                </button>
+              </div>
+            ))}
+            <button
+              type="button"
+              onClick={() => fileInput.current?.click()}
+              className="flex h-16 w-20 items-center justify-center rounded-lg border-2 border-dashed border-slate-300 text-2xl text-slate-400 hover:border-brand-400"
+            >
+              +
+            </button>
           </div>
         </div>
 
