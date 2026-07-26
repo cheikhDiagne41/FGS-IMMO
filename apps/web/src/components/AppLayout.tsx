@@ -1,3 +1,4 @@
+import { useState } from 'react';
 import { NavLink, Outlet } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
 import { navByRole } from '../lib/nav';
@@ -12,51 +13,39 @@ const roleLabels: Record<string, string> = {
 
 export default function AppLayout() {
   const { user, logout } = useAuth();
+  const [open, setOpen] = useState(false);
   const menu = navByRole[user?.role ?? 'CLIENT'];
 
-  return (
-    <div className="flex min-h-screen">
-      {/* Sidebar */}
-      <aside className="hidden w-64 flex-col bg-brand-900 text-brand-50 md:flex">
-        <div className="border-b border-white/10 p-4">
-          <div className="rounded-lg bg-white/95 px-3 py-2">
-            <Logo size={30} />
-          </div>
-        </div>
-        <nav className="flex-1 space-y-1 p-3">
-          {menu.map((item) => (
-            <NavLink
-              key={item.path}
-              to={item.path}
-              end={item.path === '/'}
-              className={({ isActive }) =>
-                `block rounded-lg px-3 py-2 text-sm font-medium transition ${
-                  isActive
-                    ? 'bg-white/15 text-white'
-                    : 'text-brand-100 hover:bg-white/10'
-                }`
-              }
-            >
-              {item.label}
-            </NavLink>
-          ))}
-        </nav>
-        <div className="border-t border-white/10 p-4 text-xs text-brand-200">
-          FGS_IMMO © 2026
-        </div>
-      </aside>
+  const linkClass = ({ isActive }: { isActive: boolean }) =>
+    `rounded-lg px-3 py-2 text-sm font-medium transition ${
+      isActive
+        ? 'bg-brand-50 text-brand-700'
+        : 'text-slate-600 hover:bg-slate-100 hover:text-slate-900'
+    }`;
 
-      {/* Main */}
-      <div className="flex flex-1 flex-col">
-        <header className="flex items-center justify-between border-b border-slate-200 bg-white px-6 py-3">
-          <div className="md:hidden">
-            <Logo size={28} />
-          </div>
-          <div className="hidden text-sm text-slate-500 md:block">
-            Espace {roleLabels[user?.role ?? 'CLIENT']}
-          </div>
-          <div className="flex items-center gap-3">
-            <div className="text-right">
+  return (
+    <div className="flex min-h-screen flex-col bg-slate-50">
+      {/* Barre de navigation horizontale */}
+      <header className="sticky top-0 z-40 border-b border-slate-200 bg-white/95 backdrop-blur">
+        <div className="mx-auto flex max-w-7xl items-center gap-4 px-4 py-3">
+          <Logo size={30} />
+
+          {/* Navigation (desktop) */}
+          <nav className="ml-4 hidden flex-1 items-center gap-1 md:flex">
+            {menu.map((item) => (
+              <NavLink
+                key={item.path}
+                to={item.path}
+                end={item.path === '/'}
+                className={linkClass}
+              >
+                {item.label}
+              </NavLink>
+            ))}
+          </nav>
+
+          <div className="flex flex-1 items-center justify-end gap-3 md:flex-none">
+            <div className="hidden text-right sm:block">
               <div className="text-sm font-semibold text-slate-800">
                 {user?.email}
               </div>
@@ -67,36 +56,52 @@ export default function AppLayout() {
             <div className="flex h-9 w-9 items-center justify-center rounded-full bg-brand-100 font-bold text-brand-700">
               {user?.email?.[0]?.toUpperCase()}
             </div>
-            <button onClick={logout} className="btn-ghost text-xs">
+            <button onClick={logout} className="btn-ghost hidden text-xs sm:inline-flex">
               Déconnexion
             </button>
-          </div>
-        </header>
-
-        {/* Nav mobile */}
-        <nav className="flex gap-1 overflow-x-auto border-b border-slate-200 bg-white px-3 py-2 md:hidden">
-          {menu.map((item) => (
-            <NavLink
-              key={item.path}
-              to={item.path}
-              end={item.path === '/'}
-              className={({ isActive }) =>
-                `whitespace-nowrap rounded-lg px-3 py-1.5 text-xs font-medium ${
-                  isActive
-                    ? 'bg-brand-600 text-white'
-                    : 'text-slate-600 hover:bg-slate-100'
-                }`
-              }
+            {/* Bouton menu mobile */}
+            <button
+              onClick={() => setOpen((o) => !o)}
+              className="rounded-lg p-2 text-slate-600 hover:bg-slate-100 md:hidden"
+              aria-label="Menu"
             >
-              {item.label}
-            </NavLink>
-          ))}
-        </nav>
+              ☰
+            </button>
+          </div>
+        </div>
 
-        <main className="flex-1 overflow-y-auto p-6">
-          <Outlet />
-        </main>
-      </div>
+        {/* Navigation (mobile, dépliable) */}
+        {open && (
+          <nav className="flex flex-col gap-1 border-t border-slate-100 px-4 py-2 md:hidden">
+            {menu.map((item) => (
+              <NavLink
+                key={item.path}
+                to={item.path}
+                end={item.path === '/'}
+                onClick={() => setOpen(false)}
+                className={linkClass}
+              >
+                {item.label}
+              </NavLink>
+            ))}
+            <button
+              onClick={logout}
+              className="mt-1 rounded-lg px-3 py-2 text-left text-sm font-medium text-rose-600 hover:bg-rose-50"
+            >
+              Déconnexion
+            </button>
+          </nav>
+        )}
+      </header>
+
+      {/* Contenu */}
+      <main className="mx-auto w-full max-w-7xl flex-1 px-4 py-6">
+        <Outlet />
+      </main>
+
+      <footer className="border-t border-slate-200 bg-white py-4 text-center text-xs text-slate-400">
+        FGS_IMMO © 2026 — Plateforme immobilière
+      </footer>
     </div>
   );
 }
