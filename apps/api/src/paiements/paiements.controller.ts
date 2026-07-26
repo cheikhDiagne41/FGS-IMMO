@@ -56,18 +56,19 @@ export class PaiementsController {
     });
   }
 
-  /** Enregistrement d'un paiement manuel par le comptable (en attente de confirmation) */
+  /**
+   * Encaissement manuel par l'admin/gestionnaire/comptable (espèces au guichet,
+   * virement, chèque…). Validé immédiatement : la facture est générée et
+   * l'échéancier mis à jour (l'agent qui encaisse fait foi).
+   */
   @Post('manuel')
-  @Roles(Role.COMPTABLE, Role.ADMIN)
+  @Roles(Role.COMPTABLE, Role.ADMIN, Role.GESTIONNAIRE)
   createManuel(
     @Body() dto: CreatePaiementManuelDto,
     @CurrentUser() user: AuthUser,
   ) {
-    const enLigne =
-      dto.methode === PaiementMethode.WAVE ||
-      dto.methode === PaiementMethode.ORANGE_MONEY;
     return this.paiementsService.create(dto, {
-      statut: enLigne ? PaiementStatut.VALIDE : PaiementStatut.EN_ATTENTE,
+      statut: PaiementStatut.VALIDE,
       requesterRole: user.role,
       saisiParId: user.userId,
       commentaire: dto.commentaire,

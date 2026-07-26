@@ -361,7 +361,10 @@ export class AdhesionsService {
         client: true,
         cooperative: { include: { site: true } },
         echeances: { orderBy: { numero: 'asc' } },
-        paiements: { orderBy: { datePaiement: 'desc' } },
+        paiements: {
+          orderBy: { datePaiement: 'desc' },
+          include: { facture: { select: { id: true, numero: true } } },
+        },
         terrain: true,
         documents: true,
       },
