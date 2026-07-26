@@ -29,12 +29,12 @@ import {
 export class PaiementsController {
   constructor(private paiementsService: PaiementsService) {}
 
-  /** Paiement en ligne (Wave / Orange Money) par le client — validé immédiatement (simulation) */
+  /** Paiement en ligne (Wave / Orange Money) par le client — en attente de validation par l'admin/gérant */
   @Post()
   @Roles(Role.CLIENT, Role.ADMIN, Role.GESTIONNAIRE)
   create(@Body() dto: CreatePaiementDto, @CurrentUser() user: AuthUser) {
     return this.paiementsService.create(dto, {
-      statut: PaiementStatut.VALIDE,
+      statut: PaiementStatut.EN_ATTENTE,
       requesterClientId: user.clientId,
       requesterRole: user.role,
       saisiParId: user.userId,
@@ -75,19 +75,19 @@ export class PaiementsController {
   }
 
   @Post(':id/confirmer')
-  @Roles(Role.COMPTABLE, Role.ADMIN)
+  @Roles(Role.COMPTABLE, Role.ADMIN, Role.GESTIONNAIRE)
   confirmer(@Param('id') id: string, @CurrentUser() user: AuthUser) {
     return this.paiementsService.confirmer(id, user.userId);
   }
 
   @Post(':id/annuler')
-  @Roles(Role.COMPTABLE, Role.ADMIN)
+  @Roles(Role.COMPTABLE, Role.ADMIN, Role.GESTIONNAIRE)
   annuler(@Param('id') id: string) {
     return this.paiementsService.annuler(id);
   }
 
   @Post(':id/rembourser')
-  @Roles(Role.COMPTABLE, Role.ADMIN)
+  @Roles(Role.COMPTABLE, Role.ADMIN, Role.GESTIONNAIRE)
   rembourser(@Param('id') id: string) {
     return this.paiementsService.rembourser(id);
   }

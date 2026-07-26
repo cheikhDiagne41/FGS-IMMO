@@ -197,6 +197,30 @@ export class PaiementsService {
         if (recompute.soldeRestant <= 0) {
           await this.attributions.finaliserSiSolde(tx, dto.adhesionId);
         }
+      } else if (statut === PaiementStatut.EN_ATTENTE) {
+        // Paiement en attente : informer le client + notifier les gestionnaires
+        await tx.notification.create({
+          data: {
+            userId: adhesion.client.userId,
+            type: NotificationType.CONFIRMATION_PAIEMENT,
+            canal: NotificationCanal.APP,
+            titre: 'Paiement en attente de validation',
+            message: `Votre paiement de ${dto.montant} FCFA a été enregistré. Il sera confirmé après validation par nos services.`,
+          },
+        });
+        const gestionnaires = await tx.user.findMany({
+          where: { role: { in: ['ADMIN', 'GESTIONNAIRE', 'COMPTABLE'] } },
+          select: { id: true },
+        });
+        await tx.notification.createMany({
+          data: gestionnaires.map((g) => ({
+            userId: g.id,
+            type: NotificationType.SYSTEME,
+            canal: NotificationCanal.APP,
+            titre: 'Paiement à valider',
+            message: `${adhesion.client.prenom} ${adhesion.client.nom} a réglé ${dto.montant} FCFA (${dto.methode}). À confirmer.`,
+          })),
+        });
       }
 
       await tx.activityLog.create({

@@ -24,6 +24,7 @@ export const navByRole: Record<Role, NavItem[]> = {
     { label: 'Coopératives', path: '/cooperatives' },
     { label: 'Terrains', path: '/terrains' },
     { label: 'Carte', path: '/carte' },
+    { label: 'Paiements', path: '/paiements' },
   ],
   COMPTABLE: [
     { label: 'Tableau de bord', path: '/' },

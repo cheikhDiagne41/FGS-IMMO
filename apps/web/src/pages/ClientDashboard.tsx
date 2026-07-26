@@ -73,14 +73,9 @@ export default function ClientDashboard() {
       </div>
 
       {flash && (
-        <div className="rounded-lg bg-brand-50 px-4 py-3 text-sm font-medium text-brand-700">
-          ✓ Paiement confirmé — facture {flash} générée.{' '}
-          <button
-            onClick={() => navigate('/factures')}
-            className="underline"
-          >
-            Voir mes factures
-          </button>
+        <div className="rounded-lg bg-amber-50 px-4 py-3 text-sm font-medium text-amber-700">
+          ⏳ Paiement enregistré — en attente de validation par nos services. Il
+          sera pris en compte (et votre facture générée) dès sa confirmation.
         </div>
       )}
 
@@ -231,9 +226,9 @@ export default function ClientDashboard() {
             payFor.prochaineEcheance?.libelle ?? 'Paiement'
           }`}
           onClose={() => setPayFor(null)}
-          onSuccess={(numero) => {
+          onSuccess={() => {
             setPayFor(null);
-            setFlash(numero);
+            setFlash('pending');
           }}
         />
       )}

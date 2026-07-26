@@ -7,7 +7,7 @@ interface Props {
   montantSuggere: number;
   libelle?: string;
   onClose: () => void;
-  onSuccess: (numeroFacture: string) => void;
+  onSuccess: () => void;
 }
 
 const methodes = [
@@ -36,11 +36,11 @@ export default function PaiementModal({
           refTransaction: `${methode}-${Date.now()}`,
         })
       ).data,
-    onSuccess: (data) => {
+    onSuccess: () => {
       qc.invalidateQueries({ queryKey: ['client-dashboard'] });
       qc.invalidateQueries({ queryKey: ['mes-factures'] });
       qc.invalidateQueries({ queryKey: ['mes-paiements'] });
-      onSuccess(data.facture.numero);
+      onSuccess();
     },
   });
 
