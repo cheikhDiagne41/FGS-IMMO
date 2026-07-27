@@ -1,3 +1,5 @@
+import { useState } from 'react';
+import { Link } from 'react-router-dom';
 import { useQuery } from '@tanstack/react-query';
 import {
   Bar,
@@ -11,6 +13,9 @@ import {
   YAxis,
 } from 'recharts';
 import { api, formatFCFA } from '../lib/api';
+import { useAuth } from '../context/AuthContext';
+import SiteFormModal from '../components/SiteFormModal';
+import TerrainFormModal from '../components/TerrainFormModal';
 
 interface AdminStats {
   totalClients: number;
@@ -57,10 +62,36 @@ function StatCard({
   );
 }
 
+interface GestionItem {
+  label: string;
+  path: string;
+  icon: string;
+  desc: string;
+  roles: string[];
+  badge?: number;
+  count?: number | string;
+}
+
 export default function AdminDashboard() {
+  const { user } = useAuth();
+  const role = user?.role ?? 'ADMIN';
+  const [newSite, setNewSite] = useState(false);
+  const [newTerrain, setNewTerrain] = useState(false);
+
   const { data: stats } = useQuery<AdminStats>({
     queryKey: ['admin-stats'],
     queryFn: async () => (await api.get('/dashboard/admin')).data,
+  });
+
+  const { data: demandes = [] } = useQuery({
+    queryKey: ['demandes-count'],
+    queryFn: async () => (await api.get('/adhesions/demandes')).data,
+    enabled: role === 'ADMIN' || role === 'GESTIONNAIRE',
+  });
+  const { data: paiementsAtt = [] } = useQuery({
+    queryKey: ['paiements-attente'],
+    queryFn: async () => (await api.get('/paiements?statut=EN_ATTENTE')).data,
+    enabled: role !== 'CLIENT',
   });
 
   const { data: ventes = [] } = useQuery({
@@ -73,11 +104,57 @@ export default function AdminDashboard() {
     queryFn: async () => (await api.get('/dashboard/cotisations')).data,
   });
 
+  const gestion: GestionItem[] = [
+    { label: 'Demandes', path: '/demandes', icon: '📥', desc: 'Adhésions à valider', roles: ['ADMIN', 'GESTIONNAIRE'], badge: demandes.length },
+    { label: 'Dossiers', path: '/dossiers', icon: '📂', desc: 'Clients & encaissements', roles: ['ADMIN', 'GESTIONNAIRE', 'COMPTABLE'] },
+    { label: 'Paiements', path: '/paiements', icon: '💳', desc: 'À confirmer', roles: ['ADMIN', 'GESTIONNAIRE', 'COMPTABLE'], badge: paiementsAtt.length },
+    { label: 'Sites', path: '/sites', icon: '🏘️', desc: 'Gérer les sites', roles: ['ADMIN', 'GESTIONNAIRE'], count: stats?.totalSites },
+    { label: 'Terrains', path: '/terrains', icon: '🗺️', desc: 'Gérer les parcelles', roles: ['ADMIN', 'GESTIONNAIRE', 'COMPTABLE'], count: `${stats?.terrainsDisponibles ?? '—'} dispo.` },
+    { label: 'Coopératives', path: '/cooperatives', icon: '👥', desc: 'Gérer les coopératives', roles: ['ADMIN', 'GESTIONNAIRE', 'COMPTABLE'], count: stats?.totalCooperatives },
+    { label: 'Vendeurs', path: '/vendeur', icon: '🧑‍💼', desc: 'Société & agents', roles: ['ADMIN'] },
+    { label: 'Rapports', path: '/rapports', icon: '📊', desc: 'PDF & Excel', roles: ['ADMIN', 'GESTIONNAIRE', 'COMPTABLE'] },
+    { label: 'Carte', path: '/carte', icon: '🌍', desc: 'Terrains géolocalisés', roles: ['ADMIN', 'GESTIONNAIRE', 'COMPTABLE'] },
+  ].filter((g) => g.roles.includes(role));
+
+  const isGestion = role === 'ADMIN' || role === 'GESTIONNAIRE';
+
   return (
     <div className="space-y-6">
-      <div>
-        <h1 className="text-2xl font-bold text-slate-800">Tableau de bord</h1>
-        <p className="text-sm text-slate-500">Vue d'ensemble de l'activité FGS_IMMO</p>
+      <div className="flex flex-wrap items-center justify-between gap-3">
+        <div>
+          <h1 className="text-2xl font-bold text-slate-800">Tableau de bord</h1>
+          <p className="text-sm text-slate-500">Pilotage de l'activité FGS_IMMO</p>
+        </div>
+        {isGestion && (
+          <div className="flex gap-2">
+            <button onClick={() => setNewSite(true)} className="btn-ghost text-sm">＋ Site</button>
+            <button onClick={() => setNewTerrain(true)} className="btn-primary text-sm">＋ Terrain</button>
+          </div>
+        )}
+      </div>
+
+      {/* Hub de gestion */}
+      <div className="grid grid-cols-2 gap-3 sm:grid-cols-3 lg:grid-cols-5">
+        {gestion.map((g) => (
+          <Link
+            key={g.path}
+            to={g.path}
+            className="group relative rounded-2xl bg-white p-4 shadow-sm ring-1 ring-slate-100 transition hover:-translate-y-0.5 hover:shadow-md"
+          >
+            {!!g.badge && g.badge > 0 && (
+              <span className="absolute right-3 top-3 flex h-6 min-w-6 items-center justify-center rounded-full bg-rose-500 px-1.5 text-xs font-bold text-white">
+                {g.badge}
+              </span>
+            )}
+            <div className="mb-2 flex h-11 w-11 items-center justify-center rounded-xl bg-brand-50 text-2xl">
+              {g.icon}
+            </div>
+            <div className="font-bold text-slate-800 group-hover:text-brand-700">{g.label}</div>
+            <div className="text-xs text-slate-400">
+              {g.count != null ? `${g.count} · ` : ''}{g.desc}
+            </div>
+          </Link>
+        ))}
       </div>
 
       {/* KPIs */}
@@ -163,6 +240,9 @@ export default function AdminDashboard() {
           )}
         </div>
       </div>
+
+      {newSite && <SiteFormModal onClose={() => setNewSite(false)} />}
+      {newTerrain && <TerrainFormModal onClose={() => setNewTerrain(false)} />}
     </div>
   );
 }
