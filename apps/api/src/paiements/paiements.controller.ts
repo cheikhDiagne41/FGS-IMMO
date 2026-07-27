@@ -29,12 +29,16 @@ import {
 export class PaiementsController {
   constructor(private paiementsService: PaiementsService) {}
 
-  /** Paiement en ligne (Wave / Orange Money) par le client — en attente de validation par l'admin/gérant */
+  /**
+   * Paiement en ligne (Wave / Orange Money) par le client, directement depuis son
+   * dossier. Considéré comme confirmé par l'opérateur → validé immédiatement :
+   * facture générée, solde et progression mis à jour aussitôt.
+   */
   @Post()
   @Roles(Role.CLIENT, Role.ADMIN, Role.GESTIONNAIRE)
   create(@Body() dto: CreatePaiementDto, @CurrentUser() user: AuthUser) {
     return this.paiementsService.create(dto, {
-      statut: PaiementStatut.EN_ATTENTE,
+      statut: PaiementStatut.VALIDE,
       requesterClientId: user.clientId,
       requesterRole: user.role,
       saisiParId: user.userId,

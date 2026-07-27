@@ -72,7 +72,7 @@ export default function MonDossier() {
       </div>
 
       {flash && (
-        <div className="rounded-lg bg-amber-50 px-4 py-3 text-sm font-medium text-amber-700">⏳ {flash}</div>
+        <div className="rounded-lg bg-brand-50 px-4 py-3 text-sm font-medium text-brand-700">✓ {flash}</div>
       )}
 
       {/* En-tête dossier */}
@@ -188,7 +188,7 @@ export default function MonDossier() {
           montantSuggere={prochaine ? Number(prochaine.montantDu) - Number(prochaine.montantPaye) : 0}
           libelle={`${d.cooperative.nom} — ${prochaine?.libelle ?? 'Paiement'}`}
           onClose={() => setPay(false)}
-          onSuccess={() => { setPay(false); setFlash('Paiement enregistré — en attente de validation.'); qc.invalidateQueries({ queryKey: ['mon-dossier', id] }); }}
+          onSuccess={() => { setPay(false); setFlash('Paiement confirmé — facture générée.'); qc.invalidateQueries({ queryKey: ['mon-dossier', id] }); }}
         />
       )}
     </div>
