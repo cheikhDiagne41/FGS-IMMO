@@ -9,6 +9,8 @@ RUN apt-get update && apt-get install -y openssl && rm -rf /var/lib/apt/lists/*
 COPY package.json package-lock.json ./
 COPY apps/api/package.json apps/api/
 COPY apps/web/package.json apps/web/
+# Schéma Prisma présent avant npm ci (postinstall @prisma/client)
+COPY apps/api/prisma apps/api/prisma
 RUN npm ci
 
 # Code source + build
