@@ -209,11 +209,10 @@ export class FacturesService {
     doc.fillColor('#111').font('Helvetica').fontSize(10);
     doc.rect(50, y, doc.page.width - 100, 26).fill('#ffffff').stroke('#e2e8f0');
     doc.fillColor('#111');
-    doc.text(
-      isDirect ? `Achat parcelle N° ${parcelle}` : 'Paiement coopérative',
-      65,
-      y + 8,
-    );
+    const designation = isDirect
+      ? `Achat parcelle N° ${parcelle}`
+      : f.paiement.commentaire || 'Paiement coopérative';
+    doc.text(designation, 65, y + 8, { width: 230, lineBreak: false, ellipsis: true });
     doc.text(
       f.paiement.methode.replace('_', ' '),
       300,

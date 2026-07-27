@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { api, formatFCFA } from '../lib/api';
 
@@ -25,10 +25,15 @@ interface DossierDetail {
   id: string; numeroDossier: string; montantTotal: number; montantPaye: number;
   soldeRestant: number; progression: number; statut: string;
   client: { nom: string; prenom: string; telephone: string };
-  cooperative: { nom: string; site: { nom: string } };
+  cooperative: { nom: string; cotisationMensuelle: number; site: { nom: string } };
   echeances: Echeance[];
   paiements: Paiement[];
 }
+
+const MOIS = [
+  'Janvier', 'Février', 'Mars', 'Avril', 'Mai', 'Juin',
+  'Juillet', 'Août', 'Septembre', 'Octobre', 'Novembre', 'Décembre',
+];
 
 const statutBadge: Record<string, string> = {
   EN_ATTENTE: 'bg-amber-50 text-amber-700',
@@ -56,20 +61,36 @@ function DossierModal({ id, onClose }: { id: string; onClose: () => void }) {
   const qc = useQueryClient();
   const [montant, setMontant] = useState('');
   const [methode, setMethode] = useState('ESPECES');
+  const [mois, setMois] = useState(new Date().getMonth());
+  const [annee, setAnnee] = useState(new Date().getFullYear());
+  const [touched, setTouched] = useState(false);
 
   const { data: d } = useQuery<DossierDetail>({
     queryKey: ['dossier', id],
     queryFn: async () => (await api.get(`/adhesions/${id}`)).data,
   });
 
+  // Pré-remplit le montant avec la mensualité de la coopérative (modifiable)
+  useEffect(() => {
+    if (d && !touched && !montant) {
+      setMontant(String(Number(d.cooperative.cotisationMensuelle) || ''));
+    }
+  }, [d, touched, montant]);
+
   const encaisser = useMutation({
     mutationFn: async () =>
       (await api.post('/paiements/manuel', {
         adhesionId: id, montant: Number(montant), methode,
-        commentaire: 'Encaissement guichet',
+        commentaire: `Cotisation ${MOIS[mois]} ${annee}`,
       })).data,
     onSuccess: () => {
       setMontant('');
+      setTouched(false);
+      // Passe au mois suivant automatiquement
+      setMois((m) => {
+        if (m === 11) { setAnnee((a) => a + 1); return 0; }
+        return m + 1;
+      });
       qc.invalidateQueries({ queryKey: ['dossier', id] });
       qc.invalidateQueries({ queryKey: ['dossiers'] });
     },
@@ -110,8 +131,20 @@ function DossierModal({ id, onClose }: { id: string; onClose: () => void }) {
                 <div className="mb-2 text-sm font-bold text-brand-800">💵 Encaisser un paiement (guichet)</div>
                 <div className="flex flex-wrap items-end gap-2">
                   <div>
-                    <label className="label">Montant</label>
-                    <input type="number" className="input" value={montant} onChange={(e) => setMontant(e.target.value)} placeholder="Montant reçu" />
+                    <label className="label">Mois</label>
+                    <select className="input" value={mois} onChange={(e) => setMois(Number(e.target.value))}>
+                      {MOIS.map((m, i) => <option key={m} value={i}>{m}</option>)}
+                    </select>
+                  </div>
+                  <div>
+                    <label className="label">Année</label>
+                    <input type="number" className="input w-24" value={annee} onChange={(e) => setAnnee(Number(e.target.value))} />
+                  </div>
+                  <div>
+                    <label className="label">Montant (mensualité)</label>
+                    <input type="number" className="input" value={montant}
+                      onChange={(e) => { setTouched(true); setMontant(e.target.value); }}
+                      placeholder="Montant reçu" />
                   </div>
                   <div>
                     <label className="label">Moyen</label>
@@ -125,6 +158,10 @@ function DossierModal({ id, onClose }: { id: string; onClose: () => void }) {
                   </div>
                   <button onClick={() => encaisser.mutate()} disabled={encaisser.isPending || !montant}
                     className="btn-primary">{encaisser.isPending ? '…' : 'Encaisser & facturer'}</button>
+                </div>
+                <div className="mt-2 text-xs text-slate-400">
+                  Montant pré-rempli avec la mensualité de la coopérative — modifiable librement.
+                  Une facture « Cotisation {MOIS[mois]} {annee} » est générée à l'encaissement.
                 </div>
                 {encaisser.isError && (
                   <div className="mt-2 text-sm text-red-600">{(encaisser.error as any)?.response?.data?.message ?? 'Erreur'}</div>
