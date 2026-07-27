@@ -18,7 +18,7 @@ export interface ReportData {
 }
 
 const fmtMoney = (v: any) =>
-  new Intl.NumberFormat('fr-FR').format(Math.round(Number(v) || 0)) + ' FCFA';
+  new Intl.NumberFormat('fr-FR').format(Math.round(Number(v) || 0)).replace(/\s/g, ' ') + ' FCFA';
 const fmtDate = (v: any) =>
   v ? new Date(v).toLocaleDateString('fr-FR') : '—';
 

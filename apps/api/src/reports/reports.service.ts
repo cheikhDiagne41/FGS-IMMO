@@ -39,7 +39,7 @@ export class ReportsService {
 
   private n = (v: any) => Number(v) || 0;
   private money = (v: any) =>
-    new Intl.NumberFormat('fr-FR').format(Math.round(this.n(v))) + ' FCFA';
+    new Intl.NumberFormat('fr-FR').format(Math.round(this.n(v))).replace(/\s/g, ' ') + ' FCFA';
 
   /** Construit la structure de données d'un rapport */
   async buildReportData(

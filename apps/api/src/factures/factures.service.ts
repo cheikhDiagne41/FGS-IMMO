@@ -132,7 +132,9 @@ export class FacturesService {
       '—';
     const parcelle = f.paiement.terrain?.numeroParcelle;
     const fmt = (n: number | Prisma.Decimal) =>
-      new Intl.NumberFormat('fr-FR').format(Math.round(Number(n))) + ' FCFA';
+      new Intl.NumberFormat('fr-FR')
+        .format(Math.round(Number(n)))
+        .replace(/\s/g, ' ') + ' FCFA';
 
     const qrBuffer = await QRCode.toBuffer(f.qrCodeData ?? f.numero, {
       width: 120,
