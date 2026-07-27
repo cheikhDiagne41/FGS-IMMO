@@ -4,18 +4,26 @@ import { api } from '../lib/api';
 
 interface SiteOpt { id: string; nom: string; code: string; type: string }
 
-export default function CooperativeFormModal({ onClose }: { onClose: () => void }) {
+export default function CooperativeFormModal({
+  onClose,
+  initial,
+}: {
+  onClose: () => void;
+  initial?: any;
+}) {
   const qc = useQueryClient();
+  const isEdit = !!initial?.id;
+  const str = (v: any) => (v === null || v === undefined ? '' : String(v));
   const [f, setF] = useState({
-    numero: '',
-    nom: '',
-    siteId: '',
-    nbMaxAdherents: '',
-    montantAcompte: '',
-    cotisationMensuelle: '',
-    nbMensualites: '',
-    fraisAdhesion: '',
-    responsable: '',
+    numero: str(initial?.numero),
+    nom: str(initial?.nom),
+    siteId: str(initial?.site?.id ?? initial?.siteId),
+    nbMaxAdherents: str(initial?.nbMaxAdherents),
+    montantAcompte: str(initial?.montantAcompte),
+    cotisationMensuelle: str(initial?.cotisationMensuelle),
+    nbMensualites: str(initial?.nbMensualites),
+    fraisAdhesion: str(initial?.fraisAdhesion),
+    responsable: str(initial?.responsable),
   });
   const set = (k: string, v: string) => setF((s) => ({ ...s, [k]: v }));
 
@@ -35,9 +43,11 @@ export default function CooperativeFormModal({ onClose }: { onClose: () => void 
         cotisationMensuelle: Number(f.cotisationMensuelle),
         nbMensualites: Number(f.nbMensualites),
       };
-      if (f.fraisAdhesion) payload.fraisAdhesion = Number(f.fraisAdhesion);
-      if (f.responsable) payload.responsable = f.responsable;
-      return (await api.post('/cooperatives', payload)).data;
+      payload.fraisAdhesion = f.fraisAdhesion ? Number(f.fraisAdhesion) : 0;
+      payload.responsable = f.responsable || undefined;
+      return isEdit
+        ? (await api.patch(`/cooperatives/${initial.id}`, payload)).data
+        : (await api.post('/cooperatives', payload)).data;
     },
     onSuccess: () => {
       qc.invalidateQueries({ queryKey: ['cooperatives'] });
@@ -52,7 +62,9 @@ export default function CooperativeFormModal({ onClose }: { onClose: () => void 
   return (
     <div className="fixed inset-0 z-50 flex items-start justify-center overflow-y-auto bg-black/50 p-4">
       <div className="my-8 w-full max-w-xl rounded-2xl bg-white p-6 shadow-xl">
-        <h3 className="text-lg font-bold text-slate-800">Nouvelle coopérative</h3>
+        <h3 className="text-lg font-bold text-slate-800">
+          {isEdit ? 'Modifier la coopérative' : 'Nouvelle coopérative'}
+        </h3>
         <p className="mb-4 text-sm text-slate-500">
           Rattachez une coopérative à un site et définissez ses modalités.
         </p>
@@ -89,7 +101,7 @@ export default function CooperativeFormModal({ onClose }: { onClose: () => void 
         <div className="mt-5 flex justify-end gap-2">
           <button onClick={onClose} className="btn-ghost">Annuler</button>
           <button onClick={() => create.mutate()} className="btn-primary" disabled={!valide || create.isPending}>
-            {create.isPending ? 'Création…' : 'Créer la coopérative'}
+            {create.isPending ? 'Enregistrement…' : isEdit ? 'Enregistrer' : 'Créer la coopérative'}
           </button>
         </div>
       </div>

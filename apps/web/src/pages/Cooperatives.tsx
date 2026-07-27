@@ -191,6 +191,15 @@ export default function Cooperatives() {
   const [preview, setPreview] = useState<Preview | null>(null);
   const [success, setSuccess] = useState<string>('');
   const [showForm, setShowForm] = useState(false);
+  const [editCoop, setEditCoop] = useState<Cooperative | null>(null);
+  const isAdminOnly = user?.role === 'ADMIN';
+
+  const delMut = useMutation({
+    mutationFn: async (id: string) => (await api.delete(`/cooperatives/${id}`)).data,
+    onSuccess: () => qc.invalidateQueries({ queryKey: ['cooperatives'] }),
+    onError: (e: any) =>
+      alert(e?.response?.data?.message ?? 'Suppression impossible.'),
+  });
 
   const { data: coops = [], isLoading } = useQuery<Cooperative[]>({
     queryKey: ['cooperatives'],
@@ -309,12 +318,41 @@ export default function Cooperatives() {
                 </button>
               )}
               {user?.role !== 'CLIENT' && (
-                <Link
-                  to={`/dossiers?cooperative=${c.id}`}
-                  className="btn-ghost mt-4 justify-center text-sm"
-                >
-                  📋 Registre d'encaissement ({c._count.adhesions})
-                </Link>
+                <div className="mt-4 space-y-2">
+                  <Link
+                    to={`/dossiers?cooperative=${c.id}`}
+                    className="btn-ghost w-full justify-center text-sm"
+                  >
+                    📋 Registre d'encaissement ({c._count.adhesions})
+                  </Link>
+                  {isAdmin && (
+                    <div className="flex gap-2">
+                      <button
+                        onClick={() => setEditCoop(c)}
+                        className="btn-ghost flex-1 justify-center text-xs"
+                      >
+                        ✏️ Modifier
+                      </button>
+                      {isAdminOnly && (
+                        <button
+                          onClick={() => {
+                            if (
+                              confirm(
+                                c._count.adhesions > 0
+                                  ? `« ${c.nom} » a ${c._count.adhesions} adhérent(s) : la suppression sera refusée. Continuer ?`
+                                  : `Supprimer la coopérative « ${c.nom} » ?`,
+                              )
+                            )
+                              delMut.mutate(c.id);
+                          }}
+                          className="flex-1 justify-center rounded-lg bg-rose-50 px-3 py-2 text-center text-xs font-semibold text-rose-600 hover:bg-rose-100"
+                        >
+                          🗑️ Supprimer
+                        </button>
+                      )}
+                    </div>
+                  )}
+                </div>
               )}
             </div>
           );
@@ -339,7 +377,12 @@ export default function Cooperatives() {
         />
       )}
 
-      {showForm && <CooperativeFormModal onClose={() => setShowForm(false)} />}
+      {(showForm || editCoop) && (
+        <CooperativeFormModal
+          initial={editCoop}
+          onClose={() => { setShowForm(false); setEditCoop(null); }}
+        />
+      )}
     </div>
   );
 }
