@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import { Link } from 'react-router-dom';
-import { useQuery } from '@tanstack/react-query';
+import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { api, formatFCFA } from '../lib/api';
 import { useAuth } from '../context/AuthContext';
 import SiteFormModal from '../components/SiteFormModal';
@@ -28,12 +28,21 @@ const statutStyle: Record<string, string> = {
 
 export default function Sites() {
   const { user } = useAuth();
+  const qc = useQueryClient();
   const isAdmin = user?.role === 'ADMIN' || user?.role === 'GESTIONNAIRE';
   const [showForm, setShowForm] = useState(false);
+  const [editing, setEditing] = useState<any | null>(null);
 
   const { data: sites = [], isLoading } = useQuery<Site[]>({
     queryKey: ['sites'],
     queryFn: async () => (await api.get('/sites')).data,
+  });
+
+  const del = useMutation({
+    mutationFn: async (id: string) => (await api.delete(`/sites/${id}`)).data,
+    onSuccess: () => qc.invalidateQueries({ queryKey: ['sites'] }),
+    onError: (e: any) =>
+      alert(e?.response?.data?.message ?? 'Suppression impossible.'),
   });
 
   return (
@@ -106,6 +115,25 @@ export default function Sites() {
                 </span>
               </div>
             )}
+            {isAdmin && (
+              <div className="mt-4 flex gap-2 border-t border-slate-100 pt-3">
+                <button
+                  onClick={(e) => { e.preventDefault(); e.stopPropagation(); setEditing(s); }}
+                  className="flex-1 rounded-lg bg-slate-100 px-3 py-2 text-xs font-semibold text-slate-700 hover:bg-slate-200"
+                >
+                  ✏️ Modifier
+                </button>
+                <button
+                  onClick={(e) => {
+                    e.preventDefault(); e.stopPropagation();
+                    if (confirm(`Supprimer le site « ${s.nom} » ?`)) del.mutate(s.id);
+                  }}
+                  className="flex-1 rounded-lg bg-rose-50 px-3 py-2 text-xs font-semibold text-rose-600 hover:bg-rose-100"
+                >
+                  🗑️ Supprimer
+                </button>
+              </div>
+            )}
           </Link>
         ))}
       </div>
@@ -115,6 +143,9 @@ export default function Sites() {
       )}
 
       {showForm && <SiteFormModal onClose={() => setShowForm(false)} />}
+      {editing && (
+        <SiteFormModal initial={editing} onClose={() => setEditing(null)} />
+      )}
     </div>
   );
 }

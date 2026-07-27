@@ -1,4 +1,13 @@
-import { Body, Controller, Get, Put, UseGuards } from '@nestjs/common';
+import {
+  Body,
+  Controller,
+  Delete,
+  Get,
+  Param,
+  Post,
+  Put,
+  UseGuards,
+} from '@nestjs/common';
 import { ApiBearerAuth, ApiTags } from '@nestjs/swagger';
 import { Role } from '@prisma/client';
 import { VendeurService } from './vendeur.service';
@@ -14,15 +23,35 @@ import { Roles } from '../auth/decorators/roles.decorator';
 export class VendeurController {
   constructor(private vendeurService: VendeurService) {}
 
+  /** Liste des vendeurs */
   @Get()
   @Roles(Role.ADMIN, Role.GESTIONNAIRE, Role.COMPTABLE, Role.CLIENT)
-  get() {
+  list() {
+    return this.vendeurService.list();
+  }
+
+  /** Vendeur principal (société) */
+  @Get('principal')
+  @Roles(Role.ADMIN, Role.GESTIONNAIRE, Role.COMPTABLE, Role.CLIENT)
+  principal() {
     return this.vendeurService.get();
   }
 
-  @Put()
+  @Post()
   @Roles(Role.ADMIN)
-  update(@Body() dto: UpdateVendeurDto) {
-    return this.vendeurService.update(dto);
+  create(@Body() dto: UpdateVendeurDto) {
+    return this.vendeurService.create(dto);
+  }
+
+  @Put(':id')
+  @Roles(Role.ADMIN)
+  update(@Param('id') id: string, @Body() dto: UpdateVendeurDto) {
+    return this.vendeurService.update(id, dto);
+  }
+
+  @Delete(':id')
+  @Roles(Role.ADMIN)
+  remove(@Param('id') id: string) {
+    return this.vendeurService.remove(id);
   }
 }

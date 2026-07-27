@@ -8,23 +8,30 @@ interface SiteOpt {
   code: string;
 }
 
-export default function TerrainFormModal({ onClose }: { onClose: () => void }) {
+export default function TerrainFormModal({
+  onClose,
+  initial,
+}: {
+  onClose: () => void;
+  initial?: any;
+}) {
   const qc = useQueryClient();
+  const isEdit = !!initial?.id;
   const [f, setF] = useState({
-    numeroParcelle: '',
-    siteId: '',
-    superficie: '300',
-    prix: '',
-    type: 'HABITATION',
-    latitude: '',
-    longitude: '',
-    statut: 'DISPONIBLE',
-    titre: '',
-    document: '',
-    description: '',
-    vendeurNom: '',
-    vendeurTelephone: '',
-    enVedette: false,
+    numeroParcelle: initial?.numeroParcelle ?? '',
+    siteId: initial?.site?.id ?? initial?.siteId ?? '',
+    superficie: String(initial?.superficie ?? '300'),
+    prix: initial?.prix != null ? String(initial.prix) : '',
+    type: initial?.type ?? 'HABITATION',
+    latitude: initial?.latitude != null ? String(initial.latitude) : '',
+    longitude: initial?.longitude != null ? String(initial.longitude) : '',
+    statut: initial?.statut ?? 'DISPONIBLE',
+    titre: initial?.titre ?? '',
+    document: initial?.document ?? '',
+    description: initial?.description ?? '',
+    vendeurNom: initial?.vendeurNom ?? '',
+    vendeurTelephone: initial?.vendeurTelephone ?? '',
+    enVedette: initial?.enVedette ?? false,
   });
   const set = (k: string, v: string | boolean) =>
     setF((s) => ({ ...s, [k]: v }));
@@ -51,7 +58,9 @@ export default function TerrainFormModal({ onClose }: { onClose: () => void }) {
       for (const k of ['titre', 'document', 'description', 'vendeurNom', 'vendeurTelephone'])
         if ((f as any)[k]) payload[k] = (f as any)[k];
       payload.enVedette = f.enVedette;
-      const terrain = (await api.post('/terrains', payload)).data;
+      const terrain = isEdit
+        ? (await api.patch(`/terrains/${initial.id}`, payload)).data
+        : (await api.post('/terrains', payload)).data;
       // Upload des médias sélectionnés
       if (medias.length > 0) {
         const fd = new FormData();
@@ -62,6 +71,7 @@ export default function TerrainFormModal({ onClose }: { onClose: () => void }) {
     },
     onSuccess: () => {
       qc.invalidateQueries({ queryKey: ['terrains'] });
+      qc.invalidateQueries({ queryKey: ['terrain'] });
       onClose();
     },
   });
@@ -69,7 +79,9 @@ export default function TerrainFormModal({ onClose }: { onClose: () => void }) {
   return (
     <div className="fixed inset-0 z-50 flex items-start justify-center overflow-y-auto bg-black/50 p-4">
       <div className="my-8 w-full max-w-xl rounded-2xl bg-white p-6 shadow-xl">
-        <h3 className="text-lg font-bold text-slate-800">Nouveau terrain</h3>
+        <h3 className="text-lg font-bold text-slate-800">
+          {isEdit ? 'Modifier le terrain' : 'Nouveau terrain'}
+        </h3>
         <p className="mb-4 text-sm text-slate-500">
           Ajoutez une parcelle à un site. Vous pourrez ensuite ajouter photos et vidéos.
         </p>
@@ -237,7 +249,7 @@ export default function TerrainFormModal({ onClose }: { onClose: () => void }) {
             className="btn-primary"
             disabled={!f.siteId || !f.numeroParcelle || create.isPending}
           >
-            {create.isPending ? 'Création…' : 'Créer le terrain'}
+            {create.isPending ? 'Enregistrement…' : isEdit ? 'Enregistrer' : 'Créer le terrain'}
           </button>
         </div>
       </div>

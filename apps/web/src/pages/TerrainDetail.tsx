@@ -3,6 +3,7 @@ import { Link, useNavigate, useParams } from 'react-router-dom';
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { api, formatFCFA } from '../lib/api';
 import { useAuth } from '../context/AuthContext';
+import TerrainFormModal from '../components/TerrainFormModal';
 
 interface Media { id: string; url: string; mediaType: 'IMAGE' | 'VIDEO' }
 interface Modalite {
@@ -82,6 +83,7 @@ export default function TerrainDetailPage() {
   const qc = useQueryClient();
   const [idx, setIdx] = useState(0);
   const [buying, setBuying] = useState(false);
+  const [editing, setEditing] = useState(false);
   const [flash, setFlash] = useState('');
   const [message, setMessage] = useState('');
   const isClient = user?.role === 'CLIENT';
@@ -107,6 +109,13 @@ export default function TerrainDetailPage() {
       return (await api.post(`/terrains/${id}/media`, fd)).data;
     },
     onSuccess: () => qc.invalidateQueries({ queryKey: ['terrain', id] }),
+  });
+  const supprimer = useMutation({
+    mutationFn: async () => (await api.delete(`/terrains/${id}`)).data,
+    onSuccess: () => {
+      qc.invalidateQueries({ queryKey: ['terrains'] });
+      navigate('/terrains');
+    },
   });
 
   if (isLoading || !t)
@@ -202,6 +211,19 @@ export default function TerrainDetailPage() {
               </div>
               <span className="text-xs font-mono text-slate-400">{t.reference}</span>
             </div>
+
+            {isAdmin && (
+              <div className="flex gap-2 rounded-xl bg-slate-50 p-2">
+                <button onClick={() => setEditing(true)}
+                  className="flex-1 rounded-lg bg-white px-3 py-2 text-sm font-semibold text-slate-700 ring-1 ring-slate-200 hover:bg-slate-100">
+                  ✏️ Modifier
+                </button>
+                <button onClick={() => { if (confirm('Supprimer définitivement ce terrain ?')) supprimer.mutate(); }}
+                  className="flex-1 rounded-lg bg-rose-50 px-3 py-2 text-sm font-semibold text-rose-600 hover:bg-rose-100">
+                  🗑️ Supprimer
+                </button>
+              </div>
+            )}
 
             <div>
               <h1 className="text-2xl font-extrabold text-slate-800">
@@ -314,6 +336,16 @@ export default function TerrainDetailPage() {
           </div>
         </div>
       </div>
+
+      {editing && (
+        <TerrainFormModal
+          initial={t}
+          onClose={() => {
+            setEditing(false);
+            qc.invalidateQueries({ queryKey: ['terrain', id] });
+          }}
+        />
+      )}
 
       {buying && t.prix !== null && (
         <AchatDirectModal

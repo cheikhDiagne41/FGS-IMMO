@@ -2,26 +2,33 @@ import { useRef, useState } from 'react';
 import { useMutation, useQueryClient } from '@tanstack/react-query';
 import { api } from '../lib/api';
 
-export default function SiteFormModal({ onClose }: { onClose: () => void }) {
+export default function SiteFormModal({
+  onClose,
+  initial,
+}: {
+  onClose: () => void;
+  initial?: any;
+}) {
   const qc = useQueryClient();
+  const isEdit = !!initial?.id;
   const [f, setF] = useState({
-    code: '',
-    nom: '',
-    region: '',
-    departement: '',
-    commune: '',
-    adresse: '',
-    latitude: '',
-    longitude: '',
-    superficie: '',
-    nbParcelles: '',
-    prixReference: '',
-    description: '',
-    statut: 'DISPONIBLE',
-    type: 'COOPERATIVE',
-    gerantNom: '',
-    gerantTelephone: '',
-    gerantEmail: '',
+    code: initial?.code ?? '',
+    nom: initial?.nom ?? '',
+    region: initial?.region ?? '',
+    departement: initial?.departement ?? '',
+    commune: initial?.commune ?? '',
+    adresse: initial?.adresse ?? '',
+    latitude: initial?.latitude != null ? String(initial.latitude) : '',
+    longitude: initial?.longitude != null ? String(initial.longitude) : '',
+    superficie: initial?.superficie != null ? String(initial.superficie) : '',
+    nbParcelles: initial?.nbParcelles != null ? String(initial.nbParcelles) : '',
+    prixReference: initial?.prixReference != null ? String(initial.prixReference) : '',
+    description: initial?.description ?? '',
+    statut: initial?.statut ?? 'DISPONIBLE',
+    type: initial?.type ?? 'COOPERATIVE',
+    gerantNom: initial?.gerantNom ?? '',
+    gerantTelephone: initial?.gerantTelephone ?? '',
+    gerantEmail: initial?.gerantEmail ?? '',
     // config coopérative
     coopMontantAcompte: '',
     coopCotisation: '',
@@ -40,13 +47,14 @@ export default function SiteFormModal({ onClose }: { onClose: () => void }) {
         code: f.code,
         nom: f.nom,
         statut: f.statut,
-        type: f.type,
       };
+      if (!isEdit) payload.type = f.type;
       for (const k of ['region', 'departement', 'commune', 'adresse', 'description', 'gerantNom', 'gerantTelephone', 'gerantEmail'])
         if ((f as any)[k]) payload[k] = (f as any)[k];
       for (const k of ['latitude', 'longitude', 'superficie', 'nbParcelles', 'prixReference'])
         if ((f as any)[k]) payload[k] = Number((f as any)[k]);
-      if (f.type === 'COOPERATIVE') {
+      // La coopérative n'est configurée qu'à la création
+      if (!isEdit && f.type === 'COOPERATIVE') {
         payload.cooperative = {
           nbMaxAdherents: Number(f.coopNbMaxAdherents || f.nbParcelles || 1),
           montantAcompte: Number(f.coopMontantAcompte || 0),
@@ -56,7 +64,9 @@ export default function SiteFormModal({ onClose }: { onClose: () => void }) {
           responsable: f.coopResponsable || undefined,
         };
       }
-      const site = (await api.post('/sites', payload)).data;
+      const site = isEdit
+        ? (await api.patch(`/sites/${initial.id}`, payload)).data
+        : (await api.post('/sites', payload)).data;
       if (photos.length > 0) {
         const fd = new FormData();
         photos.forEach((p) => fd.append('files', p));
@@ -73,12 +83,15 @@ export default function SiteFormModal({ onClose }: { onClose: () => void }) {
   return (
     <div className="fixed inset-0 z-50 flex items-start justify-center overflow-y-auto bg-black/50 p-4">
       <div className="my-8 w-full max-w-2xl rounded-2xl bg-white p-6 shadow-xl">
-        <h3 className="text-lg font-bold text-slate-800">Nouveau site</h3>
+        <h3 className="text-lg font-bold text-slate-800">
+          {isEdit ? 'Modifier le site' : 'Nouveau site'}
+        </h3>
         <p className="mb-4 text-sm text-slate-500">
           Renseignez les informations du site immobilier.
         </p>
 
-        {/* Type de site */}
+        {/* Type de site (choisi uniquement à la création) */}
+        {!isEdit && (
         <div className="mb-4 grid grid-cols-2 gap-3">
           <button
             type="button"
@@ -109,6 +122,7 @@ export default function SiteFormModal({ onClose }: { onClose: () => void }) {
             </div>
           </button>
         </div>
+        )}
 
         <div className="grid grid-cols-2 gap-3 md:grid-cols-3">
           <Field label="Code *" v={f.code} on={(v) => set('code', v)} placeholder="DKR-002" />
@@ -132,8 +146,8 @@ export default function SiteFormModal({ onClose }: { onClose: () => void }) {
           </div>
         </div>
 
-        {/* Configuration coopérative */}
-        {f.type === 'COOPERATIVE' && (
+        {/* Configuration coopérative (création uniquement) */}
+        {!isEdit && f.type === 'COOPERATIVE' && (
           <div className="mt-4 rounded-xl border border-brand-100 bg-brand-50/40 p-4">
             <div className="mb-3 text-sm font-semibold text-brand-800">
               Configuration de la coopérative
@@ -190,7 +204,7 @@ export default function SiteFormModal({ onClose }: { onClose: () => void }) {
             className="btn-primary"
             disabled={!f.code || !f.nom || create.isPending}
           >
-            {create.isPending ? 'Création…' : 'Créer le site'}
+            {create.isPending ? 'Enregistrement…' : isEdit ? 'Enregistrer' : 'Créer le site'}
           </button>
         </div>
       </div>
