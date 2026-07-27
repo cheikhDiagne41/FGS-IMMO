@@ -99,6 +99,7 @@ export class AuthService {
       where: { id: userId },
       include: {
         client: true,
+        vendeurProfil: { select: { id: true, nom: true, suspendu: true } },
       },
     });
     if (!user) throw new UnauthorizedException();

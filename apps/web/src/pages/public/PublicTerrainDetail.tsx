@@ -3,6 +3,7 @@ import { Link, useParams } from 'react-router-dom';
 import { useQuery } from '@tanstack/react-query';
 import { api, formatFCFA } from '../../lib/api';
 import MapView, { MapPoint } from '../../components/MapView';
+import MessageVendeurForm from '../../components/MessageVendeurForm';
 
 interface Media { id: string; url: string; mediaType: 'IMAGE' | 'VIDEO' }
 interface Terrain {
@@ -131,6 +132,7 @@ export default function PublicTerrainDetail() {
                     className="justify-center rounded-lg bg-brand-600 px-2 py-2 text-center text-xs font-semibold text-white hover:bg-brand-700">WhatsApp</a>
                 </div>
               )}
+              <MessageVendeurForm terrainId={t.id} />
             </div>
           </div>
         </div>

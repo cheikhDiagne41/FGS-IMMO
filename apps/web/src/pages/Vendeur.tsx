@@ -15,6 +15,9 @@ interface Vendeur {
   rccm?: string;
   responsable?: string;
   description?: string;
+  suspendu?: boolean;
+  userId?: string | null;
+  motDePasse?: string;
 }
 
 const champs: { key: keyof Vendeur; label: string; wide?: boolean }[] = [
@@ -73,6 +76,21 @@ function VendeurForm({
             </div>
           ))}
           <div className="col-span-2">
+            <label className="label">
+              Mot de passe {isEdit ? '(laisser vide pour ne pas changer)' : 'du compte vendeur'}
+            </label>
+            <input
+              type="password"
+              className="input"
+              value={form.motDePasse ?? ''}
+              onChange={(e) => set('motDePasse', e.target.value)}
+              placeholder="Crée un accès de connexion pour ce vendeur (via son email)"
+            />
+            <div className="mt-1 text-xs text-slate-400">
+              Le vendeur se connectera avec son <b>email</b> et ce mot de passe pour répondre aux messages.
+            </div>
+          </div>
+          <div className="col-span-2">
             <label className="label">Description</label>
             <textarea
               className="input min-h-[70px]"
@@ -111,6 +129,12 @@ export default function VendeurPage() {
     onSuccess: () => qc.invalidateQueries({ queryKey: ['vendeurs'] }),
   });
 
+  const suspend = useMutation({
+    mutationFn: async ({ id, suspendu }: { id: string; suspendu: boolean }) =>
+      (await api.put(`/vendeur/${id}/suspendre`, { suspendu })).data,
+    onSuccess: () => qc.invalidateQueries({ queryKey: ['vendeurs'] }),
+  });
+
   return (
     <div className="space-y-6">
       <div className="flex flex-wrap items-center justify-between gap-3">
@@ -138,9 +162,17 @@ export default function VendeurPage() {
                   <div className="text-xs text-slate-400">{v.nom}</div>
                 </div>
               </div>
-              {i === 0 && (
-                <span className="rounded-full bg-brand-50 px-2 py-0.5 text-[10px] font-bold text-brand-700">Société</span>
-              )}
+              <div className="flex flex-col items-end gap-1">
+                {i === 0 && (
+                  <span className="rounded-full bg-brand-50 px-2 py-0.5 text-[10px] font-bold text-brand-700">Société</span>
+                )}
+                {v.suspendu && (
+                  <span className="rounded-full bg-rose-50 px-2 py-0.5 text-[10px] font-bold text-rose-600">Suspendu</span>
+                )}
+                {v.userId && !v.suspendu && (
+                  <span className="rounded-full bg-slate-100 px-2 py-0.5 text-[10px] font-bold text-slate-500">Compte actif</span>
+                )}
+              </div>
             </div>
             <div className="mt-3 space-y-1 text-sm text-slate-600">
               {v.telephone && <div>📞 {v.telephone}</div>}
@@ -152,14 +184,33 @@ export default function VendeurPage() {
                 </div>
               )}
             </div>
-            <div className="mt-4 flex gap-2">
+            <div className="mt-4 flex flex-wrap gap-2">
               <button onClick={() => setEditing(v)} className="btn-ghost text-xs">✏️ Modifier</button>
-              <button
-                onClick={() => { if (confirm(`Supprimer ${v.nom} ?`)) del.mutate(v.id); }}
-                className="rounded-lg bg-rose-50 px-3 py-2 text-xs font-semibold text-rose-600 hover:bg-rose-100"
-              >
-                🗑️ Supprimer
-              </button>
+              {i !== 0 && (
+                v.suspendu ? (
+                  <button
+                    onClick={() => suspend.mutate({ id: v.id, suspendu: false })}
+                    className="rounded-lg bg-brand-50 px-3 py-2 text-xs font-semibold text-brand-700 hover:bg-brand-100"
+                  >
+                    ✓ Réactiver
+                  </button>
+                ) : (
+                  <button
+                    onClick={() => { if (confirm(`Suspendre ${v.nom} ? L'admin gérera ses échanges.`)) suspend.mutate({ id: v.id, suspendu: true }); }}
+                    className="rounded-lg bg-amber-50 px-3 py-2 text-xs font-semibold text-amber-700 hover:bg-amber-100"
+                  >
+                    ⏸️ Suspendre
+                  </button>
+                )
+              )}
+              {i !== 0 && (
+                <button
+                  onClick={() => { if (confirm(`Supprimer ${v.nom} ?`)) del.mutate(v.id); }}
+                  className="rounded-lg bg-rose-50 px-3 py-2 text-xs font-semibold text-rose-600 hover:bg-rose-100"
+                >
+                  🗑️ Supprimer
+                </button>
+              )}
             </div>
           </div>
         ))}

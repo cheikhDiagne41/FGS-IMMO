@@ -13,4 +13,6 @@ export class UpdateVendeurDto {
   @IsOptional() @IsString() responsable?: string;
   @IsOptional() @IsString() description?: string;
   @IsOptional() @IsString() logoUrl?: string;
+  /** Mot de passe pour créer/réinitialiser le compte de connexion du vendeur */
+  @IsOptional() @IsString() motDePasse?: string;
 }

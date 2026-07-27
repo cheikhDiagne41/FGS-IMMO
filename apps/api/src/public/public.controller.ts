@@ -1,12 +1,34 @@
-import { Controller, Get, Param } from '@nestjs/common';
+import { BadRequestException, Body, Controller, Get, Param, Post } from '@nestjs/common';
 import { ApiTags } from '@nestjs/swagger';
 import { PublicService } from './public.service';
+import { MessagesService } from '../messages/messages.service';
 
 /** Endpoints publics (sans authentification) pour les visiteurs */
 @ApiTags('Public')
 @Controller('public')
 export class PublicController {
-  constructor(private publicService: PublicService) {}
+  constructor(
+    private publicService: PublicService,
+    private messagesService: MessagesService,
+  ) {}
+
+  /** Un visiteur envoie un message au vendeur d'une annonce */
+  @Post('terrains/:id/message')
+  message(
+    @Param('id') id: string,
+    @Body() body: { nom?: string; telephone?: string; email?: string; contenu?: string },
+  ) {
+    if (!body?.nom || !body?.contenu) {
+      throw new BadRequestException('Nom et message sont requis.');
+    }
+    return this.messagesService.envoyer({
+      terrainId: id,
+      nom: body.nom,
+      telephone: body.telephone,
+      email: body.email,
+      contenu: body.contenu,
+    });
+  }
 
   @Get('sites')
   sites() {

@@ -17,6 +17,7 @@ import MesFactures from './pages/MesFactures';
 import MonDossier from './pages/MonDossier';
 import Rapports from './pages/Rapports';
 import VendeurPage from './pages/Vendeur';
+import Messagerie from './pages/Messagerie';
 // Public (visiteur)
 import PublicLayout from './components/PublicLayout';
 import PublicHome from './pages/public/PublicHome';
@@ -45,7 +46,18 @@ export default function App() {
       {user ? (
         // ---- Espace connecté ----
         <Route path="/" element={<AppLayout />}>
-          <Route index element={user.role === 'CLIENT' ? <ClientDashboard /> : <AdminDashboard />} />
+          <Route
+            index
+            element={
+              user.role === 'CLIENT' ? (
+                <ClientDashboard />
+              ) : user.role === 'VENDEUR' ? (
+                <Messagerie />
+              ) : (
+                <AdminDashboard />
+              )
+            }
+          />
           <Route path="sites" element={<Sites />} />
           <Route path="sites/:id" element={<SiteDetail />} />
           <Route path="cooperatives" element={<Cooperatives />} />
@@ -59,6 +71,7 @@ export default function App() {
           <Route path="mon-dossier/:id" element={<MonDossier />} />
           <Route path="rapports" element={<Rapports />} />
           <Route path="vendeur" element={<VendeurPage />} />
+          <Route path="messagerie" element={<Messagerie />} />
         </Route>
       ) : (
         // ---- Espace visiteur (public) ----

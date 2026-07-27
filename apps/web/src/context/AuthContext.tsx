@@ -7,7 +7,7 @@ import {
 } from 'react';
 import { api } from '../lib/api';
 
-export type Role = 'ADMIN' | 'GESTIONNAIRE' | 'COMPTABLE' | 'CLIENT';
+export type Role = 'ADMIN' | 'GESTIONNAIRE' | 'COMPTABLE' | 'CLIENT' | 'VENDEUR';
 
 export interface AuthUser {
   id: string;

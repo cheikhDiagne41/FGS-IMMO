@@ -13,6 +13,7 @@ import { AttributionsModule } from './attributions/attributions.module';
 import { ReportsModule } from './reports/reports.module';
 import { VendeurModule } from './vendeur/vendeur.module';
 import { PublicModule } from './public/public.module';
+import { MessagesModule } from './messages/messages.module';
 
 @Module({
   imports: [
@@ -30,6 +31,7 @@ import { PublicModule } from './public/public.module';
     ReportsModule,
     VendeurModule,
     PublicModule,
+    MessagesModule,
   ],
 })
 export class AppModule {}

@@ -7,6 +7,7 @@ interface SiteOpt {
   nom: string;
   code: string;
 }
+interface VendeurOpt { id: string; nom: string; raisonSociale?: string }
 
 export default function TerrainFormModal({
   onClose,
@@ -31,6 +32,7 @@ export default function TerrainFormModal({
     description: initial?.description ?? '',
     vendeurNom: initial?.vendeurNom ?? '',
     vendeurTelephone: initial?.vendeurTelephone ?? '',
+    vendeurId: initial?.vendeurId ?? '',
     enVedette: initial?.enVedette ?? false,
   });
   const set = (k: string, v: string | boolean) =>
@@ -41,6 +43,10 @@ export default function TerrainFormModal({
   const { data: sites = [] } = useQuery<SiteOpt[]>({
     queryKey: ['sites'],
     queryFn: async () => (await api.get('/sites')).data,
+  });
+  const { data: vendeurs = [] } = useQuery<VendeurOpt[]>({
+    queryKey: ['vendeurs'],
+    queryFn: async () => (await api.get('/vendeur')).data,
   });
 
   const create = useMutation({
@@ -55,7 +61,7 @@ export default function TerrainFormModal({
       if (f.prix) payload.prix = Number(f.prix);
       if (f.latitude) payload.latitude = Number(f.latitude);
       if (f.longitude) payload.longitude = Number(f.longitude);
-      for (const k of ['titre', 'document', 'description', 'vendeurNom', 'vendeurTelephone'])
+      for (const k of ['titre', 'document', 'description', 'vendeurNom', 'vendeurTelephone', 'vendeurId'])
         if ((f as any)[k]) payload[k] = (f as any)[k];
       payload.enVedette = f.enVedette;
       const terrain = isEdit
@@ -188,6 +194,19 @@ export default function TerrainFormModal({
             <input className="input" value={f.vendeurTelephone}
               onChange={(e) => set('vendeurTelephone', e.target.value)}
               placeholder="+221 77 000 00 06" />
+          </div>
+          <div className="col-span-2">
+            <label className="label">Compte vendeur (messagerie)</label>
+            <select className="input" value={f.vendeurId}
+              onChange={(e) => set('vendeurId', e.target.value)}>
+              <option value="">— Vendeur par défaut (société) —</option>
+              {vendeurs.map((v) => (
+                <option key={v.id} value={v.id}>{v.raisonSociale ?? v.nom}</option>
+              ))}
+            </select>
+            <div className="mt-1 text-xs text-slate-400">
+              Les messages des visiteurs sur cette annonce iront à ce vendeur.
+            </div>
           </div>
           <div className="col-span-2">
             <label className="label">Description</label>

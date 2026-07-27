@@ -35,6 +35,7 @@ export class CreateTerrainDto {
   @IsOptional() @IsBoolean() enVedette?: boolean;
   @IsOptional() @IsString() vendeurNom?: string;
   @IsOptional() @IsString() vendeurTelephone?: string;
+  @IsOptional() @IsUUID('4') vendeurId?: string;
 }
 
 export class UpdateTerrainDto extends PartialType(CreateTerrainDto) {}

@@ -21,6 +21,13 @@ enum Role {
   GESTIONNAIRE
   COMPTABLE
   CLIENT
+  VENDEUR
+}
+
+enum MessageEmetteur {
+  PROSPECT
+  VENDEUR
+  ADMIN
 }
 
 enum Sexe {
@@ -158,6 +165,7 @@ model User {
   notifications Notification[]
   activityLogs  ActivityLog[]
   paiementsSaisis Paiement[] @relation("PaiementSaisiPar")
+  vendeurProfil   Vendeur?   @relation("VendeurUser")
 
   @@index([role])
   @@map("users")
@@ -191,6 +199,7 @@ model Client {
   terrains         Terrain[]  // terrains attribués
   paiementsDirects Paiement[] @relation("PaiementClient")
   favoris          Favori[]
+  conversations    Conversation[]
 
   @@index([nom, prenom])
   @@map("clients")
@@ -297,6 +306,8 @@ model Terrain {
   // Contact vendeur propre à l'annonce (sinon vendeur global de la société)
   vendeurNom       String?
   vendeurTelephone String?
+  vendeurId        String?
+  vendeurRef       Vendeur? @relation("TerrainVendeur", fields: [vendeurId], references: [id])
 
   // Attribution
   clientId     String?
@@ -311,6 +322,7 @@ model Terrain {
   images       TerrainImage[]
   paiements    Paiement[]    @relation("PaiementTerrain")
   favoris      Favori[]
+  conversations Conversation[]
 
   @@unique([siteId, numeroParcelle])
   @@index([statut])
@@ -528,10 +540,56 @@ model Vendeur {
   responsable   String?
   description   String?
   logoUrl       String?
+  // Compte de connexion du vendeur (pour répondre aux messages)
+  userId        String?  @unique
+  user          User?    @relation("VendeurUser", fields: [userId], references: [id])
+  suspendu      Boolean  @default(false)
   createdAt     DateTime @default(now())
   updatedAt     DateTime @updatedAt
 
+  terrains      Terrain[]      @relation("TerrainVendeur")
+  conversations Conversation[]
+
   @@map("vendeur")
+}
+
+// ============================================================
+// MESSAGERIE (prospect ↔ vendeur, supervisée par l'admin)
+// ============================================================
+
+model Conversation {
+  id                String    @id @default(uuid())
+  vendeurId         String
+  vendeur           Vendeur   @relation(fields: [vendeurId], references: [id], onDelete: Cascade)
+  terrainId         String?
+  terrain           Terrain?  @relation(fields: [terrainId], references: [id])
+  // Prospect (visiteur non connecté) ou client
+  prospectNom       String
+  prospectTelephone String?
+  prospectEmail     String?
+  clientId          String?
+  client            Client?   @relation(fields: [clientId], references: [id])
+  sujet             String?
+  createdAt         DateTime  @default(now())
+  updatedAt         DateTime  @updatedAt
+
+  messages          Message[]
+
+  @@index([vendeurId])
+  @@map("conversations")
+}
+
+model Message {
+  id             String          @id @default(uuid())
+  conversationId String
+  conversation   Conversation    @relation(fields: [conversationId], references: [id], onDelete: Cascade)
+  emetteur       MessageEmetteur
+  contenu        String
+  lu             Boolean         @default(false)
+  createdAt      DateTime        @default(now())
+
+  @@index([conversationId])
+  @@map("messages")
 }
 
 // ============================================================
