@@ -42,6 +42,7 @@ export class PaiementsController {
       requesterClientId: user.clientId,
       requesterRole: user.role,
       saisiParId: user.userId,
+      commentaire: dto.commentaire,
     });
   }
 

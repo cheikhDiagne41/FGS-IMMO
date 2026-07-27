@@ -27,11 +27,12 @@ export class CreatePaiementDto {
   @IsOptional()
   @IsString()
   refTransaction?: string;
-}
 
-/** Paiement manuel enregistré par le comptable (espèces, virement, chèque…) */
-export class CreatePaiementManuelDto extends CreatePaiementDto {
+  /** Libellé (ex : "Cotisation Mars 2026") repris sur la facture */
   @IsOptional()
   @IsString()
   commentaire?: string;
 }
+
+/** Paiement manuel enregistré par le comptable (espèces, virement, chèque…) */
+export class CreatePaiementManuelDto extends CreatePaiementDto {}
