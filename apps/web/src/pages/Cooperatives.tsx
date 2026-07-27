@@ -308,6 +308,14 @@ export default function Cooperatives() {
                   {complete ? 'Complète' : 'Rejoindre'}
                 </button>
               )}
+              {user?.role !== 'CLIENT' && (
+                <Link
+                  to={`/dossiers?cooperative=${c.id}`}
+                  className="btn-ghost mt-4 justify-center text-sm"
+                >
+                  📋 Registre d'encaissement ({c._count.adhesions})
+                </Link>
+              )}
             </div>
           );
         })}

@@ -1,16 +1,18 @@
 import { useEffect, useState } from 'react';
+import { useSearchParams } from 'react-router-dom';
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { api, formatFCFA } from '../lib/api';
 
 interface AdhesionRow {
   id: string;
   numeroDossier: string;
+  montantTotal: number;
   montantPaye: number;
   soldeRestant: number;
   progression: number;
   statut: string;
   client: { nom: string; prenom: string };
-  cooperative: { nom: string; site: { nom: string } };
+  cooperative: { id: string; numero: string; nom: string; site: { nom: string } };
 }
 
 interface Echeance {
@@ -233,25 +235,71 @@ function DossierModal({ id, onClose }: { id: string; onClose: () => void }) {
 export default function Dossiers() {
   const [selected, setSelected] = useState<string | null>(null);
   const [q, setQ] = useState('');
+  const [params, setParams] = useSearchParams();
+  const coopId = params.get('cooperative') ?? '';
 
   const { data = [], isLoading } = useQuery<AdhesionRow[]>({
     queryKey: ['dossiers'],
     queryFn: async () => (await api.get('/adhesions')).data,
   });
 
+  // Coopératives distinctes présentes dans les dossiers
+  const coops = Array.from(
+    new Map(data.map((a) => [a.cooperative.id, a.cooperative])).values(),
+  );
+
   const filtered = data.filter((a) => {
+    if (coopId && a.cooperative.id !== coopId) return false;
     const s = `${a.client.prenom} ${a.client.nom} ${a.numeroDossier} ${a.cooperative.nom}`.toLowerCase();
     return s.includes(q.toLowerCase());
   });
+
+  const totals = filtered.reduce(
+    (t, a) => ({
+      attendu: t.attendu + Number(a.montantTotal),
+      encaisse: t.encaisse + Number(a.montantPaye),
+      reste: t.reste + Number(a.soldeRestant),
+    }),
+    { attendu: 0, encaisse: 0, reste: 0 },
+  );
+  const coopSel = coops.find((c) => c.id === coopId);
+
+  const setCoop = (id: string) => {
+    if (id) params.set('cooperative', id);
+    else params.delete('cooperative');
+    setParams(params, { replace: true });
+  };
 
   return (
     <div className="space-y-6">
       <div className="flex flex-wrap items-center justify-between gap-3">
         <div>
-          <h1 className="text-2xl font-bold text-slate-800">Dossiers clients</h1>
-          <p className="text-sm text-slate-500">Gérez les dossiers, encaissez les paiements et téléchargez les factures.</p>
+          <h1 className="text-2xl font-bold text-slate-800">
+            Registre d'encaissement
+          </h1>
+          <p className="text-sm text-slate-500">
+            {coopSel
+              ? `Coopérative ${coopSel.nom} — ${coopSel.site.nom}`
+              : 'Sélectionnez une coopérative pour voir son registre d\'encaissement.'}
+          </p>
         </div>
-        <input className="input max-w-xs" placeholder="Rechercher un client, dossier…" value={q} onChange={(e) => setQ(e.target.value)} />
+        <div className="flex flex-wrap gap-2">
+          <select className="input max-w-xs" value={coopId} onChange={(e) => setCoop(e.target.value)}>
+            <option value="">Toutes les coopératives</option>
+            {coops.map((c) => (
+              <option key={c.id} value={c.id}>{c.nom}</option>
+            ))}
+          </select>
+          <input className="input max-w-xs" placeholder="Rechercher un client, dossier…" value={q} onChange={(e) => setQ(e.target.value)} />
+        </div>
+      </div>
+
+      {/* Totaux du registre (coopérative sélectionnée) */}
+      <div className="grid grid-cols-2 gap-3 md:grid-cols-4">
+        <div className="card"><div className="text-xs uppercase text-slate-400">Dossiers</div><div className="text-xl font-extrabold text-slate-800">{filtered.length}</div></div>
+        <div className="card"><div className="text-xs uppercase text-slate-400">Total attendu</div><div className="text-xl font-extrabold text-slate-800">{formatFCFA(totals.attendu)}</div></div>
+        <div className="card"><div className="text-xs uppercase text-brand-600">Encaissé</div><div className="text-xl font-extrabold text-brand-700">{formatFCFA(totals.encaisse)}</div></div>
+        <div className="card"><div className="text-xs uppercase text-amber-600">Reste à encaisser</div><div className="text-xl font-extrabold text-amber-700">{formatFCFA(totals.reste)}</div></div>
       </div>
 
       {isLoading && <div className="text-slate-400">Chargement…</div>}

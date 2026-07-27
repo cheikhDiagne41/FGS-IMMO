@@ -348,7 +348,15 @@ export class AdhesionsService {
     return this.prisma.adhesion.findMany({
       include: {
         client: { select: { id: true, nom: true, prenom: true } },
-        cooperative: { select: { nom: true, site: { select: { nom: true } } } },
+        cooperative: {
+          select: {
+            id: true,
+            numero: true,
+            nom: true,
+            cotisationMensuelle: true,
+            site: { select: { nom: true } },
+          },
+        },
       },
       orderBy: { createdAt: 'desc' },
     });
