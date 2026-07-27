@@ -20,46 +20,49 @@ export default function PublicSites() {
   });
 
   return (
-    <div className="space-y-6">
+    <div className="space-y-8 py-4">
       <div>
-        <h1 className="text-2xl font-bold text-slate-800">Nos sites</h1>
-        <p className="text-sm text-slate-500">
-          Cliquez sur un site pour le localiser et voir les informations du gérant.
+        <span className="eyebrow">Nos implantations</span>
+        <h1 className="h-display text-3xl md:text-5xl">Nos sites</h1>
+        <p className="mt-2 max-w-2xl text-slate-500">
+          Cliquez sur un site pour le localiser sur la carte et voir les
+          informations du gérant.
         </p>
       </div>
 
       {isLoading && <div className="text-slate-400">Chargement…</div>}
 
-      <div className="grid gap-4 md:grid-cols-2 xl:grid-cols-3">
+      <div className="grid gap-8 md:grid-cols-2 lg:grid-cols-3">
         {data.map((s) => (
-          <Link key={s.id} to={`/sites/${s.id}`}
-            className="card overflow-hidden transition hover:shadow-md hover:ring-2 hover:ring-brand-200">
-            <div className="-mx-5 -mt-5 mb-3 h-40 overflow-hidden bg-slate-100">
-              {s.photos?.[0]
-                ? <img src={s.photos[0].url} alt="" className="h-full w-full object-cover" />
-                : <div className="flex h-full items-center justify-center text-4xl">🏘️</div>}
-            </div>
-            <div className="flex items-center justify-between">
-              <div>
-                <div className="text-xs font-semibold uppercase text-slate-400">{s.code}</div>
-                <div className="font-bold text-slate-800">{s.nom}</div>
-                <div className="text-sm text-slate-500">
-                  {[s.commune, s.region].filter(Boolean).join(', ')}
-                </div>
-              </div>
-              <span className="rounded-full bg-brand-50 px-2 py-0.5 text-[10px] font-bold text-brand-700">
+          <Link key={s.id} to={`/sites/${s.id}`} className="group block">
+            <div className="zoom relative h-72 rounded-2xl bg-slate-100 shadow-sm ring-1 ring-slate-100">
+              {s.photos?.[0] ? (
+                <img src={s.photos[0].url} alt="" />
+              ) : (
+                <div className="flex h-full items-center justify-center text-6xl">🏘️</div>
+              )}
+              <div className="absolute inset-0 rounded-2xl bg-gradient-to-t from-black/70 via-black/10 to-transparent" />
+              <span className="absolute right-3 top-3 rounded-full bg-white/90 px-3 py-1 text-[11px] font-bold text-brand-700 shadow">
                 {s.type === 'VENTE_DIRECTE' ? 'Vente directe' : 'Coopérative'}
               </span>
-            </div>
-            <div className="mt-3 flex gap-4 text-xs text-slate-500">
-              <span>{s._count.terrains} parcelles</span>
-              <span>{s._count.cooperatives} coopérative(s)</span>
+              <div className="absolute bottom-4 left-4 right-4 text-white">
+                <div className="text-xs font-semibold uppercase tracking-wide text-white/70">{s.code}</div>
+                <div className="text-2xl font-bold">{s.nom}</div>
+                <div className="text-sm text-white/80">
+                  📍 {[s.commune, s.region].filter(Boolean).join(', ')}
+                </div>
+                <div className="mt-1 text-xs text-white/70">
+                  {s._count.terrains} parcelles · {s._count.cooperatives} coopérative(s)
+                </div>
+              </div>
             </div>
           </Link>
         ))}
       </div>
       {!isLoading && data.length === 0 && (
-        <div className="card text-center text-slate-400">Aucun site publié.</div>
+        <div className="rounded-2xl bg-white p-10 text-center text-slate-400 ring-1 ring-slate-100">
+          Aucun site publié.
+        </div>
       )}
     </div>
   );

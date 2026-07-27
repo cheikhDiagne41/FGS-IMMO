@@ -16,10 +16,11 @@ export default function PublicCooperatives() {
   });
 
   return (
-    <div className="space-y-6">
+    <div className="space-y-8 py-4">
       <div>
-        <h1 className="text-2xl font-bold text-slate-800">Coopératives d'habitat</h1>
-        <p className="text-sm text-slate-500">
+        <span className="eyebrow">Habitat</span>
+        <h1 className="h-display text-3xl md:text-5xl">Coopératives d'habitat</h1>
+        <p className="mt-2 max-w-2xl text-slate-500">
           Rejoignez une coopérative pour accéder à un terrain par mensualités.{' '}
           <Link to="/inscription" className="font-semibold text-brand-600">Créez votre compte</Link> pour adhérer.
         </p>
