@@ -1,0 +1,10 @@
+**/node_modules
+**/dist
+**/.env
+**/.env.*
+apps/api/uploads
+apps/api/web-dist
+.git
+.claude
+*.log
+**/coverage

@@ -1,0 +1,30 @@
+# Blueprint Render — FGS_IMMO (API NestJS qui sert aussi le frontend) + PostgreSQL
+# Déploiement : Render → New → Blueprint → connecter le dépôt → Apply
+databases:
+  - name: fgs-immo-db
+    databaseName: fgs_immo
+    user: fgs_immo
+    plan: free
+    region: frankfurt
+
+services:
+  - type: web
+    name: fgs-immo
+    runtime: docker
+    dockerfilePath: ./apps/api/Dockerfile
+    dockerContext: .
+    plan: free
+    region: frankfurt
+    healthCheckPath: /api/public/sites
+    autoDeploy: true
+    envVars:
+      - key: DATABASE_URL
+        fromDatabase:
+          name: fgs-immo-db
+          property: connectionString
+      - key: JWT_SECRET
+        generateValue: true
+      - key: JWT_EXPIRES_IN
+        value: 7d
+      - key: NODE_ENV
+        value: production

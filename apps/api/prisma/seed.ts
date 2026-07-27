@@ -64,8 +64,21 @@ async function main() {
       prixReference: 15000000,
       description: 'Site résidentiel viabilisé à proximité de la nouvelle ville.',
       statut: SiteStatus.EN_COMMERCIALISATION,
+      gerantNom: 'Fatou Sow',
+      gerantTelephone: '+221 77 000 00 06',
+      gerantEmail: 'f.sow@fgsimmo.sn',
     },
   });
+
+  // Photos du site (URLs externes, indépendantes du stockage local)
+  if ((await prisma.sitePhoto.count({ where: { siteId: site.id } })) === 0) {
+    await prisma.sitePhoto.createMany({
+      data: [
+        { siteId: site.id, url: 'https://picsum.photos/seed/fgs-site1/900/600' },
+        { siteId: site.id, url: 'https://picsum.photos/seed/fgs-site2/900/600' },
+      ],
+    });
+  }
 
   // --- Coopérative rattachée au site ---
   const coop = await prisma.cooperative.upsert({
@@ -88,16 +101,42 @@ async function main() {
   // --- Parcelles numérotées 1..N (toutes disponibles au départ) ---
   const existingTerrains = await prisma.terrain.count({ where: { siteId: site.id } });
   if (existingTerrains === 0) {
-    await prisma.terrain.createMany({
-      data: Array.from({ length: site.nbParcelles }, (_, k) => ({
-        numeroParcelle: String(k + 1),
-        siteId: site.id,
-        superficie: 300,
-        prix: 15000000,
-        type: TerrainType.HABITATION,
-        statut: TerrainStatus.DISPONIBLE,
-      })),
-    });
+    const titres = [
+      'Grand terrain à Diamniadio',
+      'Parcelle viabilisée pôle urbain',
+      'Terrain résidentiel proche TER',
+      'Belle parcelle d\'angle',
+    ];
+    for (let k = 1; k <= site.nbParcelles; k++) {
+      const withMedia = k <= 12; // les 12 premières illustrées pour la démo
+      await prisma.terrain.create({
+        data: {
+          numeroParcelle: String(k),
+          siteId: site.id,
+          superficie: 300,
+          prix: 15000000,
+          type: TerrainType.HABITATION,
+          statut: TerrainStatus.DISPONIBLE,
+          enVedette: k <= 4,
+          titre: k <= 4 ? titres[(k - 1) % titres.length] : undefined,
+          document: k <= 12 ? 'Délibération' : undefined,
+          description:
+            k <= 12
+              ? 'Terrain stratégique dans le pôle urbain de Diamniadio, à proximité de la gare TER et de la nouvelle ville.'
+              : undefined,
+          latitude: 14.7167 + (Math.random() - 0.5) * 0.01,
+          longitude: -17.1833 + (Math.random() - 0.5) * 0.01,
+          images: withMedia
+            ? {
+                create: [
+                  { url: `https://picsum.photos/seed/fgs-t${k}a/900/600` },
+                  { url: `https://picsum.photos/seed/fgs-t${k}b/900/600` },
+                ],
+              }
+            : undefined,
+        },
+      });
+    }
   }
 
   console.log('✅ Seed terminé.');
