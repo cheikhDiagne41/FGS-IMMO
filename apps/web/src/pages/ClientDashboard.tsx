@@ -202,7 +202,7 @@ export default function ClientDashboard() {
             </div>
           )}
 
-          <div className="flex gap-2">
+          <div className="flex flex-wrap gap-2">
             <button
               className="btn-primary"
               onClick={() => setPayFor(a)}
@@ -210,8 +210,14 @@ export default function ClientDashboard() {
             >
               {a.soldeRestant <= 0 ? 'Soldé ✓' : 'Payer une échéance'}
             </button>
+            <button
+              className="btn-ghost"
+              onClick={() => navigate(`/mon-dossier/${a.adhesionId}`)}
+            >
+              📂 Voir mon dossier
+            </button>
             <button className="btn-ghost" onClick={() => navigate('/factures')}>
-              Voir mes factures
+              Mes factures
             </button>
           </div>
         </div>

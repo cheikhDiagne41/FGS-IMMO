@@ -14,6 +14,7 @@ import Terrains from './pages/Terrains';
 import TerrainDetail from './pages/TerrainDetail';
 import Paiements from './pages/Paiements';
 import MesFactures from './pages/MesFactures';
+import MonDossier from './pages/MonDossier';
 import Rapports from './pages/Rapports';
 import VendeurPage from './pages/Vendeur';
 // Public (visiteur)
@@ -55,6 +56,7 @@ export default function App() {
           <Route path="carte" element={<Carte />} />
           <Route path="paiements" element={<Paiements />} />
           <Route path="factures" element={<MesFactures />} />
+          <Route path="mon-dossier/:id" element={<MonDossier />} />
           <Route path="rapports" element={<Rapports />} />
           <Route path="vendeur" element={<VendeurPage />} />
         </Route>
