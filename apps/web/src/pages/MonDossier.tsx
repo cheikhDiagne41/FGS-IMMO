@@ -186,6 +186,7 @@ export default function MonDossier() {
         <PaiementModal
           adhesionId={d.id}
           montantSuggere={prochaine ? Number(prochaine.montantDu) - Number(prochaine.montantPaye) : 0}
+          echeanceLibelle={prochaine?.libelle}
           libelle={`${d.cooperative.nom} — ${prochaine?.libelle ?? 'Paiement'}`}
           onClose={() => setPay(false)}
           onSuccess={() => { setPay(false); setFlash('Paiement enregistré — en attente de validation par nos services.'); qc.invalidateQueries({ queryKey: ['mon-dossier', id] }); }}

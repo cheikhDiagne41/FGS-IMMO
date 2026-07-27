@@ -6,8 +6,19 @@ interface Props {
   adhesionId: string;
   montantSuggere: number;
   libelle?: string;
+  /** Libellé de la prochaine échéance, ex : "Cotisation mensuelle 5/48" */
+  echeanceLibelle?: string;
   onClose: () => void;
   onSuccess: () => void;
+}
+
+/** Construit le libellé du paiement : N/48 (échéance) + mois calendaire */
+function buildCommentaire(echeanceLibelle: string | undefined, mois: string, annee: number) {
+  if (echeanceLibelle && /cotisation mensuelle/i.test(echeanceLibelle)) {
+    return `${echeanceLibelle} — ${mois} ${annee}`;
+  }
+  if (echeanceLibelle) return echeanceLibelle; // frais / acompte
+  return `Cotisation ${mois} ${annee}`;
 }
 
 const methodes = [
@@ -24,6 +35,7 @@ export default function PaiementModal({
   adhesionId,
   montantSuggere,
   libelle,
+  echeanceLibelle,
   onClose,
   onSuccess,
 }: Props) {
@@ -78,7 +90,7 @@ export default function PaiementModal({
           montant,
           methode,
           refTransaction: `${methode}-${Date.now()}`,
-          commentaire: `Cotisation ${MOIS[mois]} ${annee}`,
+          commentaire: buildCommentaire(echeanceLibelle, MOIS[mois], annee),
         })
       ).data,
     onSuccess: () => {
@@ -146,7 +158,7 @@ export default function PaiementModal({
 
         <div className="mt-4 rounded-lg bg-slate-50 p-3 text-sm text-slate-600">
           Vous allez payer <b className="text-brand-700">{formatFCFA(montant)}</b>{' '}
-          (<b>Cotisation {MOIS[mois]} {annee}</b>) via{' '}
+          (<b>{buildCommentaire(echeanceLibelle, MOIS[mois], annee)}</b>) via{' '}
           {methodes.find((m) => m.value === methode)?.label}.
           <div className="mt-1 text-xs text-slate-400">
             (Paiement simulé — les API Wave / Orange Money seront branchées avec vos clés.)

@@ -228,6 +228,7 @@ export default function ClientDashboard() {
         <PaiementModal
           adhesionId={payFor.adhesionId}
           montantSuggere={payFor.prochaineEcheance?.montant ?? 0}
+          echeanceLibelle={payFor.prochaineEcheance?.libelle}
           libelle={`${payFor.cooperative} — ${
             payFor.prochaineEcheance?.libelle ?? 'Paiement'
           }`}

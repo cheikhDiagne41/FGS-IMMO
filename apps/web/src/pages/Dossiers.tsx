@@ -79,11 +79,21 @@ function DossierModal({ id, onClose }: { id: string; onClose: () => void }) {
     }
   }, [d, touched, montant]);
 
+  const prochaine = d?.echeances.find((e) =>
+    ['EN_ATTENTE', 'EN_RETARD', 'PARTIELLE'].includes(e.statut),
+  );
+  const libelleEcheance = prochaine?.libelle;
+  const commentairePaiement = libelleEcheance
+    ? /cotisation mensuelle/i.test(libelleEcheance)
+      ? `${libelleEcheance} — ${MOIS[mois]} ${annee}`
+      : libelleEcheance
+    : `Cotisation ${MOIS[mois]} ${annee}`;
+
   const encaisser = useMutation({
     mutationFn: async () =>
       (await api.post('/paiements/manuel', {
         adhesionId: id, montant: Number(montant), methode,
-        commentaire: `Cotisation ${MOIS[mois]} ${annee}`,
+        commentaire: commentairePaiement,
       })).data,
     onSuccess: () => {
       setMontant('');
@@ -163,7 +173,7 @@ function DossierModal({ id, onClose }: { id: string; onClose: () => void }) {
                 </div>
                 <div className="mt-2 text-xs text-slate-400">
                   Montant pré-rempli avec la mensualité de la coopérative — modifiable librement.
-                  Une facture « Cotisation {MOIS[mois]} {annee} » est générée à l'encaissement.
+                  Facture générée : « {commentairePaiement} ».
                 </div>
                 {encaisser.isError && (
                   <div className="mt-2 text-sm text-red-600">{(encaisser.error as any)?.response?.data?.message ?? 'Erreur'}</div>
