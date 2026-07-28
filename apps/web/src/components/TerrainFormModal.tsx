@@ -145,6 +145,14 @@ export default function TerrainFormModal({
             </select>
           </div>
           <div>
+            <label className="label">Statut</label>
+            <select className="input" value={f.statut} onChange={(e) => set('statut', e.target.value)}>
+              <option value="DISPONIBLE">Disponible</option>
+              <option value="RESERVE">Réservé</option>
+              <option value="VENDU">Vendu</option>
+            </select>
+          </div>
+          <div>
             <label className="label">Latitude</label>
             <input
               type="number"

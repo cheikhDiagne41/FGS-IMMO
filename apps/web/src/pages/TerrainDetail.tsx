@@ -117,6 +117,13 @@ export default function TerrainDetailPage() {
       navigate('/terrains');
     },
   });
+  const changerStatut = useMutation({
+    mutationFn: async (statut: string) => (await api.patch(`/terrains/${id}`, { statut })).data,
+    onSuccess: () => {
+      qc.invalidateQueries({ queryKey: ['terrain', id] });
+      qc.invalidateQueries({ queryKey: ['terrains'] });
+    },
+  });
 
   if (isLoading || !t)
     return <div className="p-10 text-center text-slate-400">Chargement…</div>;
@@ -204,7 +211,20 @@ export default function TerrainDetailPage() {
           <div className="card space-y-4">
             <div className="flex items-start justify-between">
               <div className="flex flex-wrap items-center gap-2">
-                <span className={`rounded-full px-3 py-1 text-xs font-bold ${badge.cls}`}>{badge.label}</span>
+                {isAdmin ? (
+                  <select
+                    value={t.statut}
+                    onChange={(e) => changerStatut.mutate(e.target.value)}
+                    disabled={changerStatut.isPending}
+                    className={`rounded-full border-0 px-3 py-1 text-xs font-bold ${badge.cls}`}
+                  >
+                    <option value="DISPONIBLE">Disponible</option>
+                    <option value="RESERVE">Réservé</option>
+                    <option value="VENDU">Vendu</option>
+                  </select>
+                ) : (
+                  <span className={`rounded-full px-3 py-1 text-xs font-bold ${badge.cls}`}>{badge.label}</span>
+                )}
                 {t.enVedette && (
                   <span className="rounded-full bg-gold-500/10 px-3 py-1 text-xs font-bold text-gold-600">★ En vedette</span>
                 )}
