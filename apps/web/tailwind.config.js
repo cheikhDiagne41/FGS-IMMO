@@ -4,24 +4,24 @@ export default {
   theme: {
     extend: {
       colors: {
-        // Palette FGS_IMMO : vert immobilier + or
+        // Palette FGS_IMMO : bleu & orange du logo (Fabelle Global Service)
         brand: {
-          50: '#eefdf3',
-          100: '#d6f9e1',
-          200: '#b0f1c8',
-          300: '#7be4a8',
-          400: '#41cf82',
-          500: '#1cb567',
-          600: '#0f9253',
-          700: '#0d7344',
-          800: '#0f5b39',
-          900: '#0d4a30',
-          950: '#032918',
+          50: '#eef4fb',
+          100: '#d7e6f6',
+          200: '#b0cdec',
+          300: '#7fabdc',
+          400: '#4d84c7',
+          500: '#2f66ac',
+          600: '#1e4d8c',
+          700: '#173c6d',
+          800: '#132f56',
+          900: '#112746',
+          950: '#081528',
         },
         gold: {
-          400: '#f5c451',
-          500: '#e6a817',
-          600: '#c8890f',
+          400: '#f2a355',
+          500: '#e98b32',
+          600: '#c96f1e',
         },
       },
       fontFamily: {
