@@ -20,6 +20,7 @@ import VendeurPage from './pages/Vendeur';
 import Messagerie from './pages/Messagerie';
 import TropheesPage from './pages/Trophees';
 import VideosAccueilPage from './pages/VideosAccueil';
+import ActualitesPage from './pages/Actualites';
 // Public (visiteur)
 import PublicLayout from './components/PublicLayout';
 import PublicHome from './pages/public/PublicHome';
@@ -29,6 +30,7 @@ import PublicSites from './pages/public/PublicSites';
 import PublicCooperatives from './pages/public/PublicCooperatives';
 import SiteDetail from './pages/public/SiteDetail';
 import Carte from './pages/public/Carte';
+import PublicActualites from './pages/public/PublicActualites';
 
 export default function App() {
   const { user, loading } = useAuth();
@@ -75,6 +77,7 @@ export default function App() {
           <Route path="vendeur" element={<VendeurPage />} />
           <Route path="trophees" element={<TropheesPage />} />
           <Route path="videos-accueil" element={<VideosAccueilPage />} />
+          <Route path="actualites" element={<ActualitesPage />} />
           <Route path="messagerie" element={<Messagerie />} />
         </Route>
       ) : (
@@ -86,6 +89,7 @@ export default function App() {
           <Route path="sites" element={<PublicSites />} />
           <Route path="sites/:id" element={<SiteDetail />} />
           <Route path="cooperatives" element={<PublicCooperatives />} />
+          <Route path="actualites" element={<PublicActualites />} />
           <Route path="carte" element={<Carte />} />
         </Route>
       )}

@@ -116,6 +116,14 @@ export class PublicService {
     return this.prisma.videoAccueil.findMany({ orderBy: { createdAt: 'desc' } });
   }
 
+  /** Actualités (visites de la semaine) publiées par l'admin */
+  actualites() {
+    return this.prisma.actualite.findMany({
+      include: { medias: true },
+      orderBy: { createdAt: 'desc' },
+    });
+  }
+
   /** Points cartographiques : terrains géolocalisés */
   async map() {
     const terrains = await this.prisma.terrain.findMany({

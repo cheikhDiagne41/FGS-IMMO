@@ -16,6 +16,7 @@ import { PublicModule } from './public/public.module';
 import { MessagesModule } from './messages/messages.module';
 import { TropheesModule } from './trophees/trophees.module';
 import { VideosAccueilModule } from './videos-accueil/videos-accueil.module';
+import { ActualitesModule } from './actualites/actualites.module';
 
 @Module({
   imports: [
@@ -36,6 +37,7 @@ import { VideosAccueilModule } from './videos-accueil/videos-accueil.module';
     MessagesModule,
     TropheesModule,
     VideosAccueilModule,
+    ActualitesModule,
   ],
 })
 export class AppModule {}

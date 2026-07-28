@@ -638,3 +638,28 @@ model VideoAccueil {
 
   @@map("videos_accueil")
 }
+
+// ============================================================
+// ACTUALITÉS (visites de la semaine, gérées par l'admin)
+// ============================================================
+
+model Actualite {
+  id          String           @id @default(uuid())
+  titre       String
+  description String?
+  createdAt   DateTime         @default(now())
+  medias      ActualiteMedia[]
+
+  @@map("actualites")
+}
+
+model ActualiteMedia {
+  id          String    @id @default(uuid())
+  actualiteId String
+  actualite   Actualite @relation(fields: [actualiteId], references: [id], onDelete: Cascade)
+  url         String
+  mediaType   MediaType @default(IMAGE)
+  createdAt   DateTime  @default(now())
+
+  @@map("actualite_medias")
+}

@@ -74,4 +74,9 @@ export class PublicController {
   videosAccueil() {
     return this.publicService.videosAccueil();
   }
+
+  @Get('actualites')
+  actualites() {
+    return this.publicService.actualites();
+  }
 }

@@ -7,6 +7,7 @@ const links = [
   { label: 'Terrains', path: '/terrains' },
   { label: 'Sites', path: '/sites' },
   { label: 'Coopératives', path: '/cooperatives' },
+  { label: 'Actualités', path: '/actualites' },
   { label: 'Carte', path: '/carte' },
 ];
 
