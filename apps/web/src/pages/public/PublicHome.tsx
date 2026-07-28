@@ -1,3 +1,4 @@
+import { useState } from 'react';
 import { Link } from 'react-router-dom';
 import { useQuery } from '@tanstack/react-query';
 import { api, formatFCFA } from '../../lib/api';
@@ -58,22 +59,70 @@ export default function PublicHome() {
   const enAvant = (vedettes.length ? vedettes : terrains).slice(0, 3);
   const recents = terrains.slice(0, 8);
 
+  const heroImages = vedettes
+    .filter((t) => t.images?.[0])
+    .slice(0, 4)
+    .map((t) => t.images![0].url);
+  const heroSlides: { type: 'video' | 'image'; src: string }[] = [
+    { type: 'video', src: '/hero.mp4' },
+    ...heroImages.map((src) => ({ type: 'image' as const, src })),
+  ];
+  const [heroIdx, setHeroIdx] = useState(0);
+  const heroSlide = heroSlides[heroIdx] ?? heroSlides[0];
+
   return (
     <div>
       {/* HERO — vidéo de fond + boutons Sites / Terrains */}
       <section className="bleed -mt-6 relative flex min-h-[88vh] flex-col overflow-hidden bg-brand-950 px-4 pb-6 pt-14 sm:px-8">
-        {/* Vidéo de fond (déposer le fichier dans apps/web/public/hero.mp4) */}
-        <video
-          autoPlay
-          loop
-          muted
-          playsInline
-          poster={heroImg}
-          className="absolute inset-0 h-full w-full object-cover"
-        >
-          <source src="/hero.mp4" type="video/mp4" />
-        </video>
+        {/* Média de fond (carrousel vidéo + photos vedettes) */}
+        {heroSlide.type === 'video' ? (
+          <video
+            key={heroSlide.src}
+            autoPlay
+            loop
+            muted
+            playsInline
+            poster={heroImg}
+            className="absolute inset-0 h-full w-full object-cover"
+          >
+            <source src={heroSlide.src} type="video/mp4" />
+          </video>
+        ) : (
+          <img key={heroSlide.src} src={heroSlide.src} alt="" className="absolute inset-0 h-full w-full object-cover" />
+        )}
         <div className="absolute inset-0 bg-gradient-to-t from-brand-950/95 via-brand-950/45 to-brand-950/55" />
+
+        {heroSlides.length > 1 && (
+          <>
+            <button
+              type="button"
+              onClick={() => setHeroIdx((i) => (i - 1 + heroSlides.length) % heroSlides.length)}
+              className="absolute left-3 top-1/2 z-10 -translate-y-1/2 rounded-full bg-white/20 px-3 py-2 text-2xl text-white backdrop-blur transition hover:bg-white/30 sm:left-6"
+              aria-label="Précédent"
+            >
+              ‹
+            </button>
+            <button
+              type="button"
+              onClick={() => setHeroIdx((i) => (i + 1) % heroSlides.length)}
+              className="absolute right-3 top-1/2 z-10 -translate-y-1/2 rounded-full bg-white/20 px-3 py-2 text-2xl text-white backdrop-blur transition hover:bg-white/30 sm:right-6"
+              aria-label="Suivant"
+            >
+              ›
+            </button>
+            <div className="absolute bottom-24 left-1/2 z-10 flex -translate-x-1/2 gap-2">
+              {heroSlides.map((_, i) => (
+                <button
+                  key={i}
+                  type="button"
+                  onClick={() => setHeroIdx(i)}
+                  className={`h-2 w-2 rounded-full transition ${i === heroIdx ? 'bg-white' : 'bg-white/40'}`}
+                  aria-label={`Aller au média ${i + 1}`}
+                />
+              ))}
+            </div>
+          </>
+        )}
 
         {/* Contenu centré */}
         <div className="relative mx-auto flex w-full max-w-4xl flex-1 flex-col items-center justify-end pb-10 px-2 text-center text-white">
