@@ -149,10 +149,10 @@ export default function PublicHome() {
         {/* Boutons latéraux (façon SONACOS) */}
         <div className="relative mt-4 flex items-center justify-between">
           <Link
-            to="/sites"
+            to="/cooperatives"
             className="group flex items-center gap-2 rounded-full bg-brand-600 px-5 py-3 font-bold text-white shadow-lg transition hover:bg-brand-700"
           >
-            <span className="transition group-hover:-translate-x-1">←</span> NOS SITES
+            <span className="transition group-hover:-translate-x-1">←</span> NOS COOPÉRATIVES
           </Link>
           <Link
             to="/terrains"
