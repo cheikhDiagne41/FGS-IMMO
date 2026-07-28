@@ -92,6 +92,20 @@ export class PublicService {
     };
   }
 
+  /** Chiffres clés affichés sur la page d'accueil */
+  async stats() {
+    const [nbTerrains, nbClients, regions] = await Promise.all([
+      this.prisma.terrain.count(),
+      this.prisma.client.count(),
+      this.prisma.site.findMany({
+        where: { region: { not: null } },
+        select: { region: true },
+        distinct: ['region'],
+      }),
+    ]);
+    return { nbTerrains, nbClients, nbRegions: regions.length };
+  }
+
   /** Points cartographiques : terrains géolocalisés */
   async map() {
     const terrains = await this.prisma.terrain.findMany({

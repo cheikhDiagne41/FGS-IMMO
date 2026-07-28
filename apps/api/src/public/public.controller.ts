@@ -59,4 +59,9 @@ export class PublicController {
   map() {
     return this.publicService.map();
   }
+
+  @Get('stats')
+  stats() {
+    return this.publicService.stats();
+  }
 }

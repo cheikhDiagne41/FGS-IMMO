@@ -52,6 +52,10 @@ export default function PublicHome() {
     queryKey: ['public-sites'],
     queryFn: async () => (await api.get('/public/sites')).data,
   });
+  const { data: stats } = useQuery<{ nbTerrains: number; nbClients: number; nbRegions: number }>({
+    queryKey: ['public-stats'],
+    queryFn: async () => (await api.get('/public/stats')).data,
+  });
 
   const vedettes = terrains.filter((t) => t.enVedette);
   const heroImg =
@@ -160,6 +164,31 @@ export default function PublicHome() {
           >
             NOS TERRAINS <span className="transition group-hover:translate-x-1">→</span>
           </Link>
+        </div>
+      </section>
+
+      {/* CHIFFRES CLÉS */}
+      <section className="bleed relative overflow-hidden bg-gradient-to-br from-brand-600 via-brand-700 to-gold-600 px-6 py-14">
+        <div className="mx-auto grid max-w-7xl gap-5 sm:grid-cols-2 lg:grid-cols-4">
+          {[
+            ['🗺️', `+${stats?.nbTerrains ?? 0}`, 'Terrains'],
+            ['🧑‍🤝‍🧑', `+${stats?.nbClients ?? 0}`, 'Clients accompagnés'],
+            ['📍', `${stats?.nbRegions ?? 0}+`, 'Régions du Sénégal'],
+          ].map(([icon, chiffre, label]) => (
+            <div key={label} className="rounded-2xl bg-white/15 p-6 text-white ring-1 ring-white/20 backdrop-blur">
+              <div className="text-4xl font-black">{chiffre}</div>
+              <div className="mt-2 flex items-center gap-2 text-sm font-semibold text-white/90">
+                <span>{icon}</span> {label}
+              </div>
+            </div>
+          ))}
+          <div className="flex items-center gap-4 rounded-2xl bg-brand-950 p-6 text-white ring-1 ring-white/10">
+            <span className="text-5xl">🏆</span>
+            <div>
+              <div className="text-lg font-black leading-tight">Nos trophées</div>
+              <div className="text-sm text-white/70">Reconnue pour la qualité de ses réalisations</div>
+            </div>
+          </div>
         </div>
       </section>
 
