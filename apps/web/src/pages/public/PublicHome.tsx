@@ -61,7 +61,7 @@ export default function PublicHome() {
   return (
     <div>
       {/* HERO — vidéo de fond + boutons Sites / Terrains */}
-      <section className="bleed -mt-6 relative flex min-h-[88vh] items-center justify-center overflow-hidden bg-brand-950">
+      <section className="bleed -mt-6 relative flex min-h-[88vh] flex-col overflow-hidden bg-brand-950 px-4 pb-6 pt-14 sm:px-8">
         {/* Vidéo de fond (déposer le fichier dans apps/web/public/hero.mp4) */}
         <video
           autoPlay
@@ -76,7 +76,7 @@ export default function PublicHome() {
         <div className="absolute inset-0 bg-gradient-to-t from-brand-950/95 via-brand-950/45 to-brand-950/55" />
 
         {/* Contenu centré */}
-        <div className="relative mx-auto w-full max-w-4xl px-6 text-center text-white">
+        <div className="relative mx-auto flex w-full max-w-4xl flex-1 flex-col items-center justify-center px-2 text-center text-white">
           <span className="mb-4 inline-block rounded-full bg-white/15 px-4 py-1.5 text-xs font-bold uppercase tracking-[0.25em] backdrop-blur">
             FGS_IMMO · Depuis le Sénégal
           </span>
@@ -99,18 +99,20 @@ export default function PublicHome() {
         </div>
 
         {/* Boutons latéraux (façon SONACOS) */}
-        <Link
-          to="/sites"
-          className="group absolute bottom-6 left-4 flex items-center gap-2 rounded-full bg-brand-600 px-5 py-3 font-bold text-white shadow-lg transition hover:bg-brand-700 sm:left-8"
-        >
-          <span className="transition group-hover:-translate-x-1">←</span> NOS SITES
-        </Link>
-        <Link
-          to="/terrains"
-          className="group absolute bottom-6 right-4 flex items-center gap-2 rounded-full bg-brand-600 px-5 py-3 font-bold text-white shadow-lg transition hover:bg-brand-700 sm:right-8"
-        >
-          NOS TERRAINS <span className="transition group-hover:translate-x-1">→</span>
-        </Link>
+        <div className="relative mt-4 flex items-center justify-between">
+          <Link
+            to="/sites"
+            className="group flex items-center gap-2 rounded-full bg-brand-600 px-5 py-3 font-bold text-white shadow-lg transition hover:bg-brand-700"
+          >
+            <span className="transition group-hover:-translate-x-1">←</span> NOS SITES
+          </Link>
+          <Link
+            to="/terrains"
+            className="group flex items-center gap-2 rounded-full bg-brand-600 px-5 py-3 font-bold text-white shadow-lg transition hover:bg-brand-700"
+          >
+            NOS TERRAINS <span className="transition group-hover:translate-x-1">→</span>
+          </Link>
+        </div>
       </section>
 
       {/* POURQUOI */}
