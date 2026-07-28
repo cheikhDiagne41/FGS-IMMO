@@ -174,15 +174,22 @@ export default function PublicHome() {
             ['🗺️', `+${stats?.nbTerrains ?? 0}`, 'Terrains'],
             ['🧑‍🤝‍🧑', `+${stats?.nbClients ?? 0}`, 'Clients accompagnés'],
             ['📍', `${stats?.nbRegions ?? 0}+`, 'Régions du Sénégal'],
-          ].map(([icon, chiffre, label]) => (
-            <div key={label} className="rounded-2xl bg-white/15 p-6 text-white ring-1 ring-white/20 backdrop-blur">
+          ].map(([icon, chiffre, label], i) => (
+            <div
+              key={label}
+              style={{ animationDelay: `${i * 120}ms` }}
+              className="stat-card rounded-2xl bg-white/15 p-6 text-white ring-1 ring-white/20 backdrop-blur"
+            >
               <div className="text-4xl font-black">{chiffre}</div>
               <div className="mt-2 flex items-center gap-2 text-sm font-semibold text-white/90">
                 <span>{icon}</span> {label}
               </div>
             </div>
           ))}
-          <div className="flex items-center gap-4 rounded-2xl bg-brand-950 p-6 text-white ring-1 ring-white/10">
+          <div
+            style={{ animationDelay: '360ms' }}
+            className="stat-card flex items-center gap-4 rounded-2xl bg-brand-950 p-6 text-white ring-1 ring-white/10"
+          >
             <span className="text-5xl">🏆</span>
             <div>
               <div className="text-lg font-black leading-tight">Nos trophées</div>
