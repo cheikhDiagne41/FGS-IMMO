@@ -48,7 +48,7 @@ export default function MapView({
   height?: number | string;
 }) {
   return (
-    <div className="overflow-hidden rounded-xl ring-1 ring-slate-200">
+    <div className="overflow-hidden rounded-xl ring-1 ring-slate-200" style={{ height }}>
       <MapContainer
         center={[14.6928, -17.4467]}
         zoom={7}
