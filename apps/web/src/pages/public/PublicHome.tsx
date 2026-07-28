@@ -282,7 +282,7 @@ export default function PublicHome() {
                 <span className="eyebrow">Sélection</span>
                 <h2 className="h-display text-3xl md:text-5xl">Terrains à la une</h2>
               </div>
-              <Link to="/terrains" className="hidden font-bold text-brand-700 hover:underline md:block">Tout voir →</Link>
+              <Link to="/terrains" className="flex-shrink-0 rounded-full px-4 py-2 text-sm font-bold text-brand-700 ring-1 ring-brand-200 transition hover:bg-brand-50">Tout voir →</Link>
             </div>
             <div className="mt-12 grid gap-8 md:grid-cols-3">
               {enAvant.map((t) => <TerrainCard key={t.id} t={t} />)}
@@ -333,7 +333,7 @@ export default function PublicHome() {
       <section className="section mx-auto max-w-7xl px-6">
         <div className="flex items-end justify-between">
           <h2 className="h-display text-2xl md:text-4xl">Terrains récents</h2>
-          <Link to="/terrains" className="font-bold text-brand-700 hover:underline">Tout voir →</Link>
+          <Link to="/terrains" className="flex-shrink-0 rounded-full px-4 py-2 text-sm font-bold text-brand-700 ring-1 ring-brand-200 transition hover:bg-brand-50">Tout voir →</Link>
         </div>
         <div className="mt-10 grid gap-8 sm:grid-cols-2 lg:grid-cols-4">
           {recents.map((t) => <TerrainCard key={t.id} t={t} />)}
