@@ -49,8 +49,8 @@ export default function PublicTerrainDetail() {
         <span className="text-slate-700">{t.site.nom}</span>
       </div>
 
-      <div className="flex flex-col gap-4 lg:h-[560px] lg:flex-row">
-        <div className="flex h-full flex-col gap-4 lg:w-5/12">
+      <div className="flex flex-col gap-4 lg:flex-row lg:items-stretch">
+        <div className="flex flex-col gap-4 lg:w-5/12">
           <div className="card p-3">
             <div className="relative h-72 overflow-hidden rounded-xl bg-slate-100">
               {current
@@ -89,7 +89,7 @@ export default function PublicTerrainDetail() {
           </div>
         </div>
 
-        <div className="flex h-full flex-col lg:w-4/12">
+        <div className="flex flex-col lg:w-4/12">
           <div className="card flex flex-1 flex-col space-y-4 overflow-y-auto">
             <div className="flex items-start justify-between">
               <div className="flex flex-wrap items-center gap-2">
@@ -110,11 +110,6 @@ export default function PublicTerrainDetail() {
               <div className="text-[10px] uppercase text-slate-400">Prix total</div>
               <div className="text-3xl font-extrabold text-slate-800">{t.prix ? formatFCFA(Number(t.prix)) : 'Sur demande'}</div>
             </div>
-
-            <Link to="/inscription" className="btn-primary w-full text-center">
-              Créer un compte pour {t.site.type === 'VENTE_DIRECTE' ? 'acheter' : 'adhérer'}
-            </Link>
-            <Link to="/login" className="btn-ghost w-full text-center">J'ai déjà un compte</Link>
 
             <div className="border-t border-slate-100 pt-4">
               <div className="flex items-center gap-3">
@@ -137,7 +132,7 @@ export default function PublicTerrainDetail() {
           </div>
         </div>
 
-        <div className="flex h-full flex-col lg:w-3/12">
+        <div className="flex flex-col lg:w-3/12">
           <div className="card flex flex-1 flex-col p-3">
             <div className="mb-2 text-xs font-bold uppercase tracking-wide text-slate-400">Localisation</div>
             <div className="min-h-[300px] flex-1">
