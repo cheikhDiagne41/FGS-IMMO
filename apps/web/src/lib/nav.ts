@@ -5,48 +5,103 @@ export interface NavItem {
   path: string;
 }
 
-export const navByRole: Record<Role, NavItem[]> = {
+export interface NavGroup {
+  label: string;
+  items: NavItem[];
+}
+
+export type NavEntry = NavItem | NavGroup;
+
+export const isNavGroup = (entry: NavEntry): entry is NavGroup =>
+  Array.isArray((entry as NavGroup).items);
+
+export const navByRole: Record<Role, NavEntry[]> = {
   ADMIN: [
     { label: 'Tableau de bord', path: '/' },
-    { label: 'Demandes', path: '/demandes' },
-    { label: 'Dossiers', path: '/dossiers' },
-    { label: 'Sites', path: '/sites' },
-    { label: 'Coopératives', path: '/cooperatives' },
-    { label: 'Terrains', path: '/terrains' },
-    { label: 'Carte', path: '/carte' },
-    { label: 'Paiements', path: '/paiements' },
-    { label: 'Rapports', path: '/rapports' },
-    { label: 'Messagerie', path: '/messagerie' },
-    { label: 'Vendeur', path: '/vendeur' },
-    { label: 'Trophées', path: '/trophees' },
-    { label: 'Vidéos accueil', path: '/videos-accueil' },
-    { label: 'Actualités', path: '/actualites' },
+    {
+      label: 'Suivi clients',
+      items: [
+        { label: 'Demandes', path: '/demandes' },
+        { label: 'Dossiers', path: '/dossiers' },
+        { label: 'Paiements', path: '/paiements' },
+        { label: 'Rapports', path: '/rapports' },
+      ],
+    },
+    {
+      label: 'Gestion',
+      items: [
+        { label: 'Sites', path: '/sites' },
+        { label: 'Coopératives', path: '/cooperatives' },
+        { label: 'Terrains', path: '/terrains' },
+        { label: 'Carte', path: '/carte' },
+      ],
+    },
+    {
+      label: 'Communication',
+      items: [
+        { label: 'Messagerie', path: '/messagerie' },
+        { label: 'Vendeur', path: '/vendeur' },
+      ],
+    },
+    {
+      label: 'Vitrine du site',
+      items: [
+        { label: 'Trophées', path: '/trophees' },
+        { label: 'Vidéos accueil', path: '/videos-accueil' },
+        { label: 'Actualités', path: '/actualites' },
+      ],
+    },
   ],
   GESTIONNAIRE: [
     { label: 'Tableau de bord', path: '/' },
-    { label: 'Demandes', path: '/demandes' },
-    { label: 'Dossiers', path: '/dossiers' },
-    { label: 'Sites', path: '/sites' },
-    { label: 'Coopératives', path: '/cooperatives' },
-    { label: 'Terrains', path: '/terrains' },
-    { label: 'Carte', path: '/carte' },
-    { label: 'Paiements', path: '/paiements' },
+    {
+      label: 'Suivi clients',
+      items: [
+        { label: 'Demandes', path: '/demandes' },
+        { label: 'Dossiers', path: '/dossiers' },
+        { label: 'Paiements', path: '/paiements' },
+      ],
+    },
+    {
+      label: 'Gestion',
+      items: [
+        { label: 'Sites', path: '/sites' },
+        { label: 'Coopératives', path: '/cooperatives' },
+        { label: 'Terrains', path: '/terrains' },
+        { label: 'Carte', path: '/carte' },
+      ],
+    },
     { label: 'Messagerie', path: '/messagerie' },
-    { label: 'Trophées', path: '/trophees' },
-    { label: 'Vidéos accueil', path: '/videos-accueil' },
-    { label: 'Actualités', path: '/actualites' },
+    {
+      label: 'Vitrine du site',
+      items: [
+        { label: 'Trophées', path: '/trophees' },
+        { label: 'Vidéos accueil', path: '/videos-accueil' },
+        { label: 'Actualités', path: '/actualites' },
+      ],
+    },
   ],
   VENDEUR: [
     { label: 'Messagerie', path: '/' },
   ],
   COMPTABLE: [
     { label: 'Tableau de bord', path: '/' },
-    { label: 'Dossiers', path: '/dossiers' },
-    { label: 'Paiements', path: '/paiements' },
-    { label: 'Rapports', path: '/rapports' },
-    { label: 'Coopératives', path: '/cooperatives' },
-    { label: 'Terrains', path: '/terrains' },
-    { label: 'Carte', path: '/carte' },
+    {
+      label: 'Suivi',
+      items: [
+        { label: 'Dossiers', path: '/dossiers' },
+        { label: 'Paiements', path: '/paiements' },
+        { label: 'Rapports', path: '/rapports' },
+      ],
+    },
+    {
+      label: 'Gestion',
+      items: [
+        { label: 'Coopératives', path: '/cooperatives' },
+        { label: 'Terrains', path: '/terrains' },
+        { label: 'Carte', path: '/carte' },
+      ],
+    },
   ],
   CLIENT: [
     { label: 'Mon espace', path: '/' },
