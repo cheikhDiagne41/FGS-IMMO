@@ -126,10 +126,10 @@ export default function PublicTerrainDetail() {
               </div>
               {tel && (
                 <div className="mt-3 grid grid-cols-3 gap-2">
-                  <a href={`tel:${tel}`} className="btn-ghost justify-center text-xs">📞 Appel</a>
-                  <a href={`sms:${tel}`} className="btn-ghost justify-center text-xs">💬 SMS</a>
+                  <a href={`tel:${tel}`} className="flex items-center justify-center gap-1 rounded-lg bg-green-600 px-3 py-2 text-xs font-semibold text-white hover:bg-green-700">📞 Appel</a>
+                  <a href={`sms:${tel}`} className="flex items-center justify-center gap-1 rounded-lg bg-white px-3 py-2 text-xs font-semibold text-slate-700 ring-1 ring-slate-200 hover:bg-slate-50">💬 SMS</a>
                   <a href={`https://wa.me/${tel.replace('+', '')}`} target="_blank" rel="noreferrer"
-                    className="justify-center rounded-lg bg-brand-600 px-2 py-2 text-center text-xs font-semibold text-white hover:bg-brand-700">WhatsApp</a>
+                    className="flex items-center justify-center gap-1 rounded-lg bg-green-600 px-3 py-2 text-xs font-semibold text-white hover:bg-green-700">💬 WhatsApp</a>
                 </div>
               )}
               <MessageVendeurForm terrainId={t.id} />
