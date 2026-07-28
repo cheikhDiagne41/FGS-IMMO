@@ -60,49 +60,57 @@ export default function PublicHome() {
 
   return (
     <div>
-      {/* HERO */}
-      <section className="bleed -mt-6 relative flex min-h-[78vh] items-center overflow-hidden">
-        {heroImg ? (
-          <img src={heroImg} alt="" className="absolute inset-0 h-full w-full object-cover" />
-        ) : (
-          <div className="absolute inset-0 bg-brand-800" />
-        )}
-        <div className="absolute inset-0 bg-gradient-to-r from-brand-950/90 via-brand-900/70 to-brand-900/30" />
-        <div className="relative mx-auto w-full max-w-7xl px-6">
-          <div className="max-w-2xl py-24 text-white">
-            <span className="mb-4 inline-block rounded-full bg-white/15 px-4 py-1.5 text-xs font-bold uppercase tracking-[0.2em] backdrop-blur">
-              FGS_IMMO · Sénégal
-            </span>
-            <h1 className="text-4xl font-black leading-[1.05] tracking-tight sm:text-6xl md:text-7xl">
-              Devenez propriétaire de votre terrain
-            </h1>
-            <p className="mt-6 max-w-xl text-lg text-brand-50/90">
-              Vente de terrains, sites viabilisés et coopératives d'habitat avec
-              paiement par mensualités — Wave & Orange Money. Chaque parcelle
-              localisée sur la carte.
-            </p>
-            <div className="mt-8 flex flex-wrap gap-3">
-              <Link to="/terrains" className="rounded-xl bg-white px-6 py-3 font-bold text-brand-800 shadow-lg transition hover:bg-brand-50">
-                Découvrir les terrains
-              </Link>
-              <Link to="/carte" className="rounded-xl border border-white/40 bg-white/10 px-6 py-3 font-bold text-white backdrop-blur transition hover:bg-white/20">
-                🗺️ Voir la carte
-              </Link>
-            </div>
-            <div className="mt-10 flex gap-8">
-              {[
-                [terrains.length, 'terrains'],
-                [sites.length, 'sites'],
-                [terrains.filter((t) => t.statut === 'DISPONIBLE').length, 'disponibles'],
-              ].map(([n, l]) => (
-                <div key={l as string}>
-                  <div className="text-3xl font-extrabold">{n as number}</div>
-                  <div className="text-sm text-brand-100/80">{l as string}</div>
-                </div>
-              ))}
-            </div>
+      {/* HERO — vidéo de fond + boutons Sites / Terrains */}
+      <section className="bleed -mt-6 relative flex min-h-[88vh] items-center justify-center overflow-hidden bg-brand-950">
+        {/* Vidéo de fond (déposer le fichier dans apps/web/public/hero.mp4) */}
+        <video
+          autoPlay
+          loop
+          muted
+          playsInline
+          poster={heroImg}
+          className="absolute inset-0 h-full w-full object-cover"
+        >
+          <source src="/hero.mp4" type="video/mp4" />
+        </video>
+        <div className="absolute inset-0 bg-gradient-to-t from-brand-950/95 via-brand-950/45 to-brand-950/55" />
+
+        {/* Contenu centré */}
+        <div className="relative mx-auto w-full max-w-4xl px-6 text-center text-white">
+          <span className="mb-4 inline-block rounded-full bg-white/15 px-4 py-1.5 text-xs font-bold uppercase tracking-[0.25em] backdrop-blur">
+            FGS_IMMO · Depuis le Sénégal
+          </span>
+          <h1 className="text-4xl font-black leading-[1.05] tracking-tight drop-shadow sm:text-6xl md:text-7xl">
+            Devenez propriétaire de votre terrain
+          </h1>
+          <p className="mx-auto mt-6 max-w-2xl text-lg text-white/90 drop-shadow">
+            Vente de terrains, sites viabilisés et coopératives d'habitat —
+            paiement par mensualités (Wave &amp; Orange Money). Chaque parcelle
+            localisée sur la carte.
+          </p>
+          <div className="mt-8 flex flex-wrap justify-center gap-3">
+            <Link to="/inscription" className="rounded-xl bg-gold-500 px-6 py-3 font-bold text-white shadow-lg transition hover:bg-gold-600">
+              Créer un compte
+            </Link>
+            <Link to="/carte" className="rounded-xl border border-white/40 bg-white/10 px-6 py-3 font-bold text-white backdrop-blur transition hover:bg-white/20">
+              🗺️ Voir la carte
+            </Link>
           </div>
         </div>
+
+        {/* Boutons latéraux (façon SONACOS) */}
+        <Link
+          to="/sites"
+          className="group absolute bottom-6 left-4 flex items-center gap-2 rounded-full bg-brand-600 px-5 py-3 font-bold text-white shadow-lg transition hover:bg-brand-700 sm:left-8"
+        >
+          <span className="transition group-hover:-translate-x-1">←</span> NOS SITES
+        </Link>
+        <Link
+          to="/terrains"
+          className="group absolute bottom-6 right-4 flex items-center gap-2 rounded-full bg-brand-600 px-5 py-3 font-bold text-white shadow-lg transition hover:bg-brand-700 sm:right-8"
+        >
+          NOS TERRAINS <span className="transition group-hover:translate-x-1">→</span>
+        </Link>
       </section>
 
       {/* POURQUOI */}
