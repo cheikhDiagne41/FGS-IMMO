@@ -49,8 +49,8 @@ export default function PublicTerrainDetail() {
         <span className="text-slate-700">{t.site.nom}</span>
       </div>
 
-      <div className="grid items-stretch gap-4 lg:grid-cols-12">
-        <div className="flex h-full flex-col gap-4 lg:col-span-5">
+      <div className="flex flex-col gap-4 lg:h-[560px] lg:flex-row">
+        <div className="flex h-full flex-col gap-4 lg:w-5/12">
           <div className="card p-3">
             <div className="relative h-72 overflow-hidden rounded-xl bg-slate-100">
               {current
@@ -89,8 +89,8 @@ export default function PublicTerrainDetail() {
           </div>
         </div>
 
-        <div className="flex h-full flex-col lg:col-span-4">
-          <div className="card flex flex-1 flex-col space-y-4">
+        <div className="flex h-full flex-col lg:w-4/12">
+          <div className="card flex flex-1 flex-col space-y-4 overflow-y-auto">
             <div className="flex items-start justify-between">
               <div className="flex flex-wrap items-center gap-2">
                 <span className={`rounded-full px-3 py-1 text-xs font-bold ${b.cls}`}>{b.label}</span>
@@ -137,7 +137,7 @@ export default function PublicTerrainDetail() {
           </div>
         </div>
 
-        <div className="flex h-full flex-col lg:col-span-3">
+        <div className="flex h-full flex-col lg:w-3/12">
           <div className="card flex flex-1 flex-col p-3">
             <div className="mb-2 text-xs font-bold uppercase tracking-wide text-slate-400">Localisation</div>
             <div className="min-h-[300px] flex-1">
