@@ -76,18 +76,13 @@ export default function PublicHome() {
         <div className="absolute inset-0 bg-gradient-to-t from-brand-950/95 via-brand-950/45 to-brand-950/55" />
 
         {/* Contenu centré */}
-        <div className="relative mx-auto flex w-full max-w-4xl flex-1 flex-col items-center justify-center px-2 text-center text-white">
+        <div className="relative mx-auto flex w-full max-w-4xl flex-1 flex-col items-center justify-end pb-10 px-2 text-center text-white">
           <span className="mb-4 inline-block rounded-full bg-white/15 px-4 py-1.5 text-xs font-bold uppercase tracking-[0.25em] backdrop-blur">
             FGS_IMMO · Depuis le Sénégal
           </span>
           <h1 className="text-4xl font-black leading-[1.05] tracking-tight drop-shadow sm:text-6xl md:text-7xl">
             Devenez propriétaire de votre terrain
           </h1>
-          <p className="mx-auto mt-6 max-w-2xl text-lg text-white/90 drop-shadow">
-            Vente de terrains, sites viabilisés et coopératives d'habitat —
-            paiement par mensualités (Wave &amp; Orange Money). Chaque parcelle
-            localisée sur la carte.
-          </p>
           <div className="mt-8 flex flex-wrap justify-center gap-3">
             <Link to="/inscription" className="rounded-xl bg-gold-500 px-6 py-3 font-bold text-white shadow-lg transition hover:bg-gold-600">
               Créer un compte
