@@ -152,9 +152,9 @@ export default function TerrainDetailPage() {
         <div className="rounded-lg bg-brand-50 px-4 py-3 text-sm font-medium text-brand-700">✓ {flash}</div>
       )}
 
-      <div className="grid gap-4 lg:grid-cols-12">
+      <div className="grid items-stretch gap-4 lg:grid-cols-12">
         {/* Colonne gauche : médias + description */}
-        <div className="space-y-4 lg:col-span-5">
+        <div className="flex h-full flex-col gap-4 lg:col-span-5">
           <div className="card p-3">
             <div className="relative overflow-hidden rounded-xl bg-slate-100">
               {current ? (
@@ -198,7 +198,7 @@ export default function TerrainDetailPage() {
             </div>
           </div>
 
-          <div className="card">
+          <div className="card flex-1">
             <h3 className="mb-2 text-xs font-bold uppercase tracking-wide text-slate-400">Description</h3>
             <p className="text-sm text-slate-600">
               {t.description ?? 'Aucune description fournie pour cette parcelle.'}
@@ -207,8 +207,8 @@ export default function TerrainDetailPage() {
         </div>
 
         {/* Colonne centrale : infos & actions */}
-        <div className="lg:col-span-4">
-          <div className="card space-y-4">
+        <div className="flex h-full flex-col lg:col-span-4">
+          <div className="card flex flex-1 flex-col space-y-4">
             <div className="flex items-start justify-between">
               <div className="flex flex-wrap items-center gap-2">
                 {isAdmin ? (
@@ -342,17 +342,19 @@ export default function TerrainDetailPage() {
         </div>
 
         {/* Colonne droite : localisation */}
-        <div className="lg:col-span-3">
-          <div className="card p-3">
+        <div className="flex h-full flex-col lg:col-span-3">
+          <div className="card flex flex-1 flex-col p-3">
             <div className="mb-2 text-xs font-bold uppercase tracking-wide text-slate-400">Localisation</div>
-            {bbox ? (
-              <iframe title="Carte" className="h-[420px] w-full rounded-xl border border-slate-200"
-                src={`https://www.openstreetmap.org/export/embed.html?bbox=${bbox}&layer=mapnik&marker=${t.latitude},${t.longitude}`} />
-            ) : (
-              <div className="flex h-[420px] items-center justify-center rounded-xl bg-slate-50 text-center text-sm text-slate-400">
-                Coordonnées GPS<br />non renseignées
-              </div>
-            )}
+            <div className="min-h-[300px] flex-1">
+              {bbox ? (
+                <iframe title="Carte" className="h-full w-full rounded-xl border border-slate-200"
+                  src={`https://www.openstreetmap.org/export/embed.html?bbox=${bbox}&layer=mapnik&marker=${t.latitude},${t.longitude}`} />
+              ) : (
+                <div className="flex h-full items-center justify-center rounded-xl bg-slate-50 text-center text-sm text-slate-400">
+                  Coordonnées GPS<br />non renseignées
+                </div>
+              )}
+            </div>
           </div>
         </div>
       </div>
