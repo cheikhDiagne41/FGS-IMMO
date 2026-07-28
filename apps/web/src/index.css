@@ -59,4 +59,15 @@
     margin-left: -50vw;
     margin-right: -50vw;
   }
+  /* Défilement continu sur une ligne (marquee) */
+  .marquee-track {
+    display: flex;
+    width: max-content;
+    animation: marquee 16s linear infinite;
+  }
+}
+
+@keyframes marquee {
+  from { transform: translateX(0); }
+  to { transform: translateX(-50%); }
 }

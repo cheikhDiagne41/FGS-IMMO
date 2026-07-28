@@ -80,9 +80,16 @@ export default function PublicHome() {
           <span className="mb-4 inline-block rounded-full bg-white/15 px-4 py-1.5 text-xs font-bold uppercase tracking-[0.25em] backdrop-blur">
             FGS_IMMO · Depuis le Sénégal
           </span>
-          <h1 className="text-4xl font-black leading-[1.05] tracking-tight drop-shadow sm:text-6xl md:text-7xl">
-            Devenez propriétaire de votre terrain
-          </h1>
+          <div className="w-full overflow-hidden">
+            <div className="marquee-track">
+              <h1 className="whitespace-nowrap pr-16 text-4xl font-black leading-[1.05] tracking-tight drop-shadow sm:text-6xl md:text-7xl">
+                Devenez propriétaire de votre terrain
+              </h1>
+              <h1 aria-hidden="true" className="whitespace-nowrap pr-16 text-4xl font-black leading-[1.05] tracking-tight drop-shadow sm:text-6xl md:text-7xl">
+                Devenez propriétaire de votre terrain
+              </h1>
+            </div>
+          </div>
           <div className="mt-8 flex flex-wrap justify-center gap-3">
             <Link to="/inscription" className="rounded-xl bg-gold-500 px-6 py-3 font-bold text-white shadow-lg transition hover:bg-gold-600">
               Créer un compte
