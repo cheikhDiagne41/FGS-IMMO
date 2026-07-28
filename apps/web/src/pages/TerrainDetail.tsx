@@ -152,9 +152,9 @@ export default function TerrainDetailPage() {
         <div className="rounded-lg bg-brand-50 px-4 py-3 text-sm font-medium text-brand-700">✓ {flash}</div>
       )}
 
-      <div className="flex flex-col gap-4 lg:h-[560px] lg:flex-row">
+      <div className="flex flex-col gap-4 lg:flex-row lg:items-stretch">
         {/* Colonne gauche : médias + description */}
-        <div className="flex h-full flex-col gap-4 lg:w-5/12">
+        <div className="flex flex-col gap-4 lg:w-5/12">
           <div className="card p-3">
             <div className="relative overflow-hidden rounded-xl bg-slate-100">
               {current ? (
@@ -207,7 +207,7 @@ export default function TerrainDetailPage() {
         </div>
 
         {/* Colonne centrale : infos & actions */}
-        <div className="flex h-full flex-col lg:w-4/12">
+        <div className="flex flex-col lg:w-4/12">
           <div className="card flex flex-1 flex-col space-y-4 overflow-y-auto">
             <div className="flex items-start justify-between">
               <div className="flex flex-wrap items-center gap-2">
@@ -342,7 +342,7 @@ export default function TerrainDetailPage() {
         </div>
 
         {/* Colonne droite : localisation */}
-        <div className="flex h-full flex-col lg:w-3/12">
+        <div className="flex flex-col lg:w-3/12">
           <div className="card flex flex-1 flex-col p-3">
             <div className="mb-2 text-xs font-bold uppercase tracking-wide text-slate-400">Localisation</div>
             <div className="min-h-[300px] flex-1">
