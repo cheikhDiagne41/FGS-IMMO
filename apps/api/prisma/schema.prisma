@@ -625,3 +625,16 @@ model Trophee {
 
   @@map("trophees")
 }
+
+// ============================================================
+// VIDÉOS D'ACCUEIL (gérées par l'admin, carrousel du hero public)
+// ============================================================
+
+model VideoAccueil {
+  id        String   @id @default(uuid())
+  titre     String?
+  videoUrl  String
+  createdAt DateTime @default(now())
+
+  @@map("videos_accueil")
+}

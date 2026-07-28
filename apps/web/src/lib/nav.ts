@@ -19,6 +19,7 @@ export const navByRole: Record<Role, NavItem[]> = {
     { label: 'Messagerie', path: '/messagerie' },
     { label: 'Vendeur', path: '/vendeur' },
     { label: 'Trophées', path: '/trophees' },
+    { label: 'Vidéos accueil', path: '/videos-accueil' },
   ],
   GESTIONNAIRE: [
     { label: 'Tableau de bord', path: '/' },

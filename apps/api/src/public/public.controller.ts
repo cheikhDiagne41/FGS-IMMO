@@ -69,4 +69,9 @@ export class PublicController {
   trophees() {
     return this.publicService.trophees();
   }
+
+  @Get('videos-accueil')
+  videosAccueil() {
+    return this.publicService.videosAccueil();
+  }
 }

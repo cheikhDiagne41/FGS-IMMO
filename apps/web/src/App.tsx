@@ -19,6 +19,7 @@ import Rapports from './pages/Rapports';
 import VendeurPage from './pages/Vendeur';
 import Messagerie from './pages/Messagerie';
 import TropheesPage from './pages/Trophees';
+import VideosAccueilPage from './pages/VideosAccueil';
 // Public (visiteur)
 import PublicLayout from './components/PublicLayout';
 import PublicHome from './pages/public/PublicHome';
@@ -73,6 +74,7 @@ export default function App() {
           <Route path="rapports" element={<Rapports />} />
           <Route path="vendeur" element={<VendeurPage />} />
           <Route path="trophees" element={<TropheesPage />} />
+          <Route path="videos-accueil" element={<VideosAccueilPage />} />
           <Route path="messagerie" element={<Messagerie />} />
         </Route>
       ) : (

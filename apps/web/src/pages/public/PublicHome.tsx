@@ -4,6 +4,7 @@ import { useQuery } from '@tanstack/react-query';
 import { api, formatFCFA } from '../../lib/api';
 
 interface Trophee { id: string; titre: string; description?: string; imageUrl: string }
+interface VideoAccueil { id: string; titre?: string; videoUrl: string }
 
 interface Terrain {
   id: string; numeroParcelle: string; titre?: string; prix: number | null;
@@ -62,6 +63,10 @@ export default function PublicHome() {
     queryKey: ['public-trophees'],
     queryFn: async () => (await api.get('/public/trophees')).data,
   });
+  const { data: videosAccueil = [] } = useQuery<VideoAccueil[]>({
+    queryKey: ['public-videos-accueil'],
+    queryFn: async () => (await api.get('/public/videos-accueil')).data,
+  });
   const [tropheeIdx, setTropheeIdx] = useState(0);
   useEffect(() => {
     if (trophees.length < 2) return;
@@ -79,8 +84,11 @@ export default function PublicHome() {
     .filter((t) => t.images?.[0])
     .slice(0, 4)
     .map((t) => t.images![0].url);
+  const heroVideos = videosAccueil.length > 0
+    ? videosAccueil.map((v) => v.videoUrl)
+    : ['/hero.mp4'];
   const heroSlides: { type: 'video' | 'image'; src: string }[] = [
-    { type: 'video', src: '/hero.mp4' },
+    ...heroVideos.map((src) => ({ type: 'video' as const, src })),
     ...heroImages.map((src) => ({ type: 'image' as const, src })),
   ];
   const [heroIdx, setHeroIdx] = useState(0);

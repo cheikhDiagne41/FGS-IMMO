@@ -111,6 +111,11 @@ export class PublicService {
     return this.prisma.trophee.findMany({ orderBy: { createdAt: 'desc' } });
   }
 
+  /** Vidéos configurées par l'admin pour le carrousel du hero */
+  videosAccueil() {
+    return this.prisma.videoAccueil.findMany({ orderBy: { createdAt: 'desc' } });
+  }
+
   /** Points cartographiques : terrains géolocalisés */
   async map() {
     const terrains = await this.prisma.terrain.findMany({
