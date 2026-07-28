@@ -77,9 +77,6 @@ export default function PublicHome() {
 
         {/* Contenu centré */}
         <div className="relative mx-auto flex w-full max-w-4xl flex-1 flex-col items-center justify-end pb-10 px-2 text-center text-white">
-          <span className="mb-4 inline-block rounded-full bg-white/15 px-4 py-1.5 text-xs font-bold uppercase tracking-[0.25em] backdrop-blur">
-            FGS_IMMO · Depuis le Sénégal
-          </span>
           <div className="w-full overflow-hidden">
             <div className="marquee-track">
               <h1 className="whitespace-nowrap pr-16 text-4xl font-black leading-[1.05] tracking-tight drop-shadow sm:text-6xl md:text-7xl">
