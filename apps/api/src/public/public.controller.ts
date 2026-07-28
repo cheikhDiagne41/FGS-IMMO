@@ -64,4 +64,9 @@ export class PublicController {
   stats() {
     return this.publicService.stats();
   }
+
+  @Get('trophees')
+  trophees() {
+    return this.publicService.trophees();
+  }
 }

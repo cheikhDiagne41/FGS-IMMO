@@ -1,7 +1,9 @@
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import { Link } from 'react-router-dom';
 import { useQuery } from '@tanstack/react-query';
 import { api, formatFCFA } from '../../lib/api';
+
+interface Trophee { id: string; titre: string; description?: string; imageUrl: string }
 
 interface Terrain {
   id: string; numeroParcelle: string; titre?: string; prix: number | null;
@@ -56,6 +58,16 @@ export default function PublicHome() {
     queryKey: ['public-stats'],
     queryFn: async () => (await api.get('/public/stats')).data,
   });
+  const { data: trophees = [] } = useQuery<Trophee[]>({
+    queryKey: ['public-trophees'],
+    queryFn: async () => (await api.get('/public/trophees')).data,
+  });
+  const [tropheeIdx, setTropheeIdx] = useState(0);
+  useEffect(() => {
+    if (trophees.length < 2) return;
+    const id = setInterval(() => setTropheeIdx((i) => (i + 1) % trophees.length), 4000);
+    return () => clearInterval(id);
+  }, [trophees.length]);
 
   const vedettes = terrains.filter((t) => t.enVedette);
   const heroImg =
@@ -170,31 +182,70 @@ export default function PublicHome() {
       {/* CHIFFRES CLÉS */}
       <section className="bleed relative overflow-hidden bg-gradient-to-br from-brand-600 via-brand-700 to-gold-600 px-6 py-14">
         <div className="mx-auto grid max-w-7xl gap-5 sm:grid-cols-2 lg:grid-cols-4">
-          {[
-            ['🗺️', `+${stats?.nbTerrains ?? 0}`, 'Terrains'],
-            ['🧑‍🤝‍🧑', `+${stats?.nbClients ?? 0}`, 'Clients accompagnés'],
-            ['📍', `${stats?.nbRegions ?? 0}+`, 'Régions du Sénégal'],
-          ].map(([icon, chiffre, label], i) => (
-            <div
-              key={label}
-              style={{ animationDelay: `${i * 120}ms` }}
-              className="stat-card rounded-2xl bg-white/15 p-6 text-white ring-1 ring-white/20 backdrop-blur"
-            >
-              <div className="text-4xl font-black">{chiffre}</div>
+          {/* Terrains — photo d'un terrain vedette en fond, zoom lent */}
+          <div style={{ animationDelay: '0ms' }} className="stat-card relative overflow-hidden rounded-2xl p-6 text-white ring-1 ring-white/20">
+            {heroImg && (
+              <img src={heroImg} alt="" className="kenburns absolute inset-0 h-full w-full object-cover" />
+            )}
+            <div className="absolute inset-0 bg-brand-950/55" />
+            <div className="relative">
+              <div className="text-4xl font-black drop-shadow">+{stats?.nbTerrains ?? 0}</div>
               <div className="mt-2 flex items-center gap-2 text-sm font-semibold text-white/90">
-                <span>{icon}</span> {label}
+                <span>🗺️</span> Terrains
               </div>
             </div>
-          ))}
-          <div
-            style={{ animationDelay: '360ms' }}
-            className="stat-card flex items-center gap-4 rounded-2xl bg-brand-950 p-6 text-white ring-1 ring-white/10"
-          >
-            <span className="text-5xl">🏆</span>
-            <div>
-              <div className="text-lg font-black leading-tight">Nos trophées</div>
-              <div className="text-sm text-white/70">Reconnue pour la qualité de ses réalisations</div>
+          </div>
+
+          {/* Clients accompagnés */}
+          <div style={{ animationDelay: '120ms' }} className="stat-card rounded-2xl bg-white/15 p-6 text-white ring-1 ring-white/20 backdrop-blur">
+            <div className="text-4xl font-black">+{stats?.nbClients ?? 0}</div>
+            <div className="mt-2 flex items-center gap-2 text-sm font-semibold text-white/90">
+              <span className="icon-float">🧑‍🤝‍🧑</span> Clients accompagnés
             </div>
+          </div>
+
+          {/* Régions du Sénégal */}
+          <div style={{ animationDelay: '240ms' }} className="stat-card rounded-2xl bg-white/15 p-6 text-white ring-1 ring-white/20 backdrop-blur">
+            <div className="text-4xl font-black">{stats?.nbRegions ?? 0}+</div>
+            <div className="mt-2 flex items-center gap-2 text-sm font-semibold text-white/90">
+              <span className="relative inline-flex">
+                <span className="absolute inline-flex h-full w-full animate-ping rounded-full bg-white/50" />
+                <span className="icon-float relative">📍</span>
+              </span>
+              Régions du Sénégal
+            </div>
+          </div>
+
+          {/* Trophées — configurés par l'admin, défilent automatiquement */}
+          <div style={{ animationDelay: '360ms' }} className="stat-card relative overflow-hidden rounded-2xl bg-brand-950 p-6 text-white ring-1 ring-white/10">
+            {trophees.length > 0 ? (
+              <>
+                <img
+                  key={trophees[tropheeIdx].id}
+                  src={trophees[tropheeIdx].imageUrl}
+                  alt={trophees[tropheeIdx].titre}
+                  className="trophee-fade absolute inset-0 h-full w-full object-cover opacity-40"
+                />
+                <div className="absolute inset-0 bg-gradient-to-t from-brand-950 via-brand-950/80 to-brand-950/40" />
+                <div className="relative flex items-center gap-4">
+                  <span className="text-5xl">🏆</span>
+                  <div>
+                    <div className="text-lg font-black leading-tight">{trophees[tropheeIdx].titre}</div>
+                    {trophees[tropheeIdx].description && (
+                      <div className="text-sm text-white/70">{trophees[tropheeIdx].description}</div>
+                    )}
+                  </div>
+                </div>
+              </>
+            ) : (
+              <div className="flex items-center gap-4">
+                <span className="text-5xl">🏆</span>
+                <div>
+                  <div className="text-lg font-black leading-tight">Nos trophées</div>
+                  <div className="text-sm text-white/70">Reconnue pour la qualité de ses réalisations</div>
+                </div>
+              </div>
+            )}
           </div>
         </div>
       </section>

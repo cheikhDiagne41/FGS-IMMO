@@ -18,6 +18,7 @@ import MonDossier from './pages/MonDossier';
 import Rapports from './pages/Rapports';
 import VendeurPage from './pages/Vendeur';
 import Messagerie from './pages/Messagerie';
+import TropheesPage from './pages/Trophees';
 // Public (visiteur)
 import PublicLayout from './components/PublicLayout';
 import PublicHome from './pages/public/PublicHome';
@@ -71,6 +72,7 @@ export default function App() {
           <Route path="mon-dossier/:id" element={<MonDossier />} />
           <Route path="rapports" element={<Rapports />} />
           <Route path="vendeur" element={<VendeurPage />} />
+          <Route path="trophees" element={<TropheesPage />} />
           <Route path="messagerie" element={<Messagerie />} />
         </Route>
       ) : (

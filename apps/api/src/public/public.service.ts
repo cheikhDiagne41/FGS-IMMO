@@ -106,6 +106,11 @@ export class PublicService {
     return { nbTerrains, nbClients, nbRegions: regions.length };
   }
 
+  /** Trophées / distinctions affichés sur l'accueil */
+  trophees() {
+    return this.prisma.trophee.findMany({ orderBy: { createdAt: 'desc' } });
+  }
+
   /** Points cartographiques : terrains géolocalisés */
   async map() {
     const terrains = await this.prisma.terrain.findMany({

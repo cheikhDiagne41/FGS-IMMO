@@ -18,6 +18,7 @@ export const navByRole: Record<Role, NavItem[]> = {
     { label: 'Rapports', path: '/rapports' },
     { label: 'Messagerie', path: '/messagerie' },
     { label: 'Vendeur', path: '/vendeur' },
+    { label: 'Trophées', path: '/trophees' },
   ],
   GESTIONNAIRE: [
     { label: 'Tableau de bord', path: '/' },
@@ -29,6 +30,7 @@ export const navByRole: Record<Role, NavItem[]> = {
     { label: 'Carte', path: '/carte' },
     { label: 'Paiements', path: '/paiements' },
     { label: 'Messagerie', path: '/messagerie' },
+    { label: 'Trophées', path: '/trophees' },
   ],
   VENDEUR: [
     { label: 'Messagerie', path: '/' },

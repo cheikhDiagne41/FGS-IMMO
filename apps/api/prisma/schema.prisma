@@ -611,3 +611,17 @@ model ActivityLog {
   @@index([createdAt])
   @@map("activity_logs")
 }
+
+// ============================================================
+// TROPHÉES / DISTINCTIONS (gérés par l'admin, affichés sur l'accueil)
+// ============================================================
+
+model Trophee {
+  id          String   @id @default(uuid())
+  titre       String
+  description String?
+  imageUrl    String
+  createdAt   DateTime @default(now())
+
+  @@map("trophees")
+}
