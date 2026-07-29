@@ -38,8 +38,8 @@ export async function buildPdf(data: ReportData): Promise<Buffer> {
     doc.on('end', () => resolve(Buffer.concat(chunks))),
   );
 
-  const brand = '#0f9253';
-  const gold = '#e6a817';
+  const brand = '#1e4d8c';
+  const gold = '#e98b32';
   const W = doc.page.width;
   const marginX = 40;
   const tableW = W - marginX * 2;
@@ -52,7 +52,7 @@ export async function buildPdf(data: ReportData): Promise<Buffer> {
     width: tableW,
   });
   doc
-    .fillColor('#d6f9e1')
+    .fillColor('#d7e6f6')
     .fontSize(9)
     .font('Helvetica')
     .text(

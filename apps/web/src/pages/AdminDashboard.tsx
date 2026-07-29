@@ -201,7 +201,7 @@ export default function AdminDashboard() {
               <XAxis dataKey="mois" tickFormatter={moisCourt} fontSize={11} />
               <YAxis allowDecimals={false} fontSize={11} />
               <Tooltip labelFormatter={moisCourt} />
-              <Bar dataKey="total" fill="#0f9253" radius={[4, 4, 0, 0]} />
+              <Bar dataKey="total" fill="#1e4d8c" radius={[4, 4, 0, 0]} />
             </BarChart>
           </ResponsiveContainer>
           {ventes.length === 0 && (
@@ -227,7 +227,7 @@ export default function AdminDashboard() {
               <Line
                 type="monotone"
                 dataKey="total"
-                stroke="#e6a817"
+                stroke="#e98b32"
                 strokeWidth={3}
                 dot={{ r: 3 }}
               />

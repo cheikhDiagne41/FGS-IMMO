@@ -286,8 +286,8 @@ export class AttributionsService {
       doc.on('end', () => resolve(Buffer.concat(chunks))),
     );
 
-    const brand = '#0f9253';
-    const gold = '#e6a817';
+    const brand = '#1e4d8c';
+    const gold = '#e98b32';
     const W = doc.page.width;
 
     // Cadre décoratif

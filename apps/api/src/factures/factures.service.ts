@@ -149,8 +149,8 @@ export class FacturesService {
       doc.on('end', () => resolve(Buffer.concat(chunks)));
     });
 
-    const brand = '#0f9253';
-    const gold = '#e6a817';
+    const brand = '#1e4d8c';
+    const gold = '#e98b32';
 
     // En-tête (informations du vendeur)
     doc.rect(0, 0, doc.page.width, 90).fill(brand);
@@ -158,7 +158,7 @@ export class FacturesService {
     doc
       .fontSize(9)
       .font('Helvetica')
-      .fillColor('#d6f9e1')
+      .fillColor('#d7e6f6')
       .text(vendeur.slogan ?? 'Vente de terrains & coopératives d\'habitat', 50, 56);
     const contactHeader = [vendeur.telephone, vendeur.email]
       .filter(Boolean)
@@ -252,7 +252,7 @@ export class FacturesService {
       .fontSize(7)
       .font('Courier')
       .text(f.signatureHash ?? '', 300, y + 14, { width: 240 });
-    doc.fillColor('#0f9253').fontSize(9).font('Helvetica-Oblique').text(
+    doc.fillColor('#1e4d8c').fontSize(9).font('Helvetica-Oblique').text(
       '✓ Document authentifié FGS_IMMO',
       300,
       y + 50,

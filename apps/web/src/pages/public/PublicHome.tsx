@@ -149,7 +149,8 @@ export default function PublicHome() {
         )}
 
         {/* Contenu centré */}
-        <div className="relative mx-auto flex w-full max-w-4xl flex-1 flex-col items-center justify-end pb-10 px-2 text-center text-white">
+        <div className="relative flex w-full flex-1 flex-col items-center justify-end pb-10 text-center text-white">
+          {/* Titre en pleine largeur (défilement continu) */}
           <div className="w-full overflow-hidden">
             <div className="marquee-track">
               <h1 className="whitespace-nowrap pr-16 text-4xl font-black leading-[1.05] tracking-tight drop-shadow sm:text-6xl md:text-7xl">
@@ -160,7 +161,7 @@ export default function PublicHome() {
               </h1>
             </div>
           </div>
-          <div className="mt-8 flex flex-wrap justify-center gap-3">
+          <div className="mx-auto mt-8 flex w-full max-w-4xl flex-wrap justify-center gap-3 px-2">
             <Link to="/inscription" className="rounded-xl bg-gold-500 px-6 py-3 font-bold text-white shadow-lg transition hover:bg-gold-600">
               Créer un compte
             </Link>

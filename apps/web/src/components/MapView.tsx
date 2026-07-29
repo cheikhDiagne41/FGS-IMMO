@@ -21,8 +21,8 @@ export interface MapPoint {
 }
 
 const couleur: Record<string, string> = {
-  DISPONIBLE: '#0f9253',
-  RESERVE: '#e6a817',
+  DISPONIBLE: '#1e4d8c',
+  RESERVE: '#e98b32',
   VENDU: '#64748b',
 };
 
@@ -68,7 +68,7 @@ export default function MapView({
             pathOptions={{
               color: '#fff',
               weight: 2,
-              fillColor: couleur[p.statut ?? 'DISPONIBLE'] ?? '#0f9253',
+              fillColor: couleur[p.statut ?? 'DISPONIBLE'] ?? '#1e4d8c',
               fillOpacity: 0.95,
             }}
           >
