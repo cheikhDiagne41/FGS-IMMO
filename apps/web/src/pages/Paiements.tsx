@@ -10,11 +10,14 @@ interface Paiement {
   statut: 'EN_ATTENTE' | 'VALIDE' | 'ANNULE' | 'REMBOURSE';
   datePaiement: string;
   refTransaction?: string;
-  adhesion: {
+  /** Absente pour un achat direct : le client et le terrain sont alors fournis à part */
+  adhesion?: {
     numeroDossier: string;
     client: { nom: string; prenom: string };
     cooperative: { nom: string };
-  };
+  } | null;
+  client?: { nom: string; prenom: string } | null;
+  terrain?: { numeroParcelle: string } | null;
   facture?: { id: string; numero: string } | null;
 }
 
@@ -88,9 +91,15 @@ export default function Paiements() {
                   {p.reference.slice(0, 18)}
                 </td>
                 <td className="p-3 font-medium text-slate-700">
-                  {p.adhesion.client.prenom} {p.adhesion.client.nom}
+                  {(() => {
+                    const c = p.adhesion?.client ?? p.client;
+                    return c ? `${c.prenom} ${c.nom}` : '—';
+                  })()}
                 </td>
-                <td className="p-3 text-slate-500">{p.adhesion.numeroDossier}</td>
+                <td className="p-3 text-slate-500">
+                  {p.adhesion?.numeroDossier ??
+                    (p.terrain ? `Achat direct · parcelle ${p.terrain.numeroParcelle}` : 'Achat direct')}
+                </td>
                 <td className="p-3 text-slate-600">
                   {p.methode.replace('_', ' ')}
                 </td>
