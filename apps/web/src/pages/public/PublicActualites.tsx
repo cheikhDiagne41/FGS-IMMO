@@ -17,14 +17,29 @@ const formatDate = (d: string) =>
 
 /** Vignette : image, ou 1re image de la vidéo (avec bouton lecture) */
 function Vignette({ media, classe }: { media?: ActuMedia; classe: string }) {
-  if (!media) {
-    return <div className={`${classe} flex items-center justify-center bg-slate-100 text-4xl`}>📰</div>;
+  const [erreur, setErreur] = useState(false);
+
+  if (!media || erreur) {
+    return (
+      <div className={`${classe} flex items-center justify-center bg-slate-100 text-4xl`}>
+        {media?.mediaType === 'VIDEO' ? '🎬' : '📰'}
+      </div>
+    );
   }
+
   if (media.mediaType === 'VIDEO') {
     return (
-      <div className={`${classe} relative bg-black`}>
-        <video src={media.url} muted playsInline preload="metadata" className="h-full w-full object-cover" />
-        <div className="absolute inset-0 flex items-center justify-center">
+      <div className={`${classe} relative bg-slate-900`}>
+        {/* #t=0.1 force le navigateur à afficher une image du début de la vidéo */}
+        <video
+          src={`${media.url}#t=0.1`}
+          muted
+          playsInline
+          preload="metadata"
+          onError={() => setErreur(true)}
+          className="h-full w-full object-cover"
+        />
+        <div className="pointer-events-none absolute inset-0 flex items-center justify-center">
           <span className="flex h-14 w-14 items-center justify-center rounded-full bg-white/30 text-2xl text-white backdrop-blur transition group-hover:bg-white/50">
             ▶
           </span>
@@ -32,7 +47,15 @@ function Vignette({ media, classe }: { media?: ActuMedia; classe: string }) {
       </div>
     );
   }
-  return <img src={media.url} alt="" className={`${classe} object-cover`} />;
+
+  return (
+    <img
+      src={media.url}
+      alt=""
+      onError={() => setErreur(true)}
+      className={`${classe} object-cover`}
+    />
+  );
 }
 
 function Badge({ media }: { media?: ActuMedia }) {

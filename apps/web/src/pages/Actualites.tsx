@@ -170,7 +170,13 @@ export default function ActualitesPage() {
               <div className="mt-3 flex flex-wrap gap-2">
                 {a.medias.map((m) => (
                   m.mediaType === 'VIDEO' ? (
-                    <video key={m.id} src={m.url} controls className="h-24 w-32 rounded-lg bg-black object-cover" />
+                    <video
+                      key={m.id}
+                      src={`${m.url}#t=0.1`}
+                      controls
+                      preload="metadata"
+                      className="h-24 w-32 rounded-lg bg-slate-900 object-cover"
+                    />
                   ) : (
                     <img key={m.id} src={m.url} alt="" className="h-24 w-32 rounded-lg object-cover" />
                   )
