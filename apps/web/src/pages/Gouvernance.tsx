@@ -133,7 +133,7 @@ export default function GouvernancePage() {
         {data.map((m, i) => (
           <div key={m.id} className="card overflow-hidden p-0">
             {m.photoUrl ? (
-              <img src={m.photoUrl} alt={m.nom} className="h-40 w-full object-cover" />
+              <img src={m.photoUrl} alt={m.nom} className="h-56 w-full object-cover object-top" />
             ) : (
               <div className="flex h-40 w-full items-center justify-center bg-brand-50 text-4xl font-black text-brand-300">
                 {m.nom?.[0]?.toUpperCase()}

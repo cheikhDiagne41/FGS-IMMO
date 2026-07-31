@@ -12,7 +12,8 @@ interface Membre {
 
 function Portrait({ m, classe }: { m: Membre; classe: string }) {
   if (m.photoUrl) {
-    return <img src={m.photoUrl} alt={m.nom} className={`${classe} object-cover`} />;
+    // object-top : garde le visage visible quand la photo est recadrée
+    return <img src={m.photoUrl} alt={m.nom} className={`${classe} object-cover object-top`} />;
   }
   return (
     <div className={`${classe} flex items-center justify-center bg-brand-50 text-5xl font-black text-brand-300`}>
@@ -68,7 +69,7 @@ export default function PublicGouvernance() {
       {/* DIRIGEANT MIS EN AVANT */}
       {dirigeant && (
         <section className="mx-auto grid max-w-7xl items-center gap-10 px-6 md:grid-cols-2">
-          <div className="zoom aspect-[4/3] overflow-hidden rounded-2xl shadow-sm ring-1 ring-slate-100">
+          <div className="zoom mx-auto aspect-[3/4] w-full max-w-sm overflow-hidden rounded-2xl shadow-sm ring-1 ring-slate-100">
             <Portrait m={dirigeant} classe="h-full w-full" />
           </div>
           <div>
@@ -98,7 +99,7 @@ export default function PublicGouvernance() {
                   key={m.id}
                   className="group overflow-hidden rounded-2xl shadow-sm ring-1 ring-slate-100 transition hover:-translate-y-1 hover:shadow-md"
                 >
-                  <div className="zoom aspect-[4/3] overflow-hidden">
+                  <div className="zoom aspect-[3/4] overflow-hidden">
                     <Portrait m={m} classe="h-full w-full" />
                   </div>
                   <div className="p-5">
