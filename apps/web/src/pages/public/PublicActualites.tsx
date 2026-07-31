@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import { Link } from 'react-router-dom';
 import { useQuery } from '@tanstack/react-query';
 import { api } from '../../lib/api';
@@ -70,7 +70,36 @@ function Badge({ media }: { media?: ActuMedia }) {
 /** Fiche détaillée ouverte au clic (galerie + description complète) */
 function ActualiteModal({ a, onClose }: { a: Actualite; onClose: () => void }) {
   const [idx, setIdx] = useState(0);
+  const [sonBloque, setSonBloque] = useState(false);
+  const videoRef = useRef<HTMLVideoElement>(null);
   const current = a.medias[idx];
+
+  /**
+   * Lance la lecture avec le son. Les navigateurs interdisent la lecture
+   * automatique sonore hors geste utilisateur : en cas de refus on démarre
+   * en sourdine et on propose un bouton pour activer le son.
+   */
+  useEffect(() => {
+    const v = videoRef.current;
+    if (!v || current?.mediaType !== 'VIDEO') return;
+    setSonBloque(false);
+    v.muted = false;
+    v.volume = 1;
+    v.play().catch(() => {
+      v.muted = true;
+      setSonBloque(true);
+      v.play().catch(() => undefined);
+    });
+  }, [current]);
+
+  const activerSon = () => {
+    const v = videoRef.current;
+    if (!v) return;
+    v.muted = false;
+    v.volume = 1;
+    setSonBloque(false);
+    v.play().catch(() => undefined);
+  };
 
   return (
     <div
@@ -84,7 +113,24 @@ function ActualiteModal({ a, onClose }: { a: Actualite; onClose: () => void }) {
         {current && (
           <div className="relative h-80 bg-slate-900">
             {current.mediaType === 'VIDEO' ? (
-              <video src={current.url} controls autoPlay className="h-full w-full object-contain" />
+              <>
+                <video
+                  ref={videoRef}
+                  key={current.id}
+                  src={current.url}
+                  controls
+                  playsInline
+                  className="h-full w-full object-contain"
+                />
+                {sonBloque && (
+                  <button
+                    onClick={activerSon}
+                    className="absolute bottom-16 left-1/2 -translate-x-1/2 rounded-full bg-white/95 px-5 py-2 text-sm font-bold text-brand-700 shadow-lg"
+                  >
+                    🔊 Activer le son
+                  </button>
+                )}
+              </>
             ) : (
               <img src={current.url} alt="" className="h-full w-full object-contain" />
             )}
