@@ -85,6 +85,11 @@ export class PublicController {
     return this.publicService.societe();
   }
 
+  @Get('gouvernance')
+  gouvernance() {
+    return this.publicService.gouvernance();
+  }
+
   @Get('regions')
   regions() {
     return this.publicService.regions();

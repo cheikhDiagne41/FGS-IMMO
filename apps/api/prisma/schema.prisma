@@ -645,6 +645,22 @@ model VideoAccueil {
 }
 
 // ============================================================
+// GOUVERNANCE (équipe dirigeante, gérée par l'admin)
+// ============================================================
+
+model MembreGouvernance {
+  id        String   @id @default(uuid())
+  nom       String
+  poste     String
+  biographie String?
+  photoUrl  String?
+  ordre     Int      @default(0)
+  createdAt DateTime @default(now())
+
+  @@map("membres_gouvernance")
+}
+
+// ============================================================
 // ACTUALITÉS (visites de la semaine, gérées par l'admin)
 // ============================================================
 

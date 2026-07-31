@@ -125,6 +125,13 @@ export class PublicService {
     return this.prisma.videoAccueil.findMany({ orderBy: { createdAt: 'desc' } });
   }
 
+  /** Équipe dirigeante affichée sur la page Gouvernance */
+  gouvernance() {
+    return this.prisma.membreGouvernance.findMany({
+      orderBy: [{ ordre: 'asc' }, { createdAt: 'asc' }],
+    });
+  }
+
   /** Statistiques par région (pour la carte du Sénégal) */
   async regions() {
     const sites = await this.prisma.site.findMany({

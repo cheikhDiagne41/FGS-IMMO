@@ -17,6 +17,7 @@ import { MessagesModule } from './messages/messages.module';
 import { TropheesModule } from './trophees/trophees.module';
 import { VideosAccueilModule } from './videos-accueil/videos-accueil.module';
 import { ActualitesModule } from './actualites/actualites.module';
+import { GouvernanceModule } from './gouvernance/gouvernance.module';
 
 @Module({
   imports: [
@@ -38,6 +39,7 @@ import { ActualitesModule } from './actualites/actualites.module';
     TropheesModule,
     VideosAccueilModule,
     ActualitesModule,
+    GouvernanceModule,
   ],
 })
 export class AppModule {}

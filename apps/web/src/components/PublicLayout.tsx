@@ -10,6 +10,7 @@ const links = [
   { label: 'Actualités', path: '/actualites' },
   { label: 'Carte', path: '/carte' },
   { label: 'À propos', path: '/a-propos' },
+  { label: 'Gouvernance', path: '/gouvernance' },
 ];
 
 export default function PublicLayout() {
