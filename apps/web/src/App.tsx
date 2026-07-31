@@ -31,6 +31,7 @@ import PublicCooperatives from './pages/public/PublicCooperatives';
 import SiteDetail from './pages/public/SiteDetail';
 import Carte from './pages/public/Carte';
 import PublicActualites from './pages/public/PublicActualites';
+import PublicApropos from './pages/public/PublicApropos';
 
 export default function App() {
   const { user, loading } = useAuth();
@@ -90,6 +91,7 @@ export default function App() {
           <Route path="sites/:id" element={<SiteDetail />} />
           <Route path="cooperatives" element={<PublicCooperatives />} />
           <Route path="actualites" element={<PublicActualites />} />
+          <Route path="a-propos" element={<PublicApropos />} />
           <Route path="carte" element={<Carte />} />
         </Route>
       )}

@@ -79,4 +79,14 @@ export class PublicController {
   actualites() {
     return this.publicService.actualites();
   }
+
+  @Get('societe')
+  societe() {
+    return this.publicService.societe();
+  }
+
+  @Get('regions')
+  regions() {
+    return this.publicService.regions();
+  }
 }

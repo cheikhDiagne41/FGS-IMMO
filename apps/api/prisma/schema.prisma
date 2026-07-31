@@ -540,6 +540,11 @@ model Vendeur {
   responsable   String?
   description   String?
   logoUrl       String?
+  latitude      Float?
+  longitude     Float?
+  facebook      String?
+  instagram     String?
+  tiktok        String?
   // Compte de connexion du vendeur (pour répondre aux messages)
   userId        String?  @unique
   user          User?    @relation("VendeurUser", fields: [userId], references: [id])

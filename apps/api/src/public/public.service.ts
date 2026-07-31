@@ -1,6 +1,15 @@
 import { Injectable, NotFoundException } from '@nestjs/common';
 import { PrismaService } from '../prisma/prisma.service';
 
+/** Normalise un nom de région (sans accents, minuscules) pour le relier au tracé cartographique */
+const slugRegion = (nom: string) =>
+  nom
+    .normalize('NFD')
+    .replace(/[\u0300-\u036f]/g, '')
+    .toLowerCase()
+    .trim()
+    .replace(/[^a-z0-9]+/g, '-');
+
 @Injectable()
 export class PublicService {
   constructor(private prisma: PrismaService) {}
@@ -114,6 +123,73 @@ export class PublicService {
   /** Vidéos configurées par l'admin pour le carrousel du hero */
   videosAccueil() {
     return this.prisma.videoAccueil.findMany({ orderBy: { createdAt: 'desc' } });
+  }
+
+  /** Statistiques par région (pour la carte du Sénégal) */
+  async regions() {
+    const sites = await this.prisma.site.findMany({
+      where: { statut: { not: 'CLOTURE' } },
+      include: { _count: { select: { cooperatives: true, terrains: true } } },
+      orderBy: { nom: 'asc' },
+    });
+
+    const parRegion = new Map<
+      string,
+      {
+        region: string;
+        slug: string;
+        nbSites: number;
+        nbTerrains: number;
+        nbCooperatives: number;
+        sites: { id: string; nom: string; commune: string | null; type: string }[];
+      }
+    >();
+
+    for (const s of sites) {
+      const region = s.region ?? 'Non renseignée';
+      const slug = slugRegion(region);
+      const entree = parRegion.get(slug) ?? {
+        region,
+        slug,
+        nbSites: 0,
+        nbTerrains: 0,
+        nbCooperatives: 0,
+        sites: [],
+      };
+      entree.nbSites += 1;
+      entree.nbTerrains += s._count.terrains;
+      entree.nbCooperatives += s._count.cooperatives;
+      entree.sites.push({
+        id: s.id,
+        nom: s.nom,
+        commune: s.commune,
+        type: s.type,
+      });
+      parRegion.set(slug, entree);
+    }
+
+    return [...parRegion.values()].sort((a, b) => b.nbTerrains - a.nbTerrains);
+  }
+
+  /** Informations de la société (À propos, localisation, réseaux sociaux) */
+  async societe() {
+    const v = await this.prisma.vendeur.findFirst({ orderBy: { createdAt: 'asc' } });
+    if (!v) return null;
+    return {
+      nom: v.nom,
+      raisonSociale: v.raisonSociale,
+      slogan: v.slogan,
+      description: v.description,
+      adresse: v.adresse,
+      telephone: v.telephone,
+      email: v.email,
+      siteWeb: v.siteWeb,
+      latitude: v.latitude,
+      longitude: v.longitude,
+      facebook: v.facebook,
+      instagram: v.instagram,
+      tiktok: v.tiktok,
+    };
   }
 
   /** Actualités (visites de la semaine) publiées par l'admin */

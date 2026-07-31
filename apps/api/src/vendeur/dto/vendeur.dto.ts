@@ -1,4 +1,5 @@
-import { IsOptional, IsString } from 'class-validator';
+import { IsNumber, IsOptional, IsString } from 'class-validator';
+import { Type } from 'class-transformer';
 
 export class UpdateVendeurDto {
   @IsOptional() @IsString() nom?: string;
@@ -13,6 +14,11 @@ export class UpdateVendeurDto {
   @IsOptional() @IsString() responsable?: string;
   @IsOptional() @IsString() description?: string;
   @IsOptional() @IsString() logoUrl?: string;
+  @IsOptional() @Type(() => Number) @IsNumber() latitude?: number;
+  @IsOptional() @Type(() => Number) @IsNumber() longitude?: number;
+  @IsOptional() @IsString() facebook?: string;
+  @IsOptional() @IsString() instagram?: string;
+  @IsOptional() @IsString() tiktok?: string;
   /** Mot de passe pour créer/réinitialiser le compte de connexion du vendeur */
   @IsOptional() @IsString() motDePasse?: string;
 }

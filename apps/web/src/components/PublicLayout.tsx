@@ -9,6 +9,7 @@ const links = [
   { label: 'Coopératives', path: '/cooperatives' },
   { label: 'Actualités', path: '/actualites' },
   { label: 'Carte', path: '/carte' },
+  { label: 'À propos', path: '/a-propos' },
 ];
 
 export default function PublicLayout() {

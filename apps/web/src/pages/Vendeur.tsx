@@ -15,6 +15,11 @@ interface Vendeur {
   rccm?: string;
   responsable?: string;
   description?: string;
+  latitude?: string;
+  longitude?: string;
+  facebook?: string;
+  instagram?: string;
+  tiktok?: string;
   suspendu?: boolean;
   userId?: string | null;
   motDePasse?: string;
@@ -24,13 +29,18 @@ const champs: { key: keyof Vendeur; label: string; wide?: boolean }[] = [
   { key: 'nom', label: 'Nom commercial' },
   { key: 'raisonSociale', label: 'Raison sociale' },
   { key: 'slogan', label: 'Slogan', wide: true },
-  { key: 'adresse', label: 'Adresse', wide: true },
+  { key: 'adresse', label: 'Adresse (bureau)', wide: true },
   { key: 'telephone', label: 'Téléphone' },
   { key: 'email', label: 'Email' },
   { key: 'siteWeb', label: 'Site web' },
   { key: 'responsable', label: 'Responsable' },
   { key: 'ninea', label: 'NINEA' },
   { key: 'rccm', label: 'RCCM' },
+  { key: 'latitude', label: 'Latitude (bureau)' },
+  { key: 'longitude', label: 'Longitude (bureau)' },
+  { key: 'facebook', label: 'Facebook (lien)' },
+  { key: 'instagram', label: 'Instagram (lien)' },
+  { key: 'tiktok', label: 'TikTok (lien)' },
 ];
 
 function VendeurForm({
