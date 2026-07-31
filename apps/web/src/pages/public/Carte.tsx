@@ -55,6 +55,13 @@ export default function Carte() {
 
   return (
     <div className="space-y-4">
+      <Link
+        to="/"
+        className="inline-flex items-center gap-2 rounded-full bg-gold-500 px-5 py-3 font-bold text-white shadow-lg transition hover:bg-gold-600"
+      >
+        <span>←</span> Retour à l'accueil
+      </Link>
+
       <div className="flex flex-wrap items-end justify-between gap-3">
         <div>
           <span className="eyebrow">Nos implantations</span>
