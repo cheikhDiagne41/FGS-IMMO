@@ -2,6 +2,7 @@ import { Link } from 'react-router-dom';
 import { useQuery } from '@tanstack/react-query';
 import { api } from '../lib/api';
 import { HORAIRES, estOuvert } from '../lib/horaires';
+import IconeReseau, { RESEAUX } from './IconesReseaux';
 
 interface Societe {
   nom: string;
@@ -35,15 +36,6 @@ const liens = [
   ],
 ];
 
-const reseaux = [
-  { cle: 'facebook' as const, label: 'Facebook', icone: '📘' },
-  { cle: 'instagram' as const, label: 'Instagram', icone: '📷' },
-  { cle: 'tiktok' as const, label: 'TikTok', icone: '🎵' },
-  { cle: 'youtube' as const, label: 'YouTube', icone: '▶️' },
-  { cle: 'linkedin' as const, label: 'LinkedIn', icone: '💼' },
-  { cle: 'twitter' as const, label: 'X (Twitter)', icone: '✖️' },
-  { cle: 'whatsapp' as const, label: 'WhatsApp', icone: '💬' },
-];
 
 export default function Footer() {
   const { data: s } = useQuery<Societe>({
@@ -52,7 +44,7 @@ export default function Footer() {
   });
 
   const ouvert = estOuvert();
-  const reseauxActifs = reseaux.filter((r) => s?.[r.cle]);
+  const reseauxActifs = RESEAUX.filter((r) => s?.[r.cle]);
 
   return (
     <footer className="bleed bg-gradient-to-br from-brand-800 via-brand-900 to-brand-950 text-white">
@@ -152,9 +144,9 @@ export default function Footer() {
                   rel="noreferrer"
                   aria-label={r.label}
                   title={r.label}
-                  className="flex h-12 w-12 items-center justify-center rounded-full bg-white/10 text-lg font-bold text-white transition hover:bg-white/20"
+                  className={`flex h-12 w-12 items-center justify-center rounded-full text-white shadow-lg transition hover:scale-110 ${r.fond}`}
                 >
-                  {r.icone}
+                  <IconeReseau cle={r.cle} className="h-5 w-5" />
                 </a>
               ))}
             </div>

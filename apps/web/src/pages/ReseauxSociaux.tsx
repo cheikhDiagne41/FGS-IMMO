@@ -1,6 +1,7 @@
 import { useEffect, useState } from 'react';
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { api } from '../lib/api';
+import IconeReseau, { RESEAUX, CleReseau } from '../components/IconesReseaux';
 
 interface Vendeur {
   id: string;
@@ -14,23 +15,7 @@ interface Vendeur {
   whatsapp?: string;
 }
 
-type Cle = 'facebook' | 'instagram' | 'tiktok' | 'linkedin' | 'youtube' | 'twitter' | 'whatsapp';
-
-const RESEAUX: {
-  cle: Cle;
-  label: string;
-  icone: string;
-  exemple: string;
-  couleur: string;
-}[] = [
-  { cle: 'facebook', label: 'Facebook', icone: '📘', exemple: 'https://facebook.com/votrepage', couleur: 'bg-[#1877F2]' },
-  { cle: 'instagram', label: 'Instagram', icone: '📷', exemple: 'https://instagram.com/votrecompte', couleur: 'bg-gradient-to-br from-[#f58529] via-[#dd2a7b] to-[#8134af]' },
-  { cle: 'tiktok', label: 'TikTok', icone: '🎵', exemple: 'https://tiktok.com/@votrecompte', couleur: 'bg-black' },
-  { cle: 'youtube', label: 'YouTube', icone: '▶️', exemple: 'https://youtube.com/@votrechaine', couleur: 'bg-[#FF0000]' },
-  { cle: 'linkedin', label: 'LinkedIn', icone: '💼', exemple: 'https://linkedin.com/company/votresociete', couleur: 'bg-[#0A66C2]' },
-  { cle: 'twitter', label: 'X (Twitter)', icone: '✖️', exemple: 'https://x.com/votrecompte', couleur: 'bg-black' },
-  { cle: 'whatsapp', label: 'WhatsApp', icone: '💬', exemple: 'https://wa.me/221770000000', couleur: 'bg-[#25D366]' },
-];
+type Cle = CleReseau;
 
 export default function ReseauxSociauxPage() {
   const qc = useQueryClient();
@@ -88,9 +73,9 @@ export default function ReseauxSociauxPage() {
           <div key={r.cle} className="flex flex-col gap-2 sm:flex-row sm:items-center">
             <div className="flex w-44 flex-shrink-0 items-center gap-3">
               <span
-                className={`flex h-9 w-9 items-center justify-center rounded-full text-white ${r.couleur}`}
+                className={`flex h-9 w-9 items-center justify-center rounded-full text-white ${r.fond}`}
               >
-                {r.icone}
+                <IconeReseau cle={r.cle} />
               </span>
               <span className="font-semibold text-slate-700">{r.label}</span>
             </div>

@@ -3,6 +3,7 @@ import { useQuery } from '@tanstack/react-query';
 import { api } from '../../lib/api';
 import MapView, { MapPoint } from '../../components/MapView';
 import { HORAIRES } from '../../lib/horaires';
+import IconeReseau, { RESEAUX } from '../../components/IconesReseaux';
 
 interface Societe {
   nom: string;
@@ -26,15 +27,6 @@ interface Societe {
 interface Stats { nbTerrains: number; nbClients: number; nbRegions: number }
 interface Trophee { id: string; titre: string; description?: string; imageUrl: string }
 
-const reseaux = [
-  { key: 'facebook' as const, label: 'Facebook', icon: '📘', cls: 'bg-[#1877F2] hover:bg-[#1466d1]' },
-  { key: 'instagram' as const, label: 'Instagram', icon: '📷', cls: 'bg-gradient-to-br from-[#f58529] via-[#dd2a7b] to-[#8134af] hover:opacity-90' },
-  { key: 'tiktok' as const, label: 'TikTok', icon: '🎵', cls: 'bg-black hover:bg-slate-800' },
-  { key: 'youtube' as const, label: 'YouTube', icon: '▶️', cls: 'bg-[#FF0000] hover:bg-[#d40000]' },
-  { key: 'linkedin' as const, label: 'LinkedIn', icon: '💼', cls: 'bg-[#0A66C2] hover:bg-[#08529b]' },
-  { key: 'twitter' as const, label: 'X (Twitter)', icon: '✖️', cls: 'bg-black hover:bg-slate-800' },
-  { key: 'whatsapp' as const, label: 'WhatsApp', icon: '💬', cls: 'bg-[#25D366] hover:bg-[#1da851]' },
-];
 
 const fondamentaux = [
   ['🏘️', "Coopératives d'habitat", "Adhérez et payez votre terrain par mensualités, à votre rythme, avec un échéancier clair."],
@@ -61,7 +53,7 @@ export default function PublicApropos() {
   const points: MapPoint[] = s.latitude && s.longitude
     ? [{ id: 'bureau', lat: s.latitude, lng: s.longitude, label: s.raisonSociale ?? s.nom, sub: s.adresse }]
     : [];
-  const liens = reseaux.filter((r) => s[r.key]);
+  const liens = RESEAUX.filter((r) => s[r.cle]);
 
   return (
     <div className="space-y-16 pb-6">
@@ -253,13 +245,13 @@ export default function PublicApropos() {
                 <div className="flex flex-wrap gap-3">
                   {liens.map((r) => (
                     <a
-                      key={r.key}
-                      href={s[r.key]}
+                      key={r.cle}
+                      href={s[r.cle]}
                       target="_blank"
                       rel="noreferrer"
-                      className={`flex items-center gap-2 rounded-full px-5 py-3 font-bold text-white shadow-lg transition ${r.cls}`}
+                      className={`flex items-center gap-2 rounded-full px-5 py-3 font-bold text-white shadow-lg transition hover:opacity-90 ${r.fond}`}
                     >
-                      <span className="text-lg">{r.icon}</span> {r.label}
+                      <IconeReseau cle={r.cle} /> {r.label}
                     </a>
                   ))}
                 </div>
