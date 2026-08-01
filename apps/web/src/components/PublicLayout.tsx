@@ -1,6 +1,7 @@
 import { useState } from 'react';
 import { Link, NavLink, Outlet, useLocation } from 'react-router-dom';
 import ErrorBoundary from './ErrorBoundary';
+import Footer from './Footer';
 import Logo from './Logo';
 
 const links = [
@@ -58,13 +59,7 @@ export default function PublicLayout() {
         </ErrorBoundary>
       </main>
 
-      <footer className="border-t border-slate-200 bg-white py-6">
-        <div className="mx-auto flex max-w-7xl flex-col items-center justify-between gap-2 px-4 text-sm text-slate-400 md:flex-row">
-          <Logo size={24} />
-          <div>FGS_IMMO © 2026 — Vente de terrains & coopératives d'habitat</div>
-          <Link to="/inscription" className="font-semibold text-brand-600">Créer un compte</Link>
-        </div>
-      </footer>
+      <Footer />
     </div>
   );
 }

@@ -2,6 +2,7 @@ import { Link } from 'react-router-dom';
 import { useQuery } from '@tanstack/react-query';
 import { api } from '../../lib/api';
 import MapView, { MapPoint } from '../../components/MapView';
+import { HORAIRES } from '../../lib/horaires';
 
 interface Societe {
   nom: string;
@@ -227,9 +228,11 @@ export default function PublicApropos() {
               <div className="flex items-start gap-3 border-t border-slate-100 pt-3 text-slate-700">
                 <span className="text-lg">🕒</span>
                 <span>
-                  Lundi – Vendredi : 08h30 – 17h30
-                  <br />
-                  Samedi : 09h00 – 13h00
+                  {HORAIRES.map((c) => (
+                    <span key={c.label} className="block">
+                      {c.label} : {c.affichage}
+                    </span>
+                  ))}
                 </span>
               </div>
             </div>
