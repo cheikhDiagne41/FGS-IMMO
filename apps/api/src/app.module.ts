@@ -18,6 +18,7 @@ import { TropheesModule } from './trophees/trophees.module';
 import { VideosAccueilModule } from './videos-accueil/videos-accueil.module';
 import { ActualitesModule } from './actualites/actualites.module';
 import { GouvernanceModule } from './gouvernance/gouvernance.module';
+import { PartenairesModule } from './partenaires/partenaires.module';
 
 @Module({
   imports: [
@@ -40,6 +41,7 @@ import { GouvernanceModule } from './gouvernance/gouvernance.module';
     VideosAccueilModule,
     ActualitesModule,
     GouvernanceModule,
+    PartenairesModule,
   ],
 })
 export class AppModule {}

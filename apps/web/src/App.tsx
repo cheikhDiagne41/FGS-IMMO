@@ -22,6 +22,7 @@ import TropheesPage from './pages/Trophees';
 import VideosAccueilPage from './pages/VideosAccueil';
 import ActualitesPage from './pages/Actualites';
 import GouvernancePage from './pages/Gouvernance';
+import PartenairesPage from './pages/Partenaires';
 // Public (visiteur)
 import PublicLayout from './components/PublicLayout';
 import PublicHome from './pages/public/PublicHome';
@@ -82,6 +83,7 @@ export default function App() {
           <Route path="videos-accueil" element={<VideosAccueilPage />} />
           <Route path="actualites" element={<ActualitesPage />} />
           <Route path="gouvernance" element={<GouvernancePage />} />
+          <Route path="partenaires" element={<PartenairesPage />} />
           <Route path="messagerie" element={<Messagerie />} />
         </Route>
       ) : (

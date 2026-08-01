@@ -97,6 +97,11 @@ export class PublicController {
     return this.publicService.societe();
   }
 
+  @Get('partenaires')
+  partenaires() {
+    return this.publicService.partenaires();
+  }
+
   @Get('gouvernance')
   gouvernance() {
     return this.publicService.gouvernance();

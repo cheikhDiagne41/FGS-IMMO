@@ -2,6 +2,7 @@ import { useEffect, useState } from 'react';
 import { Link } from 'react-router-dom';
 import { useQuery } from '@tanstack/react-query';
 import { api, formatFCFA } from '../../lib/api';
+import Partenaires from '../../components/Partenaires';
 
 interface Trophee { id: string; titre: string; description?: string; imageUrl: string }
 interface VideoAccueil { id: string; titre?: string; videoUrl: string }
@@ -349,6 +350,9 @@ export default function PublicHome() {
           {recents.map((t) => <TerrainCard key={t.id} t={t} />)}
         </div>
       </section>
+
+      {/* PARTENAIRES (configurés depuis l'administration) */}
+      <Partenaires />
     </div>
   );
 }

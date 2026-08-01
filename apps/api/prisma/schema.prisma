@@ -652,6 +652,21 @@ model VideoAccueil {
 }
 
 // ============================================================
+// PARTENAIRES (logos affichés sur l'accueil, gérés par l'admin)
+// ============================================================
+
+model Partenaire {
+  id        String   @id @default(uuid())
+  nom       String
+  logoUrl   String
+  siteWeb   String?
+  ordre     Int      @default(0)
+  createdAt DateTime @default(now())
+
+  @@map("partenaires")
+}
+
+// ============================================================
 // GOUVERNANCE (équipe dirigeante, gérée par l'admin)
 // ============================================================
 

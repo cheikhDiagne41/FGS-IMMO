@@ -160,6 +160,13 @@ export class PublicService {
     return this.prisma.videoAccueil.findMany({ orderBy: { createdAt: 'desc' } });
   }
 
+  /** Partenaires affichés sur l'accueil */
+  partenaires() {
+    return this.prisma.partenaire.findMany({
+      orderBy: [{ ordre: 'asc' }, { createdAt: 'asc' }],
+    });
+  }
+
   /** Équipe dirigeante affichée sur la page Gouvernance */
   gouvernance() {
     return this.prisma.membreGouvernance.findMany({
