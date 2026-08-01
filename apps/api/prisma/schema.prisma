@@ -552,6 +552,10 @@ model Vendeur {
   facebook      String?
   instagram     String?
   tiktok        String?
+  linkedin      String?
+  youtube       String?
+  twitter       String?
+  whatsapp      String?
   // Compte de connexion du vendeur (pour répondre aux messages)
   userId        String?  @unique
   user          User?    @relation("VendeurUser", fields: [userId], references: [id])

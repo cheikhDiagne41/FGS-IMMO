@@ -18,6 +18,10 @@ interface Societe {
   facebook?: string;
   instagram?: string;
   tiktok?: string;
+  linkedin?: string;
+  youtube?: string;
+  twitter?: string;
+  whatsapp?: string;
 }
 interface Stats { nbTerrains: number; nbClients: number; nbRegions: number }
 interface Trophee { id: string; titre: string; description?: string; imageUrl: string }
@@ -26,6 +30,10 @@ const reseaux = [
   { key: 'facebook' as const, label: 'Facebook', icon: '📘', cls: 'bg-[#1877F2] hover:bg-[#1466d1]' },
   { key: 'instagram' as const, label: 'Instagram', icon: '📷', cls: 'bg-gradient-to-br from-[#f58529] via-[#dd2a7b] to-[#8134af] hover:opacity-90' },
   { key: 'tiktok' as const, label: 'TikTok', icon: '🎵', cls: 'bg-black hover:bg-slate-800' },
+  { key: 'youtube' as const, label: 'YouTube', icon: '▶️', cls: 'bg-[#FF0000] hover:bg-[#d40000]' },
+  { key: 'linkedin' as const, label: 'LinkedIn', icon: '💼', cls: 'bg-[#0A66C2] hover:bg-[#08529b]' },
+  { key: 'twitter' as const, label: 'X (Twitter)', icon: '✖️', cls: 'bg-black hover:bg-slate-800' },
+  { key: 'whatsapp' as const, label: 'WhatsApp', icon: '💬', cls: 'bg-[#25D366] hover:bg-[#1da851]' },
 ];
 
 const fondamentaux = [

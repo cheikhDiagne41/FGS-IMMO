@@ -14,6 +14,10 @@ interface Societe {
   facebook?: string;
   instagram?: string;
   tiktok?: string;
+  linkedin?: string;
+  youtube?: string;
+  twitter?: string;
+  whatsapp?: string;
 }
 
 const liens = [
@@ -32,9 +36,13 @@ const liens = [
 ];
 
 const reseaux = [
-  { cle: 'facebook' as const, label: 'Facebook', icone: 'f' },
-  { cle: 'instagram' as const, label: 'Instagram', icone: '◎' },
-  { cle: 'tiktok' as const, label: 'TikTok', icone: '♪' },
+  { cle: 'facebook' as const, label: 'Facebook', icone: '📘' },
+  { cle: 'instagram' as const, label: 'Instagram', icone: '📷' },
+  { cle: 'tiktok' as const, label: 'TikTok', icone: '🎵' },
+  { cle: 'youtube' as const, label: 'YouTube', icone: '▶️' },
+  { cle: 'linkedin' as const, label: 'LinkedIn', icone: '💼' },
+  { cle: 'twitter' as const, label: 'X (Twitter)', icone: '✖️' },
+  { cle: 'whatsapp' as const, label: 'WhatsApp', icone: '💬' },
 ];
 
 export default function Footer() {

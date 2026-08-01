@@ -238,6 +238,10 @@ export class PublicService {
       facebook: v.facebook,
       instagram: v.instagram,
       tiktok: v.tiktok,
+      linkedin: v.linkedin,
+      youtube: v.youtube,
+      twitter: v.twitter,
+      whatsapp: v.whatsapp,
     };
   }
 

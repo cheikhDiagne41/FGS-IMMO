@@ -19,6 +19,10 @@ export class UpdateVendeurDto {
   @IsOptional() @IsString() facebook?: string;
   @IsOptional() @IsString() instagram?: string;
   @IsOptional() @IsString() tiktok?: string;
+  @IsOptional() @IsString() linkedin?: string;
+  @IsOptional() @IsString() youtube?: string;
+  @IsOptional() @IsString() twitter?: string;
+  @IsOptional() @IsString() whatsapp?: string;
   /** Mot de passe pour créer/réinitialiser le compte de connexion du vendeur */
   @IsOptional() @IsString() motDePasse?: string;
 }
