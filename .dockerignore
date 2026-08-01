@@ -2,7 +2,10 @@
 **/dist
 **/.env
 **/.env.*
-apps/api/uploads
+# Les médias du site (photos de terrains, vidéos, logos) sont embarqués pour
+# que la démonstration s'affiche complète — voir le COPY dans le Dockerfile.
+# En revanche les pièces d'identité des clients ne quittent jamais le poste.
+apps/api/uploads/documents
 apps/api/web-dist
 .git
 .claude

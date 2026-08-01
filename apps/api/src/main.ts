@@ -12,6 +12,13 @@ async function bootstrap() {
 
   app.setGlobalPrefix('api');
 
+  // En ligne, l'application est derrière le répartiteur de l'hébergeur.
+  // Sans ceci, toutes les demandes semblent venir de la même adresse et la
+  // limite de tentatives de connexion bloquerait tous les visiteurs à la fois.
+  if (process.env.NODE_ENV === 'production') {
+    app.set('trust proxy', 1);
+  }
+
   // Fichiers médias (images / vidéos des terrains) servis sur /uploads.
   // Ces fichiers viennent d'un envoi utilisateur : on empêche le navigateur
   // de les interpréter comme du code (HTML/SVG piégé = script exécuté sur

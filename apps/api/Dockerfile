@@ -34,11 +34,17 @@ COPY --from=build /app/apps/api/package.json ./apps/api/package.json
 COPY --from=build /app/apps/api/tsconfig.json ./apps/api/tsconfig.json
 # Frontend build servi par l'API (voir main.ts → web-dist)
 COPY --from=build /app/apps/web/dist ./apps/api/web-dist
+# Médias du site (photos de terrains, vidéos, logos des partenaires…) pour que
+# la démonstration s'affiche complète. Les pièces d'identité des clients sont
+# exclues par le .dockerignore et ne sont jamais publiées.
+COPY --from=build /app/apps/api/uploads ./apps/api/uploads
 
 WORKDIR /app/apps/api
 EXPOSE 3000
 
-# Migration + seed (idempotent) + démarrage
+# Migrations, puis données de démonstration, puis contenu vitrine réel
+# (les deux sont rejouables sans créer de doublon), puis démarrage.
 CMD npx prisma migrate deploy \
  && (npx ts-node prisma/seed.ts || echo "seed ignoré") \
+ && (npx ts-node prisma/importer-vitrine.ts || echo "import vitrine ignoré") \
  && node dist/main.js

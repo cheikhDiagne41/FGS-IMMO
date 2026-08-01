@@ -1,0 +1,709 @@
+{
+  "exporteLe": "2026-08-01T02:12:31.710Z",
+  "societe": {
+    "id": "5ed5ab17-80a8-4f0d-82a3-4d563611dca8",
+    "nom": "FGS_IMMO",
+    "raisonSociale": "FGS IMMO SARL",
+    "slogan": "Vente de terrains & coopératives d'habitat",
+    "adresse": "Sacré-Cœur 3, Dakar",
+    "telephone": "+221 77 123 45 67",
+    "email": "contact@fgsimmo.sn",
+    "siteWeb": "www.fgsimmo.sn",
+    "ninea": "0071234567",
+    "rccm": "SN-DKR-2024-B-1234",
+    "responsable": "M. Diagne",
+    "description": null,
+    "logoUrl": null,
+    "latitude": 14.7167,
+    "longitude": -17.4677,
+    "facebook": "",
+    "instagram": "",
+    "tiktok": "",
+    "linkedin": "",
+    "youtube": "",
+    "twitter": "",
+    "whatsapp": "",
+    "userId": null,
+    "suspendu": false,
+    "createdAt": "2026-07-25T21:39:28.228Z",
+    "updatedAt": "2026-08-01T01:43:13.262Z"
+  },
+  "sites": [
+    {
+      "id": "82c44e44-de29-475d-8fc5-fa8569cfb2b2",
+      "code": "THS-001",
+      "nom": "Cité Les Palmiers",
+      "region": "Thiès",
+      "departement": null,
+      "commune": "Thiès",
+      "adresse": null,
+      "latitude": 14.7886,
+      "longitude": -16.9246,
+      "superficie": null,
+      "nbParcelles": 80,
+      "prixReference": "8000000",
+      "description": null,
+      "planUrl": null,
+      "type": "COOPERATIVE",
+      "statut": "EN_COMMERCIALISATION",
+      "gerantNom": "Mamadou Ba",
+      "gerantTelephone": "+221 77 111 22 33",
+      "gerantEmail": "m.ba@fgsimmo.sn",
+      "createdAt": "2026-07-25T21:27:21.014Z",
+      "updatedAt": "2026-07-26T11:17:47.621Z",
+      "photos": [
+        {
+          "id": "de87dd31-9f27-4894-be6a-b1ce4e5cea49",
+          "siteId": "82c44e44-de29-475d-8fc5-fa8569cfb2b2",
+          "url": "/uploads/sites/1785063446524-895559711.jpg",
+          "legende": null
+        },
+        {
+          "id": "5c7bb184-56b1-4768-8e6d-11a370628e2f",
+          "siteId": "82c44e44-de29-475d-8fc5-fa8569cfb2b2",
+          "url": "/uploads/sites/1785063446525-895133105.jpg",
+          "legende": null
+        }
+      ]
+    },
+    {
+      "id": "4c253587-cf7b-45b8-bbef-d90b87beff56",
+      "code": "DKR-001",
+      "nom": "Cité FGS Diamniadio",
+      "region": "Dakar",
+      "departement": "Rufisque",
+      "commune": "Diamniadio",
+      "adresse": "Pôle urbain de Diamniadio",
+      "latitude": 14.7167,
+      "longitude": -17.1833,
+      "superficie": "50000",
+      "nbParcelles": 120,
+      "prixReference": "15000000",
+      "description": "Site résidentiel viabilisé à proximité de la nouvelle ville.",
+      "planUrl": null,
+      "type": "COOPERATIVE",
+      "statut": "EN_COMMERCIALISATION",
+      "gerantNom": "Fatou Sow",
+      "gerantTelephone": "+221 77 000 00 06",
+      "gerantEmail": "f.sow@fgsimmo.sn",
+      "createdAt": "2026-07-25T18:56:17.395Z",
+      "updatedAt": "2026-07-26T11:17:47.631Z",
+      "photos": [
+        {
+          "id": "bf1e7906-28e8-43da-9f91-dbaf523b3f28",
+          "siteId": "4c253587-cf7b-45b8-bbef-d90b87beff56",
+          "url": "/uploads/sites/1785063446538-153619784.jpg",
+          "legende": null
+        },
+        {
+          "id": "796be6a2-adeb-4c31-b12c-759ecb149b38",
+          "siteId": "4c253587-cf7b-45b8-bbef-d90b87beff56",
+          "url": "/uploads/sites/1785063446538-281352108.jpg",
+          "legende": null
+        }
+      ]
+    },
+    {
+      "id": "cfc360e0-db4d-4e96-a028-d90508b829ae",
+      "code": "VD-001",
+      "nom": "Lotissement Direct Mbour",
+      "region": null,
+      "departement": null,
+      "commune": "Mbour",
+      "adresse": null,
+      "latitude": 14.42,
+      "longitude": -16.96,
+      "superficie": null,
+      "nbParcelles": 0,
+      "prixReference": null,
+      "description": null,
+      "planUrl": null,
+      "type": "VENTE_DIRECTE",
+      "statut": "DISPONIBLE",
+      "gerantNom": "Gérant Modifié",
+      "gerantTelephone": "+221 76 444 55 66",
+      "gerantEmail": null,
+      "createdAt": "2026-07-25T23:11:24.881Z",
+      "updatedAt": "2026-07-27T01:19:19.346Z",
+      "photos": [
+        {
+          "id": "3c936144-3349-4235-bb7f-0e0351064d2e",
+          "siteId": "cfc360e0-db4d-4e96-a028-d90508b829ae",
+          "url": "/uploads/sites/1785063446490-25545726.jpg",
+          "legende": null
+        },
+        {
+          "id": "0b9fc4f9-a315-400d-b547-d00827015caa",
+          "siteId": "cfc360e0-db4d-4e96-a028-d90508b829ae",
+          "url": "/uploads/sites/1785063446491-724757702.jpg",
+          "legende": null
+        }
+      ]
+    }
+  ],
+  "cooperatives": [
+    {
+      "id": "106d7f41-e29b-44ab-9877-cbf7d0e6c929",
+      "numero": "COOP-001",
+      "nom": "Coopérative Espoir Diamniadio",
+      "siteId": "4c253587-cf7b-45b8-bbef-d90b87beff56",
+      "dateCreation": "2026-07-25T18:56:17.403Z",
+      "nbMaxAdherents": 120,
+      "fraisAdhesion": "25000",
+      "montantAcompte": "2000000",
+      "cotisationMensuelle": "250000",
+      "nbMensualites": 48,
+      "dureeRemboursement": 48,
+      "description": null,
+      "responsable": "M. Fall (MAJ)",
+      "statut": "ACTIVE",
+      "createdAt": "2026-07-25T18:56:17.403Z",
+      "updatedAt": "2026-07-27T20:44:55.067Z"
+    }
+  ],
+  "terrains": [
+    {
+      "id": "b6ca987c-b92e-4a01-b86f-e18573651662",
+      "numeroParcelle": "P-009",
+      "reference": null,
+      "titre": null,
+      "description": null,
+      "document": null,
+      "enVedette": true,
+      "siteId": "4c253587-cf7b-45b8-bbef-d90b87beff56",
+      "superficie": "300",
+      "prix": "15000000",
+      "type": "HABITATION",
+      "latitude": 14.71703,
+      "longitude": -17.18048,
+      "planUrl": null,
+      "statut": "RESERVE",
+      "vendeurNom": null,
+      "vendeurTelephone": null,
+      "vendeurId": null,
+      "clientId": null,
+      "adhesionId": null,
+      "dateAttribution": null,
+      "createdAt": "2026-07-25T18:56:17.432Z",
+      "updatedAt": "2026-07-28T10:38:11.928Z",
+      "images": [
+        {
+          "id": "da1865c9-da26-46b6-a36f-b039a3dedfc7",
+          "terrainId": "b6ca987c-b92e-4a01-b86f-e18573651662",
+          "url": "/uploads/terrains/1785063446869-34643081.jpg",
+          "mediaType": "IMAGE",
+          "legende": null,
+          "createdAt": "2026-07-26T10:57:26.875Z"
+        },
+        {
+          "id": "54dc9dc4-6a19-4e27-8dff-bf0c73e4d5df",
+          "terrainId": "b6ca987c-b92e-4a01-b86f-e18573651662",
+          "url": "/uploads/terrains/1785063446869-553945974.jpg",
+          "mediaType": "IMAGE",
+          "legende": null,
+          "createdAt": "2026-07-26T10:57:26.875Z"
+        }
+      ]
+    },
+    {
+      "id": "69240adf-a6e8-471f-be8c-bce6b2089302",
+      "numeroParcelle": "7",
+      "reference": null,
+      "titre": null,
+      "description": "Terrain stratégique à proximité de la gare TER.",
+      "document": "Délibération",
+      "enVedette": true,
+      "siteId": "82c44e44-de29-475d-8fc5-fa8569cfb2b2",
+      "superficie": "250",
+      "prix": "8000000",
+      "type": "HABITATION",
+      "latitude": 14.789,
+      "longitude": -16.925,
+      "planUrl": null,
+      "statut": "DISPONIBLE",
+      "vendeurNom": "Fatou Sow",
+      "vendeurTelephone": "+221 77 000 00 06",
+      "vendeurId": null,
+      "clientId": null,
+      "adhesionId": null,
+      "dateAttribution": null,
+      "createdAt": "2026-07-25T21:27:21.243Z",
+      "updatedAt": "2026-07-28T13:15:56.438Z",
+      "images": [
+        {
+          "id": "4fe5b831-c7fd-45a9-9874-0305449c81af",
+          "terrainId": "69240adf-a6e8-471f-be8c-bce6b2089302",
+          "url": "/uploads/terrains/1785063446602-1777581.jpg",
+          "mediaType": "IMAGE",
+          "legende": null,
+          "createdAt": "2026-07-26T10:57:26.612Z"
+        },
+        {
+          "id": "e6b0b5f0-e1a3-4e1d-985c-9e9cd5144504",
+          "terrainId": "69240adf-a6e8-471f-be8c-bce6b2089302",
+          "url": "/uploads/terrains/1785063446603-714729428.jpg",
+          "mediaType": "IMAGE",
+          "legende": null,
+          "createdAt": "2026-07-26T10:57:26.612Z"
+        },
+        {
+          "id": "80a46b7b-53dd-4e5f-acbd-35069096ddb5",
+          "terrainId": "69240adf-a6e8-471f-be8c-bce6b2089302",
+          "url": "/uploads/terrains/1785063446604-511903072.jpg",
+          "mediaType": "IMAGE",
+          "legende": null,
+          "createdAt": "2026-07-26T10:57:26.612Z"
+        },
+        {
+          "id": "68a029ed-e451-4814-8c67-10aadf596a96",
+          "terrainId": "69240adf-a6e8-471f-be8c-bce6b2089302",
+          "url": "/uploads/terrains/1785063446605-318817424.jpg",
+          "mediaType": "IMAGE",
+          "legende": null,
+          "createdAt": "2026-07-26T10:57:26.612Z"
+        }
+      ]
+    },
+    {
+      "id": "af6676a5-bf84-44f3-9f1e-e8bf039dbb07",
+      "numeroParcelle": "P-003",
+      "reference": null,
+      "titre": null,
+      "description": null,
+      "document": null,
+      "enVedette": true,
+      "siteId": "4c253587-cf7b-45b8-bbef-d90b87beff56",
+      "superficie": "300",
+      "prix": "15000000",
+      "type": "HABITATION",
+      "latitude": 14.71986,
+      "longitude": -17.18482,
+      "planUrl": null,
+      "statut": "RESERVE",
+      "vendeurNom": null,
+      "vendeurTelephone": null,
+      "vendeurId": null,
+      "clientId": "8c4be009-63ec-4caf-8e5d-d7b174cd8513",
+      "adhesionId": "b51ba7e0-97d8-4bc2-a3cb-911443a0ec27",
+      "dateAttribution": null,
+      "createdAt": "2026-07-25T18:56:17.423Z",
+      "updatedAt": "2026-07-28T23:37:51.618Z",
+      "images": [
+        {
+          "id": "7e52cfda-a90a-46db-9d65-38086bd99a45",
+          "terrainId": "af6676a5-bf84-44f3-9f1e-e8bf039dbb07",
+          "url": "/uploads/terrains/1785063446654-225114664.jpg",
+          "mediaType": "IMAGE",
+          "legende": null,
+          "createdAt": "2026-07-26T10:57:26.661Z"
+        },
+        {
+          "id": "b235c9e4-6399-48bd-a3fb-b4bd0c435f8d",
+          "terrainId": "af6676a5-bf84-44f3-9f1e-e8bf039dbb07",
+          "url": "/uploads/terrains/1785063446655-360882710.jpg",
+          "mediaType": "IMAGE",
+          "legende": null,
+          "createdAt": "2026-07-26T10:57:26.661Z"
+        }
+      ]
+    },
+    {
+      "id": "57e660c8-d68b-47cb-8a65-4dc0f6487cc1",
+      "numeroParcelle": "P-006",
+      "reference": null,
+      "titre": null,
+      "description": null,
+      "document": null,
+      "enVedette": false,
+      "siteId": "4c253587-cf7b-45b8-bbef-d90b87beff56",
+      "superficie": "300",
+      "prix": "15000000",
+      "type": "HABITATION",
+      "latitude": 14.71337,
+      "longitude": -17.17984,
+      "planUrl": null,
+      "statut": "DISPONIBLE",
+      "vendeurNom": null,
+      "vendeurTelephone": null,
+      "vendeurId": null,
+      "clientId": null,
+      "adhesionId": null,
+      "dateAttribution": null,
+      "createdAt": "2026-07-25T18:56:17.427Z",
+      "updatedAt": "2026-07-26T11:17:47.697Z",
+      "images": [
+        {
+          "id": "dfa21e70-dc79-4431-a4d2-ae1a298313ba",
+          "terrainId": "57e660c8-d68b-47cb-8a65-4dc0f6487cc1",
+          "url": "/uploads/terrains/1785063446757-566274385.jpg",
+          "mediaType": "IMAGE",
+          "legende": null,
+          "createdAt": "2026-07-26T10:57:26.763Z"
+        },
+        {
+          "id": "5ff14507-e7fe-448f-8dbd-11cb4a4a79e2",
+          "terrainId": "57e660c8-d68b-47cb-8a65-4dc0f6487cc1",
+          "url": "/uploads/terrains/1785063446758-422094918.jpg",
+          "mediaType": "IMAGE",
+          "legende": null,
+          "createdAt": "2026-07-26T10:57:26.763Z"
+        }
+      ]
+    },
+    {
+      "id": "a094109d-ee7e-4890-9f44-ce5de5f704f7",
+      "numeroParcelle": "P-007",
+      "reference": null,
+      "titre": null,
+      "description": null,
+      "document": null,
+      "enVedette": false,
+      "siteId": "4c253587-cf7b-45b8-bbef-d90b87beff56",
+      "superficie": "300",
+      "prix": "15000000",
+      "type": "HABITATION",
+      "latitude": 14.71794,
+      "longitude": -17.18083,
+      "planUrl": null,
+      "statut": "DISPONIBLE",
+      "vendeurNom": null,
+      "vendeurTelephone": null,
+      "vendeurId": null,
+      "clientId": null,
+      "adhesionId": null,
+      "dateAttribution": null,
+      "createdAt": "2026-07-25T18:56:17.429Z",
+      "updatedAt": "2026-07-26T11:17:47.708Z",
+      "images": [
+        {
+          "id": "362e52d2-3ad8-4f7a-9ccc-806cdd627e98",
+          "terrainId": "a094109d-ee7e-4890-9f44-ce5de5f704f7",
+          "url": "/uploads/terrains/1785063446791-324130020.jpg",
+          "mediaType": "IMAGE",
+          "legende": null,
+          "createdAt": "2026-07-26T10:57:26.797Z"
+        },
+        {
+          "id": "34b1bb10-214c-4b7c-bed2-13caafd260f5",
+          "terrainId": "a094109d-ee7e-4890-9f44-ce5de5f704f7",
+          "url": "/uploads/terrains/1785063446791-734959306.jpg",
+          "mediaType": "IMAGE",
+          "legende": null,
+          "createdAt": "2026-07-26T10:57:26.797Z"
+        },
+        {
+          "id": "9ab06d94-941c-4734-93c3-658779c0a9d4",
+          "terrainId": "a094109d-ee7e-4890-9f44-ce5de5f704f7",
+          "url": "/uploads/terrains/1785324489627-153224063.mp4",
+          "mediaType": "VIDEO",
+          "legende": null,
+          "createdAt": "2026-07-29T11:28:09.766Z"
+        }
+      ]
+    },
+    {
+      "id": "7d233cdb-1859-40e1-afa3-e1fdd7d59095",
+      "numeroParcelle": "P-010",
+      "reference": null,
+      "titre": null,
+      "description": null,
+      "document": null,
+      "enVedette": false,
+      "siteId": "4c253587-cf7b-45b8-bbef-d90b87beff56",
+      "superficie": "300",
+      "prix": "15000000",
+      "type": "HABITATION",
+      "latitude": 14.71412,
+      "longitude": -17.1816,
+      "planUrl": null,
+      "statut": "RESERVE",
+      "vendeurNom": null,
+      "vendeurTelephone": null,
+      "vendeurId": null,
+      "clientId": null,
+      "adhesionId": null,
+      "dateAttribution": null,
+      "createdAt": "2026-07-25T18:56:17.433Z",
+      "updatedAt": "2026-07-26T11:17:47.742Z",
+      "images": [
+        {
+          "id": "7e99082b-4a60-4534-9929-454eab1c2020",
+          "terrainId": "7d233cdb-1859-40e1-afa3-e1fdd7d59095",
+          "url": "/uploads/terrains/1785063446902-371581418.jpg",
+          "mediaType": "IMAGE",
+          "legende": null,
+          "createdAt": "2026-07-26T10:57:26.908Z"
+        },
+        {
+          "id": "1ce94bb4-062e-448c-8870-a49e11f90c06",
+          "terrainId": "7d233cdb-1859-40e1-afa3-e1fdd7d59095",
+          "url": "/uploads/terrains/1785063446903-286472393.jpg",
+          "mediaType": "IMAGE",
+          "legende": null,
+          "createdAt": "2026-07-26T10:57:26.908Z"
+        }
+      ]
+    },
+    {
+      "id": "f2256799-1d7c-4439-8ddc-2f1a97374c5b",
+      "numeroParcelle": "1",
+      "reference": "TER-2026-00012",
+      "titre": "Grand terrain à Diamniadio",
+      "description": "Terrain stratégique dans le nouveau pôle urbain, à proximité de la gare TER et de la ville nouvelle.",
+      "document": "Délibération",
+      "enVedette": false,
+      "siteId": "cfc360e0-db4d-4e96-a028-d90508b829ae",
+      "superficie": "200",
+      "prix": "5000000",
+      "type": "HABITATION",
+      "latitude": 14.41998,
+      "longitude": -16.96231,
+      "planUrl": null,
+      "statut": "VENDU",
+      "vendeurNom": null,
+      "vendeurTelephone": null,
+      "vendeurId": null,
+      "clientId": "ee328d69-5168-4206-8d4e-1d12589e5c6e",
+      "adhesionId": null,
+      "dateAttribution": "2026-07-25T23:11:25.451Z",
+      "createdAt": "2026-07-25T23:11:25.060Z",
+      "updatedAt": "2026-07-26T11:17:47.753Z",
+      "images": [
+        {
+          "id": "e1d44708-f97e-4ba9-a2e5-a0e7a890ceb0",
+          "terrainId": "f2256799-1d7c-4439-8ddc-2f1a97374c5b",
+          "url": "/uploads/terrains/1785063446933-147963429.jpg",
+          "mediaType": "IMAGE",
+          "legende": null,
+          "createdAt": "2026-07-26T10:57:26.941Z"
+        },
+        {
+          "id": "d465ce74-7410-4647-85cc-c66942ddf3c6",
+          "terrainId": "f2256799-1d7c-4439-8ddc-2f1a97374c5b",
+          "url": "/uploads/terrains/1785063446935-942950203.jpg",
+          "mediaType": "IMAGE",
+          "legende": null,
+          "createdAt": "2026-07-26T10:57:26.941Z"
+        }
+      ]
+    },
+    {
+      "id": "a9982e78-4910-42ba-b5b7-b92e85f52041",
+      "numeroParcelle": "P-001",
+      "reference": null,
+      "titre": null,
+      "description": null,
+      "document": null,
+      "enVedette": false,
+      "siteId": "4c253587-cf7b-45b8-bbef-d90b87beff56",
+      "superficie": "300",
+      "prix": "15000000",
+      "type": "HABITATION",
+      "latitude": 14.72109,
+      "longitude": -17.18697,
+      "planUrl": null,
+      "statut": "VENDU",
+      "vendeurNom": null,
+      "vendeurTelephone": null,
+      "vendeurId": null,
+      "clientId": "ee328d69-5168-4206-8d4e-1d12589e5c6e",
+      "adhesionId": "f25a65a3-d9cd-43d5-a625-2397ed0c8a76",
+      "dateAttribution": "2026-07-25T19:42:29.190Z",
+      "createdAt": "2026-07-25T18:56:17.418Z",
+      "updatedAt": "2026-07-26T11:17:47.764Z",
+      "images": [
+        {
+          "id": "1dc5b5fe-8661-42c3-987a-c9e0d3190e48",
+          "terrainId": "a9982e78-4910-42ba-b5b7-b92e85f52041",
+          "url": "/uploads/terrains/1785063446967-49371820.jpg",
+          "mediaType": "IMAGE",
+          "legende": null,
+          "createdAt": "2026-07-26T10:57:26.973Z"
+        },
+        {
+          "id": "90f87f07-84a4-44ff-b107-d4f0cd129f48",
+          "terrainId": "a9982e78-4910-42ba-b5b7-b92e85f52041",
+          "url": "/uploads/terrains/1785063446968-943723804.jpg",
+          "mediaType": "IMAGE",
+          "legende": null,
+          "createdAt": "2026-07-26T10:57:26.973Z"
+        }
+      ]
+    },
+    {
+      "id": "3947c990-dc23-4795-8dd9-0ee80da59759",
+      "numeroParcelle": "P-002",
+      "reference": null,
+      "titre": null,
+      "description": null,
+      "document": null,
+      "enVedette": false,
+      "siteId": "4c253587-cf7b-45b8-bbef-d90b87beff56",
+      "superficie": "300",
+      "prix": "15000000",
+      "type": "HABITATION",
+      "latitude": 14.71205,
+      "longitude": -17.17918,
+      "planUrl": null,
+      "statut": "RESERVE",
+      "vendeurNom": null,
+      "vendeurTelephone": null,
+      "vendeurId": null,
+      "clientId": "0b00d38d-3c13-4916-b508-0d83e1998e55",
+      "adhesionId": "10a6f79c-571e-4a50-bcf2-e78c37ee902d",
+      "dateAttribution": null,
+      "createdAt": "2026-07-25T18:56:17.421Z",
+      "updatedAt": "2026-07-26T13:16:28.924Z",
+      "images": [
+        {
+          "id": "6ab9d143-834e-4c3a-9e87-265aa32f5e09",
+          "terrainId": "3947c990-dc23-4795-8dd9-0ee80da59759",
+          "url": "/uploads/terrains/1785063446632-387790524.jpg",
+          "mediaType": "IMAGE",
+          "legende": null,
+          "createdAt": "2026-07-26T10:57:26.639Z"
+        },
+        {
+          "id": "d7d96387-87fd-43a4-addc-503cc8aced18",
+          "terrainId": "3947c990-dc23-4795-8dd9-0ee80da59759",
+          "url": "/uploads/terrains/1785063446633-937540026.jpg",
+          "mediaType": "IMAGE",
+          "legende": null,
+          "createdAt": "2026-07-26T10:57:26.639Z"
+        }
+      ]
+    },
+    {
+      "id": "342cc50f-29be-46d3-87ba-9777c6c31724",
+      "numeroParcelle": "P-004",
+      "reference": null,
+      "titre": null,
+      "description": null,
+      "document": null,
+      "enVedette": false,
+      "siteId": "4c253587-cf7b-45b8-bbef-d90b87beff56",
+      "superficie": "300",
+      "prix": "15000000",
+      "type": "HABITATION",
+      "latitude": 14.71332,
+      "longitude": -17.18434,
+      "planUrl": null,
+      "statut": "RESERVE",
+      "vendeurNom": null,
+      "vendeurTelephone": null,
+      "vendeurId": null,
+      "clientId": "d36159b6-28f3-4660-84ad-51f62ffda498",
+      "adhesionId": "0cecc3ca-78d8-4b93-a0d2-91be337f79d4",
+      "dateAttribution": null,
+      "createdAt": "2026-07-25T18:56:17.425Z",
+      "updatedAt": "2026-07-27T15:09:29.266Z",
+      "images": [
+        {
+          "id": "b14ce078-1f82-4d26-a5c1-c77e3b42f97a",
+          "terrainId": "342cc50f-29be-46d3-87ba-9777c6c31724",
+          "url": "/uploads/terrains/1785063446690-265136975.jpg",
+          "mediaType": "IMAGE",
+          "legende": null,
+          "createdAt": "2026-07-26T10:57:26.696Z"
+        },
+        {
+          "id": "89b72f21-a360-4380-a548-ae3e7fbe959b",
+          "terrainId": "342cc50f-29be-46d3-87ba-9777c6c31724",
+          "url": "/uploads/terrains/1785063446691-233671444.jpg",
+          "mediaType": "IMAGE",
+          "legende": null,
+          "createdAt": "2026-07-26T10:57:26.696Z"
+        }
+      ]
+    },
+    {
+      "id": "9651dd3a-c591-48b8-ac89-3c21be28fc9d",
+      "numeroParcelle": "P-008",
+      "reference": null,
+      "titre": null,
+      "description": null,
+      "document": null,
+      "enVedette": true,
+      "siteId": "4c253587-cf7b-45b8-bbef-d90b87beff56",
+      "superficie": "300",
+      "prix": "15000000",
+      "type": "HABITATION",
+      "latitude": 14.71327,
+      "longitude": -17.1871,
+      "planUrl": null,
+      "statut": "DISPONIBLE",
+      "vendeurNom": null,
+      "vendeurTelephone": null,
+      "vendeurId": null,
+      "clientId": null,
+      "adhesionId": null,
+      "dateAttribution": null,
+      "createdAt": "2026-07-25T18:56:17.430Z",
+      "updatedAt": "2026-07-28T10:36:41.223Z",
+      "images": [
+        {
+          "id": "d32fd5e6-1024-4b76-b73d-c4a2b6a654ea",
+          "terrainId": "9651dd3a-c591-48b8-ac89-3c21be28fc9d",
+          "url": "/uploads/terrains/1785063446836-85646508.jpg",
+          "mediaType": "IMAGE",
+          "legende": null,
+          "createdAt": "2026-07-26T10:57:26.842Z"
+        },
+        {
+          "id": "4683ced6-dab0-4361-9d49-27da1e969e3e",
+          "terrainId": "9651dd3a-c591-48b8-ac89-3c21be28fc9d",
+          "url": "/uploads/terrains/1785063446837-147930568.jpg",
+          "mediaType": "IMAGE",
+          "legende": null,
+          "createdAt": "2026-07-26T10:57:26.842Z"
+        }
+      ]
+    }
+  ],
+  "trophees": [],
+  "gouvernance": [
+    {
+      "id": "163821b1-638b-49c7-811d-60db12602de3",
+      "nom": "Cheikh DIAGNE PDG",
+      "poste": "SOYER LES BIENVENU",
+      "biographie": null,
+      "photoUrl": "/uploads/gouvernance/1785516954214-570731760.jpeg",
+      "ordre": 0,
+      "createdAt": "2026-07-31T16:55:54.220Z"
+    }
+  ],
+  "partenaires": [],
+  "actualites": [
+    {
+      "id": "77dd136a-9fc7-4ee0-8253-eb86788cd8b4",
+      "titre": "Visite de site",
+      "description": "",
+      "createdAt": "2026-07-31T16:33:11.446Z",
+      "medias": [
+        {
+          "id": "7304ed1a-82a9-4d68-b840-7c68608c1f31",
+          "actualiteId": "77dd136a-9fc7-4ee0-8253-eb86788cd8b4",
+          "url": "/uploads/actualites/1785515591476-407295605.mp4",
+          "mediaType": "VIDEO",
+          "createdAt": "2026-07-31T16:33:11.555Z"
+        }
+      ]
+    },
+    {
+      "id": "c6c448a6-d082-4724-8950-b3da60a16659",
+      "titre": "visite",
+      "description": "",
+      "createdAt": "2026-07-31T16:34:53.515Z",
+      "medias": [
+        {
+          "id": "7c07fa5d-9e62-4422-8c13-06d8fdf95131",
+          "actualiteId": "c6c448a6-d082-4724-8950-b3da60a16659",
+          "url": "/uploads/actualites/1785515693543-92422938.mp4",
+          "mediaType": "VIDEO",
+          "createdAt": "2026-07-31T16:34:53.615Z"
+        }
+      ]
+    }
+  ],
+  "videosAccueil": []
+}
