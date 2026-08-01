@@ -21,6 +21,7 @@ import { CreateVideoAccueilDto } from './dto/video-accueil.dto';
 import { JwtAuthGuard } from '../auth/guards/jwt-auth.guard';
 import { RolesGuard } from '../auth/guards/roles.guard';
 import { Roles } from '../auth/decorators/roles.decorator';
+import { videoFileFilter } from '../common/upload.util';
 
 const UPLOAD_DIR = 'uploads/videos-accueil';
 
@@ -35,14 +36,6 @@ const videoStorage = diskStorage({
   },
 });
 
-const videoFilter = (
-  _req: any,
-  file: { mimetype: string },
-  cb: (err: Error | null, ok: boolean) => void,
-) => {
-  const ok = file.mimetype.startsWith('video/');
-  cb(ok ? null : new BadRequestException('Seules les vidéos sont acceptées.'), ok);
-};
 
 @ApiTags('Vidéos accueil')
 @ApiBearerAuth()
@@ -62,7 +55,7 @@ export class VideosAccueilController {
   @UseInterceptors(
     FileInterceptor('video', {
       storage: videoStorage,
-      fileFilter: videoFilter,
+      fileFilter: videoFileFilter,
       limits: { fileSize: 80 * 1024 * 1024 },
     }),
   )

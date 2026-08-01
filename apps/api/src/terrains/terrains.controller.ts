@@ -31,6 +31,7 @@ import {
   AuthUser,
   CurrentUser,
 } from '../auth/decorators/current-user.decorator';
+import { mediaFileFilter } from '../common/upload.util';
 
 const UPLOAD_DIR = 'uploads/terrains';
 
@@ -45,15 +46,6 @@ const mediaStorage = diskStorage({
   },
 });
 
-const mediaFilter = (
-  _req: any,
-  file: { mimetype: string },
-  cb: (err: Error | null, ok: boolean) => void,
-) => {
-  const ok =
-    file.mimetype.startsWith('image/') || file.mimetype.startsWith('video/');
-  cb(ok ? null : new BadRequestException('Seuls images et vidéos sont acceptés.'), ok);
-};
 
 @ApiTags('Terrains')
 @ApiBearerAuth()
@@ -102,7 +94,7 @@ export class TerrainsController {
   @UseInterceptors(
     FilesInterceptor('files', 10, {
       storage: mediaStorage,
-      fileFilter: mediaFilter,
+      fileFilter: mediaFileFilter,
       limits: { fileSize: 50 * 1024 * 1024 },
     }),
   )

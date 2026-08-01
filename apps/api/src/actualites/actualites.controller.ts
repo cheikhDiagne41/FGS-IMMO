@@ -21,6 +21,7 @@ import { CreateActualiteDto } from './dto/actualite.dto';
 import { JwtAuthGuard } from '../auth/guards/jwt-auth.guard';
 import { RolesGuard } from '../auth/guards/roles.guard';
 import { Roles } from '../auth/decorators/roles.decorator';
+import { mediaFileFilter } from '../common/upload.util';
 
 const UPLOAD_DIR = 'uploads/actualites';
 
@@ -35,14 +36,6 @@ const mediaStorage = diskStorage({
   },
 });
 
-const mediaFilter = (
-  _req: any,
-  file: { mimetype: string },
-  cb: (err: Error | null, ok: boolean) => void,
-) => {
-  const ok = file.mimetype.startsWith('image/') || file.mimetype.startsWith('video/');
-  cb(ok ? null : new BadRequestException('Seuls images et vidéos sont acceptés.'), ok);
-};
 
 @ApiTags('Actualités')
 @ApiBearerAuth()
@@ -69,7 +62,7 @@ export class ActualitesController {
   @UseInterceptors(
     FilesInterceptor('files', 10, {
       storage: mediaStorage,
-      fileFilter: mediaFilter,
+      fileFilter: mediaFileFilter,
       limits: { fileSize: 80 * 1024 * 1024 },
     }),
   )

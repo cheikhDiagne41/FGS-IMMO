@@ -12,8 +12,17 @@ async function bootstrap() {
 
   app.setGlobalPrefix('api');
 
-  // Fichiers médias (images / vidéos des terrains) servis sur /uploads
-  app.useStaticAssets(join(process.cwd(), 'uploads'), { prefix: '/uploads' });
+  // Fichiers médias (images / vidéos des terrains) servis sur /uploads.
+  // Ces fichiers viennent d'un envoi utilisateur : on empêche le navigateur
+  // de les interpréter comme du code (HTML/SVG piégé = script exécuté sur
+  // le domaine du site) en neutralisant la détection de type.
+  app.useStaticAssets(join(process.cwd(), 'uploads'), {
+    prefix: '/uploads',
+    setHeaders: (res) => {
+      res.setHeader('X-Content-Type-Options', 'nosniff');
+      res.setHeader('Content-Security-Policy', "default-src 'none'; sandbox");
+    },
+  });
 
   // En production : l'API sert aussi le frontend (build web) — une seule URL
   const webDist = join(process.cwd(), 'web-dist');

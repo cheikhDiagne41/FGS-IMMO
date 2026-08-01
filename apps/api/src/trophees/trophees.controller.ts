@@ -21,6 +21,7 @@ import { CreateTropheeDto } from './dto/trophee.dto';
 import { JwtAuthGuard } from '../auth/guards/jwt-auth.guard';
 import { RolesGuard } from '../auth/guards/roles.guard';
 import { Roles } from '../auth/decorators/roles.decorator';
+import { imageFileFilter } from '../common/upload.util';
 
 const UPLOAD_DIR = 'uploads/trophees';
 
@@ -35,14 +36,6 @@ const imageStorage = diskStorage({
   },
 });
 
-const imageFilter = (
-  _req: any,
-  file: { mimetype: string },
-  cb: (err: Error | null, ok: boolean) => void,
-) => {
-  const ok = file.mimetype.startsWith('image/');
-  cb(ok ? null : new BadRequestException('Seules les images sont acceptées.'), ok);
-};
 
 @ApiTags('Trophées')
 @ApiBearerAuth()
@@ -62,7 +55,7 @@ export class TropheesController {
   @UseInterceptors(
     FileInterceptor('image', {
       storage: imageStorage,
-      fileFilter: imageFilter,
+      fileFilter: imageFileFilter,
       limits: { fileSize: 10 * 1024 * 1024 },
     }),
   )

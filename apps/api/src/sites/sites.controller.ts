@@ -26,6 +26,7 @@ import {
   AuthUser,
   CurrentUser,
 } from '../auth/decorators/current-user.decorator';
+import { imageFileFilter } from '../common/upload.util';
 
 const SITE_UPLOAD_DIR = 'uploads/sites';
 const sitePhotoStorage = diskStorage({
@@ -38,14 +39,6 @@ const sitePhotoStorage = diskStorage({
     cb(null, `${unique}${extname(file.originalname)}`);
   },
 });
-const imageFilter = (
-  _req: any,
-  file: { mimetype: string },
-  cb: (err: Error | null, ok: boolean) => void,
-) => {
-  const ok = file.mimetype.startsWith('image/');
-  cb(ok ? null : new BadRequestException('Seules les images sont acceptées.'), ok);
-};
 
 @ApiTags('Sites')
 @ApiBearerAuth()
@@ -89,7 +82,7 @@ export class SitesController {
   @UseInterceptors(
     FilesInterceptor('files', 10, {
       storage: sitePhotoStorage,
-      fileFilter: imageFilter,
+      fileFilter: imageFileFilter,
       limits: { fileSize: 20 * 1024 * 1024 },
     }),
   )

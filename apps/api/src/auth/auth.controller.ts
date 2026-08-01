@@ -3,6 +3,7 @@ import { ApiBearerAuth, ApiTags } from '@nestjs/swagger';
 import { AuthService } from './auth.service';
 import { LoginDto, RegisterClientDto } from './dto/auth.dto';
 import { JwtAuthGuard } from './guards/jwt-auth.guard';
+import { LoginThrottleGuard } from './guards/login-throttle.guard';
 import { CurrentUser } from './decorators/current-user.decorator';
 
 @ApiTags('Authentification')
@@ -16,6 +17,7 @@ export class AuthController {
   }
 
   @Post('login')
+  @UseGuards(LoginThrottleGuard)
   login(@Body() dto: LoginDto) {
     return this.authService.login(dto);
   }

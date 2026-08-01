@@ -25,6 +25,7 @@ import {
   AuthUser,
   CurrentUser,
 } from '../auth/decorators/current-user.decorator';
+import { imageFileFilter } from '../common/upload.util';
 
 const DOC_DIR = 'uploads/documents';
 const docStorage = diskStorage({
@@ -37,14 +38,6 @@ const docStorage = diskStorage({
     cb(null, `${unique}${extname(file.originalname)}`);
   },
 });
-const imgFilter = (
-  _req: any,
-  file: { mimetype: string },
-  cb: (err: Error | null, ok: boolean) => void,
-) => {
-  const ok = file.mimetype.startsWith('image/');
-  cb(ok ? null : new BadRequestException('Photos uniquement (image).'), ok);
-};
 
 @ApiTags('Adhésions')
 @ApiBearerAuth()
@@ -69,7 +62,7 @@ export class AdhesionsController {
         { name: 'recto', maxCount: 1 },
         { name: 'verso', maxCount: 1 },
       ],
-      { storage: docStorage, fileFilter: imgFilter, limits: { fileSize: 15 * 1024 * 1024 } },
+      { storage: docStorage, fileFilter: imageFileFilter, limits: { fileSize: 15 * 1024 * 1024 } },
     ),
   )
   rejoindre(
