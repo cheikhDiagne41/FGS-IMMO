@@ -10,7 +10,9 @@ interface Facture {
   statut: string;
   paiement: {
     methode: string;
-    adhesion: { cooperative: { nom: string } };
+    /** Absente pour un achat direct (pas de coopérative) */
+    adhesion?: { cooperative: { nom: string } } | null;
+    terrain?: { numeroParcelle: string } | null;
   };
 }
 
@@ -69,7 +71,10 @@ export default function MesFactures() {
                   {new Date(f.dateEmission).toLocaleDateString('fr-FR')}
                 </td>
                 <td className="p-4 text-slate-600">
-                  {f.paiement.adhesion.cooperative.nom}
+                  {f.paiement.adhesion?.cooperative.nom ??
+                    (f.paiement.terrain
+                      ? `Achat direct · parcelle ${f.paiement.terrain.numeroParcelle}`
+                      : 'Achat direct')}
                 </td>
                 <td className="p-4 text-slate-600">
                   {f.paiement.methode.replace('_', ' ')}

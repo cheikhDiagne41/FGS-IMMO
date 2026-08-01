@@ -1,5 +1,6 @@
 import { useState } from 'react';
-import { Link, NavLink, Outlet } from 'react-router-dom';
+import { Link, NavLink, Outlet, useLocation } from 'react-router-dom';
+import ErrorBoundary from './ErrorBoundary';
 import Logo from './Logo';
 
 const links = [
@@ -15,6 +16,7 @@ const links = [
 
 export default function PublicLayout() {
   const [open, setOpen] = useState(false);
+  const { pathname } = useLocation();
   const linkClass = ({ isActive }: { isActive: boolean }) =>
     `rounded-lg px-3 py-2 text-sm font-medium transition ${
       isActive ? 'bg-brand-50 text-brand-700' : 'text-slate-600 hover:bg-slate-100'
@@ -51,7 +53,9 @@ export default function PublicLayout() {
       </header>
 
       <main className="mx-auto w-full max-w-7xl flex-1 px-4 py-6">
-        <Outlet />
+        <ErrorBoundary resetKey={pathname}>
+          <Outlet />
+        </ErrorBoundary>
       </main>
 
       <footer className="border-t border-slate-200 bg-white py-6">

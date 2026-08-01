@@ -2,6 +2,7 @@ import { useEffect, useRef, useState } from 'react';
 import { NavLink, Outlet, useLocation } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
 import { navByRole, isNavGroup, NavGroup } from '../lib/nav';
+import ErrorBoundary from './ErrorBoundary';
 import Logo from './Logo';
 
 const roleLabels: Record<string, string> = {
@@ -69,6 +70,7 @@ function NavDropdown({ group }: { group: NavGroup }) {
 export default function AppLayout() {
   const { user, logout } = useAuth();
   const [open, setOpen] = useState(false);
+  const { pathname } = useLocation();
   const menu = navByRole[user?.role ?? 'CLIENT'];
 
   return (
@@ -161,7 +163,9 @@ export default function AppLayout() {
 
       {/* Contenu */}
       <main className="mx-auto w-full max-w-7xl flex-1 px-4 py-6">
-        <Outlet />
+        <ErrorBoundary resetKey={pathname}>
+          <Outlet />
+        </ErrorBoundary>
       </main>
 
       <footer className="border-t border-slate-200 bg-white py-4 text-center text-xs text-slate-400">
