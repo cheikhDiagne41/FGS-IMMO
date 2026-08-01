@@ -47,9 +47,10 @@ function TerrainCard({ t }: { t: Terrain }) {
 }
 
 export default function PublicHome() {
+  // L'accueil n'affiche qu'une sélection : on ne charge que le nécessaire
   const { data: terrains = [] } = useQuery<Terrain[]>({
-    queryKey: ['public-terrains'],
-    queryFn: async () => (await api.get('/public/terrains')).data,
+    queryKey: ['public-terrains', 'accueil'],
+    queryFn: async () => (await api.get('/public/terrains?take=12')).data.items,
   });
   const { data: sites = [] } = useQuery<Site[]>({
     queryKey: ['public-sites'],

@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import { Link } from 'react-router-dom';
 import { useQuery } from '@tanstack/react-query';
 import { api, formatFCFA } from '../../lib/api';
@@ -22,25 +22,39 @@ const badge: Record<string, string> = {
   VENDU: 'bg-slate-200 text-slate-600',
 };
 
-export default function PublicTerrains() {
-  const { data = [], isLoading } = useQuery<Terrain[]>({
-    queryKey: ['public-terrains'],
-    queryFn: async () => (await api.get('/public/terrains')).data,
-  });
+const PAR_PAGE = 24;
 
+export default function PublicTerrains() {
   const [q, setQ] = useState('');
   const [statut, setStatut] = useState('');
   const [type, setType] = useState('');
+  const [nbAffiches, setNbAffiches] = useState(PAR_PAGE);
 
-  const filtered = data.filter((t) => {
-    if (statut && t.statut !== statut) return false;
-    if (type && t.type !== type) return false;
-    if (q) {
-      const s = `${t.titre ?? ''} ${t.numeroParcelle} ${t.site.nom} ${t.site.commune ?? ''}`.toLowerCase();
-      if (!s.includes(q.toLowerCase())) return false;
-    }
-    return true;
+  // Recherche différée pour ne pas interroger le serveur à chaque frappe
+  const [qDiffere, setQDiffere] = useState('');
+  useEffect(() => {
+    const id = setTimeout(() => setQDiffere(q), 350);
+    return () => clearTimeout(id);
+  }, [q]);
+
+  // Revenir à la première page dès qu'un critère change
+  useEffect(() => setNbAffiches(PAR_PAGE), [qDiffere, statut, type]);
+
+  // Les filtres sont appliqués en base : seul le nécessaire est transféré
+  const { data, isLoading, isFetching } = useQuery<{ items: Terrain[]; total: number }>({
+    queryKey: ['public-terrains', qDiffere, statut, type, nbAffiches],
+    queryFn: async () => {
+      const p = new URLSearchParams({ take: String(nbAffiches) });
+      if (qDiffere) p.set('q', qDiffere);
+      if (statut) p.set('statut', statut);
+      if (type) p.set('type', type);
+      return (await api.get(`/public/terrains?${p}`)).data;
+    },
+    placeholderData: (prec) => prec,
   });
+
+  const filtered = data?.items ?? [];
+  const total = data?.total ?? 0;
 
   return (
     <div className="space-y-8 py-4">
@@ -78,7 +92,10 @@ export default function PublicTerrains() {
 
       {isLoading && <div className="text-slate-400">Chargement…</div>}
       {!isLoading && (
-        <div className="text-sm text-slate-400">{filtered.length} terrain(s)</div>
+        <div className="text-sm text-slate-400">
+          {total} terrain(s)
+          {filtered.length < total && ` · ${filtered.length} affiché(s)`}
+        </div>
       )}
 
       <div className="grid gap-8 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
@@ -110,6 +127,18 @@ export default function PublicTerrains() {
           </Link>
         ))}
       </div>
+      {filtered.length < total && (
+        <div className="flex justify-center">
+          <button
+            onClick={() => setNbAffiches((n) => n + PAR_PAGE)}
+            disabled={isFetching}
+            className="btn-primary"
+          >
+            {isFetching ? 'Chargement…' : `Voir plus (${total - filtered.length} restant(s))`}
+          </button>
+        </div>
+      )}
+
       {!isLoading && filtered.length === 0 && (
         <div className="rounded-2xl bg-white p-10 text-center text-slate-400 ring-1 ring-slate-100">
           Aucun terrain ne correspond à votre recherche.

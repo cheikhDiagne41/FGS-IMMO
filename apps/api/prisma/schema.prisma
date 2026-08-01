@@ -238,6 +238,9 @@ model Site {
   cooperatives   Cooperative[]
   terrains       Terrain[]
 
+  // Filtre des sites actifs (liste publique) et regroupement par région (carte)
+  @@index([statut])
+  @@index([region])
   @@map("sites")
 }
 
@@ -326,6 +329,10 @@ model Terrain {
 
   @@unique([siteId, numeroParcelle])
   @@index([statut])
+  // Tri de la liste publique : mis en avant d'abord, puis les plus récents
+  @@index([enVedette, createdAt])
+  // Terrains attribués à un client
+  @@index([clientId])
   @@map("terrains")
 }
 

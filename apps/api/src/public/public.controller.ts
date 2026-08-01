@@ -1,4 +1,4 @@
-import { BadRequestException, Body, Controller, Get, Param, Post } from '@nestjs/common';
+import { BadRequestException, Body, Controller, Get, Param, Post, Query } from '@nestjs/common';
 import { ApiTags } from '@nestjs/swagger';
 import { PublicService } from './public.service';
 import { MessagesService } from '../messages/messages.service';
@@ -46,8 +46,20 @@ export class PublicController {
   }
 
   @Get('terrains')
-  terrains() {
-    return this.publicService.terrains();
+  terrains(
+    @Query('q') q?: string,
+    @Query('statut') statut?: string,
+    @Query('type') type?: string,
+    @Query('take') take?: string,
+    @Query('skip') skip?: string,
+  ) {
+    return this.publicService.terrains({
+      q,
+      statut,
+      type,
+      take: take ? Number(take) : undefined,
+      skip: skip ? Number(skip) : undefined,
+    });
   }
 
   @Get('terrains/:id')

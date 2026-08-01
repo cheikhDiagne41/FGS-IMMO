@@ -71,14 +71,49 @@ export class PublicService {
     });
   }
 
-  terrains() {
-    return this.prisma.terrain.findMany({
-      include: {
-        site: { select: { id: true, nom: true, commune: true, type: true } },
-        images: true,
-      },
-      orderBy: [{ enVedette: 'desc' }, { createdAt: 'desc' }],
-    });
+  /**
+   * Liste paginée des terrains. Les filtres sont appliqués en base pour
+   * éviter de transférer tout le catalogue au navigateur.
+   * Retourne les résultats et le total correspondant aux filtres.
+   */
+  async terrains(filtres: {
+    q?: string;
+    statut?: string;
+    type?: string;
+    take?: number;
+    skip?: number;
+  } = {}) {
+    const take = Math.min(Math.max(filtres.take ?? 24, 1), 100);
+    const skip = Math.max(filtres.skip ?? 0, 0);
+
+    const where: any = {};
+    if (filtres.statut) where.statut = filtres.statut;
+    if (filtres.type) where.type = filtres.type;
+    if (filtres.q) {
+      const q = filtres.q.trim();
+      where.OR = [
+        { titre: { contains: q, mode: 'insensitive' } },
+        { numeroParcelle: { contains: q, mode: 'insensitive' } },
+        { site: { nom: { contains: q, mode: 'insensitive' } } },
+        { site: { commune: { contains: q, mode: 'insensitive' } } },
+      ];
+    }
+
+    const [items, total] = await Promise.all([
+      this.prisma.terrain.findMany({
+        where,
+        include: {
+          site: { select: { id: true, nom: true, commune: true, type: true } },
+          images: true,
+        },
+        orderBy: [{ enVedette: 'desc' }, { createdAt: 'desc' }],
+        take,
+        skip,
+      }),
+      this.prisma.terrain.count({ where }),
+    ]);
+
+    return { items, total, take, skip };
   }
 
   async terrain(id: string) {
