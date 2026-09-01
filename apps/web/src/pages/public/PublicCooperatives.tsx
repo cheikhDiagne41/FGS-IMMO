@@ -51,6 +51,22 @@ export default function PublicCooperatives() {
                 <div className="rounded-lg bg-slate-50 p-2"><div className="text-[10px] text-slate-400">Durée</div><div className="font-bold">{c.nbMensualites} mois</div></div>
               </div>
               {c.responsable && <div className="mt-2 text-xs text-slate-400">Responsable : {c.responsable}</div>}
+
+              {places > 0 ? (
+                <Link
+                  to={`/inscription?cooperative=${c.id}`}
+                  className="btn-primary mt-4 w-full justify-center"
+                >
+                  Rejoindre cette coopérative
+                </Link>
+              ) : (
+                <button
+                  disabled
+                  className="btn mt-4 w-full cursor-not-allowed bg-slate-100 text-slate-400"
+                >
+                  Coopérative complète
+                </button>
+              )}
             </div>
           );
         })}

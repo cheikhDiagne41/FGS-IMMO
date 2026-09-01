@@ -1,12 +1,27 @@
 import { FormEvent, useState } from 'react';
-import { Link, useNavigate } from 'react-router-dom';
+import { Link, useNavigate, useSearchParams } from 'react-router-dom';
+import { useQuery } from '@tanstack/react-query';
 import { api } from '../lib/api';
 import { useAuth } from '../context/AuthContext';
 import Logo from '../components/Logo';
 
+interface Coop { id: string; nom: string; numero: string }
+
 export default function Inscription() {
   const { refresh } = useAuth();
   const navigate = useNavigate();
+
+  // Coopérative choisie depuis la page publique (bouton « Rejoindre »)
+  const [params] = useSearchParams();
+  const coopId = params.get('cooperative');
+  const { data: coop } = useQuery<Coop | undefined>({
+    queryKey: ['public-cooperative', coopId],
+    enabled: !!coopId,
+    queryFn: async () => {
+      const liste: Coop[] = (await api.get('/public/cooperatives')).data;
+      return liste.find((c) => c.id === coopId);
+    },
+  });
   const [f, setF] = useState({
     prenom: '', nom: '', email: '', telephone: '',
     password: '', confirm: '', adresse: '', profession: '',
@@ -27,7 +42,8 @@ export default function Inscription() {
       });
       localStorage.setItem('fgs_token', res.data.accessToken);
       await refresh();
-      navigate('/');
+      // Venu du bouton « Rejoindre » : on l'amène directement aux coopératives
+      navigate(coopId ? '/cooperatives' : '/');
     } catch (err: any) {
       setError(err.response?.data?.message ?? 'Inscription impossible.');
     } finally {
@@ -44,6 +60,18 @@ export default function Inscription() {
           <p className="mb-5 text-sm text-slate-500">
             Inscrivez-vous pour réserver un terrain ou rejoindre une coopérative.
           </p>
+
+          {coop && (
+            <div className="mb-5 rounded-xl bg-brand-50 p-4">
+              <div className="text-xs font-bold uppercase tracking-wide text-brand-600">
+                Adhésion demandée
+              </div>
+              <div className="mt-1 font-bold text-slate-800">{coop.nom}</div>
+              <p className="mt-1 text-xs text-slate-500">
+                Créez votre compte pour finaliser votre demande d'adhésion.
+              </p>
+            </div>
+          )}
 
           {error && <div className="mb-4 rounded-lg bg-red-50 px-4 py-2 text-sm text-red-600">{error}</div>}
 
