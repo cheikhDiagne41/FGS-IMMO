@@ -43,6 +43,7 @@ export const navByRole: Record<Role, NavEntry[]> = {
         { label: 'Vendeur', path: '/vendeur' },
       ],
     },
+    { label: 'Comptes', path: '/utilisateurs' },
     {
       label: 'Vitrine du site',
       items: [

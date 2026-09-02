@@ -19,6 +19,7 @@ import { VideosAccueilModule } from './videos-accueil/videos-accueil.module';
 import { ActualitesModule } from './actualites/actualites.module';
 import { GouvernanceModule } from './gouvernance/gouvernance.module';
 import { PartenairesModule } from './partenaires/partenaires.module';
+import { UsersModule } from './users/users.module';
 
 @Module({
   imports: [
@@ -42,6 +43,7 @@ import { PartenairesModule } from './partenaires/partenaires.module';
     ActualitesModule,
     GouvernanceModule,
     PartenairesModule,
+    UsersModule,
   ],
 })
 export class AppModule {}
