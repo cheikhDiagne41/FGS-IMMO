@@ -4,6 +4,7 @@ import { NestExpressApplication } from '@nestjs/platform-express';
 import { DocumentBuilder, SwaggerModule } from '@nestjs/swagger';
 import { join } from 'path';
 import { existsSync } from 'fs';
+import helmet from 'helmet';
 import type { Request, Response, NextFunction } from 'express';
 import { AppModule } from './app.module';
 
@@ -11,6 +12,43 @@ async function bootstrap() {
   const app = await NestFactory.create<NestExpressApplication>(AppModule);
 
   app.setGlobalPrefix('api');
+
+  /**
+   * En-têtes de sécurité du navigateur.
+   * - interdit l'affichage du site dans un cadre sur un autre domaine
+   *   (un faux site ne peut pas piéger les clics des visiteurs) ;
+   * - impose le chargement en HTTPS une fois le site en ligne ;
+   * - limite les sources autorisées pour les scripts, images et cartes.
+   */
+  app.use(
+    helmet({
+      contentSecurityPolicy: {
+        directives: {
+          defaultSrc: ["'self'"],
+          // La police Inter vient de Google Fonts ; Tailwind injecte des
+          // styles en ligne.
+          styleSrc: ["'self'", "'unsafe-inline'", 'https://fonts.googleapis.com'],
+          fontSrc: ["'self'", 'https://fonts.gstatic.com', 'data:'],
+          // Tuiles des cartes et photos des annonces
+          imgSrc: ["'self'", 'data:', 'blob:', 'https:'],
+          mediaSrc: ["'self'", 'data:', 'blob:'],
+          connectSrc: ["'self'", 'https:'],
+          // Carte intégrée sur la fiche d'une parcelle
+          frameSrc: ["'self'", 'https://www.openstreetmap.org'],
+          // Le site ne doit jamais être affiché dans le cadre d'un autre site
+          frameAncestors: ["'none'"],
+          objectSrc: ["'none'"],
+        },
+      },
+      // Les médias doivent rester chargeables par le site lui-même
+      crossOriginResourcePolicy: { policy: 'same-site' },
+      crossOriginEmbedderPolicy: false,
+    }),
+  );
+
+  // Ne pas annoncer la technologie utilisée : c'est une aide gratuite
+  // pour qui cherche des failles connues.
+  app.getHttpAdapter().getInstance().disable('x-powered-by');
 
   // En ligne, l'application est derrière le répartiteur de l'hébergeur.
   // Sans ceci, toutes les demandes semblent venir de la même adresse et la
@@ -58,14 +96,26 @@ async function bootstrap() {
     credentials: true,
   });
 
-  const config = new DocumentBuilder()
-    .setTitle('FGS_IMMO API')
-    .setDescription('API de la plateforme immobilière FGS_IMMO')
-    .setVersion('0.1.0')
-    .addBearerAuth()
-    .build();
-  const document = SwaggerModule.createDocument(app, config);
-  SwaggerModule.setup('api/docs', app, document);
+  /**
+   * Documentation technique de l'API : utile pendant le développement, mais
+   * elle décrit chaque route et chaque champ. La publier reviendrait à
+   * remettre le plan du bâtiment à qui cherche une porte mal fermée.
+   * Elle reste donc hors ligne en production, sauf demande explicite via
+   * ACTIVER_DOCS_API=true.
+   */
+  const docsAutorisees =
+    process.env.NODE_ENV !== 'production' || process.env.ACTIVER_DOCS_API === 'true';
+
+  if (docsAutorisees) {
+    const config = new DocumentBuilder()
+      .setTitle('FGS_IMMO API')
+      .setDescription('API de la plateforme immobilière FGS_IMMO')
+      .setVersion('0.1.0')
+      .addBearerAuth()
+      .build();
+    const document = SwaggerModule.createDocument(app, config);
+    SwaggerModule.setup('api/docs', app, document);
+  }
 
   const port = process.env.PORT ?? 3000;
   await app.listen(port as number, '0.0.0.0');
