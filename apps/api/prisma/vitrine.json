@@ -1,11 +1,11 @@
 {
-  "exporteLe": "2026-08-01T02:12:31.710Z",
+  "exporteLe": "2026-09-02T12:07:57.052Z",
   "societe": {
     "id": "5ed5ab17-80a8-4f0d-82a3-4d563611dca8",
     "nom": "FGS_IMMO",
     "raisonSociale": "FGS IMMO SARL",
     "slogan": "Vente de terrains & coopératives d'habitat",
-    "adresse": "Sacré-Cœur 3, Dakar",
+    "adresse": "Rond-point Parcelles, Thiès",
     "telephone": "+221 77 123 45 67",
     "email": "contact@fgsimmo.sn",
     "siteWeb": "www.fgsimmo.sn",
@@ -14,8 +14,8 @@
     "responsable": "M. Diagne",
     "description": null,
     "logoUrl": null,
-    "latitude": 14.7167,
-    "longitude": -17.4677,
+    "latitude": 14.7886,
+    "longitude": -16.9246,
     "facebook": "",
     "instagram": "",
     "tiktok": "",
@@ -26,7 +26,7 @@
     "userId": null,
     "suspendu": false,
     "createdAt": "2026-07-25T21:39:28.228Z",
-    "updatedAt": "2026-08-01T01:43:13.262Z"
+    "updatedAt": "2026-09-02T12:07:17.351Z"
   },
   "sites": [
     {
