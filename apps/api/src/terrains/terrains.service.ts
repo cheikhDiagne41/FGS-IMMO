@@ -7,6 +7,7 @@ import { Prisma, TerrainStatus } from '@prisma/client';
 import { PrismaService } from '../prisma/prisma.service';
 import { VendeurService } from '../vendeur/vendeur.service';
 import { PerimetreVendeurService } from '../common/perimetre-vendeur.service';
+import { supprimerFichiers } from '../common/upload.util';
 import {
   CreateTerrainDto,
   SearchTerrainDto,
@@ -89,6 +90,7 @@ export class TerrainsService {
         site: { select: { id: true, nom: true, commune: true } },
         images: true,
         client: { select: { id: true, nom: true, prenom: true } },
+        vendeurRef: { select: { id: true, nom: true } },
       },
       orderBy: [{ statut: 'asc' }, { numeroParcelle: 'asc' }],
     });
@@ -148,8 +150,16 @@ export class TerrainsService {
   async addMedia(
     terrainId: string,
     files: Array<{ filename: string; mimetype: string }>,
+    user?: { userId: string; role: string },
   ) {
-    await this.findOne(terrainId);
+    const terrain = await this.findOne(terrainId);
+    try {
+      await this.perimetre.verifierAcces(user, terrain.vendeurId, 'les terrains');
+    } catch (e) {
+      // l'upload a déjà écrit les fichiers : on ne laisse rien traîner
+      supprimerFichiers('uploads/terrains', files);
+      throw e;
+    }
     if (!files?.length) {
       throw new BadRequestException('Aucun fichier reçu.');
     }
@@ -163,11 +173,17 @@ export class TerrainsService {
     return this.findOne(terrainId);
   }
 
-  async removeMedia(mediaId: string) {
+  async removeMedia(mediaId: string, user?: { userId: string; role: string }) {
     const media = await this.prisma.terrainImage.findUnique({
       where: { id: mediaId },
+      include: { terrain: { select: { vendeurId: true } } },
     });
     if (!media) throw new NotFoundException('Média introuvable.');
+    await this.perimetre.verifierAcces(
+      user,
+      media.terrain.vendeurId,
+      'les terrains',
+    );
     await this.prisma.terrainImage.delete({ where: { id: mediaId } });
     return { ok: true };
   }

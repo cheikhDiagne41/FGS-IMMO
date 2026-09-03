@@ -3,6 +3,7 @@ import { useNavigate } from 'react-router-dom';
 import { useQuery } from '@tanstack/react-query';
 import { api, formatFCFA } from '../lib/api';
 import { useAuth } from '../context/AuthContext';
+import BadgeGestionnaire from '../components/BadgeGestionnaire';
 import TerrainFormModal from '../components/TerrainFormModal';
 
 interface Terrain {
@@ -16,6 +17,7 @@ interface Terrain {
   enVedette?: boolean;
   site: { nom: string; commune?: string };
   images?: { url: string; mediaType: string }[];
+  vendeurRef?: { id: string; nom: string } | null;
 }
 
 const statutStyle: Record<string, string> = {
@@ -146,6 +148,9 @@ export default function Terrains() {
                 <div className="text-xs text-slate-500">
                   {t.site.nom}
                   {t.site.commune ? ` · ${t.site.commune}` : ''}
+                </div>
+                <div className="mt-1">
+                  <BadgeGestionnaire vendeur={t.vendeurRef} />
                 </div>
               </div>
               <span

@@ -56,6 +56,7 @@ export class CooperativesService {
             gerantTelephone: true,
           },
         },
+        vendeur: { select: { id: true, nom: true } },
         _count: { select: { adhesions: true } },
       },
       orderBy: { createdAt: 'desc' },

@@ -82,7 +82,7 @@ export class SitesController {
   }
 
   @Post(':id/media')
-  @Roles(Role.ADMIN, Role.GESTIONNAIRE)
+  @Roles(Role.ADMIN, Role.GESTIONNAIRE, Role.VENDEUR)
   @UseInterceptors(
     FilesInterceptor('files', 10, {
       storage: sitePhotoStorage,
@@ -93,14 +93,15 @@ export class SitesController {
   addPhotos(
     @Param('id') id: string,
     @UploadedFiles() files: Array<{ filename: string }>,
+    @CurrentUser() user: AuthUser,
   ) {
-    return this.sitesService.addPhotos(id, files);
+    return this.sitesService.addPhotos(id, files, user);
   }
 
   @Delete('photo/:photoId')
-  @Roles(Role.ADMIN, Role.GESTIONNAIRE)
-  removePhoto(@Param('photoId') photoId: string) {
-    return this.sitesService.removePhoto(photoId);
+  @Roles(Role.ADMIN, Role.GESTIONNAIRE, Role.VENDEUR)
+  removePhoto(@Param('photoId') photoId: string, @CurrentUser() user: AuthUser) {
+    return this.sitesService.removePhoto(photoId, user);
   }
 
   @Delete(':id')

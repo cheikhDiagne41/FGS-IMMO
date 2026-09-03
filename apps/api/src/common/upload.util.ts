@@ -1,3 +1,5 @@
+import { unlinkSync } from 'fs';
+import { join } from 'path';
 import { BadRequestException } from '@nestjs/common';
 import { extname } from 'path';
 
@@ -65,3 +67,20 @@ export const videoFileFilter = (
     `Format vidéo non autorisé. Formats acceptés : ${EXT_VIDEOS.join(', ')}.`,
     cb,
   );
+
+/**
+ * Supprime les fichiers déjà écrits par multer quand la requête est refusée
+ * (droits insuffisants), pour ne pas laisser de fichiers orphelins sur disque.
+ */
+export const supprimerFichiers = (
+  dossier: string,
+  files?: Array<{ filename: string }>,
+) => {
+  for (const f of files ?? []) {
+    try {
+      unlinkSync(join(dossier, f.filename));
+    } catch {
+      // fichier déjà absent : rien à faire
+    }
+  }
+};

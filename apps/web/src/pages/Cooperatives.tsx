@@ -3,6 +3,7 @@ import { Link } from 'react-router-dom';
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { api, formatFCFA } from '../lib/api';
 import { useAuth } from '../context/AuthContext';
+import BadgeGestionnaire from '../components/BadgeGestionnaire';
 import CooperativeFormModal from '../components/CooperativeFormModal';
 
 interface Cooperative {
@@ -23,6 +24,7 @@ interface Cooperative {
     gerantNom?: string;
     gerantTelephone?: string;
   };
+  vendeur?: { id: string; nom: string } | null;
   _count: { adhesions: number };
 }
 
@@ -267,6 +269,9 @@ export default function Cooperatives() {
                   <Link to={`/sites/${c.site.id}`} className="text-sm text-brand-600 hover:underline">
                     🏘️ {c.site.nom}
                   </Link>
+                  <div className="mt-1">
+                    <BadgeGestionnaire vendeur={c.vendeur} />
+                  </div>
                 </div>
                 <span
                   className={`rounded-full px-2 py-0.5 text-[10px] font-bold ${

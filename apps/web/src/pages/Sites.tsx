@@ -4,6 +4,7 @@ import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { api, formatFCFA } from '../lib/api';
 import { useAuth } from '../context/AuthContext';
 import SiteFormModal from '../components/SiteFormModal';
+import BadgeGestionnaire from '../components/BadgeGestionnaire';
 
 interface Site {
   id: string;
@@ -17,6 +18,7 @@ interface Site {
   statut: string;
   type?: string;
   photos?: { id: string; url: string }[];
+  vendeur?: { id: string; nom: string } | null;
   _count: { cooperatives: number; terrains: number };
 }
 
@@ -82,6 +84,9 @@ export default function Sites() {
                 <h3 className="font-bold text-slate-800">{s.nom}</h3>
                 <div className="text-sm text-slate-500">
                   {[s.commune, s.region].filter(Boolean).join(', ')}
+                </div>
+                <div className="mt-1">
+                  <BadgeGestionnaire vendeur={s.vendeur} />
                 </div>
               </div>
               <span

@@ -101,14 +101,15 @@ export class TerrainsController {
   addMedia(
     @Param('id') id: string,
     @UploadedFiles() files: Array<{ filename: string; mimetype: string }>,
+    @CurrentUser() user: AuthUser,
   ) {
-    return this.terrainsService.addMedia(id, files);
+    return this.terrainsService.addMedia(id, files, user);
   }
 
   @Delete('media/:mediaId')
-  @Roles(Role.ADMIN, Role.GESTIONNAIRE)
-  removeMedia(@Param('mediaId') mediaId: string) {
-    return this.terrainsService.removeMedia(mediaId);
+  @Roles(Role.ADMIN, Role.GESTIONNAIRE, Role.VENDEUR)
+  removeMedia(@Param('mediaId') mediaId: string, @CurrentUser() user: AuthUser) {
+    return this.terrainsService.removeMedia(mediaId, user);
   }
 
   @Patch(':id')

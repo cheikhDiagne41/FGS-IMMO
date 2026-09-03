@@ -3,6 +3,7 @@ import {
   Injectable,
   NotFoundException,
 } from '@nestjs/common';
+import { supprimerFichiers } from '../common/upload.util';
 import { SiteType } from '@prisma/client';
 import { PrismaService } from '../prisma/prisma.service';
 import { PerimetreVendeurService } from '../common/perimetre-vendeur.service';
@@ -76,6 +77,7 @@ export class SitesService {
       where: await this.perimetre.filtre(user),
       include: {
         photos: true,
+        vendeur: { select: { id: true, nom: true } },
         _count: { select: { cooperatives: true, terrains: true } },
       },
       orderBy: { createdAt: 'desc' },
@@ -156,8 +158,16 @@ export class SitesService {
   async addPhotos(
     id: string,
     files: Array<{ filename: string }>,
+    user?: { userId: string; role: string },
   ) {
-    await this.findOne(id);
+    const site = await this.findOne(id);
+    try {
+      await this.perimetre.verifierAcces(user, site.vendeurId, 'les sites');
+    } catch (e) {
+      // l'upload a déjà écrit les fichiers : on ne laisse rien traîner
+      supprimerFichiers('uploads/sites', files);
+      throw e;
+    }
     if (!files?.length) {
       throw new BadRequestException('Aucun fichier reçu.');
     }
@@ -170,11 +180,13 @@ export class SitesService {
     return this.findOne(id);
   }
 
-  async removePhoto(photoId: string) {
+  async removePhoto(photoId: string, user?: { userId: string; role: string }) {
     const photo = await this.prisma.sitePhoto.findUnique({
       where: { id: photoId },
+      include: { site: { select: { vendeurId: true } } },
     });
     if (!photo) throw new NotFoundException('Photo introuvable.');
+    await this.perimetre.verifierAcces(user, photo.site.vendeurId, 'les sites');
     await this.prisma.sitePhoto.delete({ where: { id: photoId } });
     return { ok: true };
   }
