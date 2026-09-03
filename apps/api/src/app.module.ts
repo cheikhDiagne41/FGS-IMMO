@@ -21,6 +21,7 @@ import { ActualitesModule } from './actualites/actualites.module';
 import { GouvernanceModule } from './gouvernance/gouvernance.module';
 import { PartenairesModule } from './partenaires/partenaires.module';
 import { UsersModule } from './users/users.module';
+import { DocumentsModule } from './documents/documents.module';
 
 @Module({
   imports: [
@@ -46,6 +47,7 @@ import { UsersModule } from './users/users.module';
     GouvernanceModule,
     PartenairesModule,
     UsersModule,
+    DocumentsModule,
   ],
 })
 export class AppModule {}

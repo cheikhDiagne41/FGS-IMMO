@@ -61,6 +61,13 @@ async function bootstrap() {
   // Ces fichiers viennent d'un envoi utilisateur : on empêche le navigateur
   // de les interpréter comme du code (HTML/SVG piégé = script exécuté sur
   // le domaine du site) en neutralisant la détection de type.
+  // Les pièces d'identité des clients ne sont JAMAIS servies en accès libre :
+  // elles passent par /api/documents/:id/fichier, qui vérifie les droits.
+  const serveurHttp = app.getHttpAdapter().getInstance();
+  serveurHttp.use('/uploads/documents', (_req: Request, res: Response) => {
+    res.status(404).json({ statusCode: 404, message: 'Not Found' });
+  });
+
   app.useStaticAssets(join(process.cwd(), 'uploads'), {
     prefix: '/uploads',
     setHeaders: (res) => {

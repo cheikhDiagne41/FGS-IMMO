@@ -1,5 +1,6 @@
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { api, formatFCFA } from '../lib/api';
+import PieceJointe from '../components/PieceJointe';
 
 interface Doc { id: string; type: string; url: string; nom: string }
 interface Demande {
@@ -80,10 +81,7 @@ export default function Demandes() {
                   <span className="text-xs text-slate-400">Aucune pièce jointe.</span>
                 )}
                 {d.documents.map((doc) => (
-                  <a key={doc.id} href={doc.url} target="_blank" rel="noreferrer" className="block">
-                    <img src={doc.url} alt={doc.nom} className="h-28 w-40 rounded-lg object-cover ring-1 ring-slate-200" />
-                    <div className="mt-1 text-center text-[11px] text-slate-500">{doc.nom}</div>
-                  </a>
+                  <PieceJointe key={doc.id} id={doc.id} nom={doc.nom} />
                 ))}
               </div>
             </div>
