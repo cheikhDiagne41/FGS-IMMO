@@ -90,6 +90,16 @@ export const navByRole: Record<Role, NavEntry[]> = {
   ],
   VENDEUR: [
     { label: 'Messagerie', path: '/' },
+    {
+      label: 'Mes biens',
+      items: [
+        { label: 'Sites', path: '/sites' },
+        { label: 'Coopératives', path: '/cooperatives' },
+        { label: 'Terrains', path: '/terrains' },
+        { label: 'Carte', path: '/carte' },
+      ],
+    },
+    { label: 'Mes clients', path: '/dossiers' },
   ],
   COMPTABLE: [
     { label: 'Tableau de bord', path: '/' },

@@ -13,6 +13,7 @@ import {
   Prisma,
 } from '@prisma/client';
 import { PrismaService } from '../prisma/prisma.service';
+import { PerimetreVendeurService } from '../common/perimetre-vendeur.service';
 
 export interface PieceIdentite {
   pieceType: PieceType;
@@ -30,7 +31,10 @@ interface EcheancePlan {
 
 @Injectable()
 export class AdhesionsService {
-  constructor(private prisma: PrismaService) {}
+  constructor(
+    private prisma: PrismaService,
+    private perimetre: PerimetreVendeurService,
+  ) {}
 
   /**
    * Construit le plan d'échéancier à partir des paramètres d'une coopérative.
@@ -344,25 +348,50 @@ export class AdhesionsService {
     });
   }
 
-  findAll() {
-    return this.prisma.adhesion.findMany({
-      include: {
-        client: { select: { id: true, nom: true, prenom: true } },
-        cooperative: {
-          select: {
-            id: true,
-            numero: true,
-            nom: true,
-            cotisationMensuelle: true,
-            site: { select: { nom: true } },
+  /** Liste paginée des dossiers d'adhésion. */
+  async findAll(
+    take = 50,
+    skip = 0,
+    user?: { userId: string; role: string },
+  ) {
+    const limite = Math.min(Math.max(take, 1), 200);
+    const depart = Math.max(skip, 0);
+
+    // Un vendeur ne suit que les adhésions de ses propres coopératives
+    const vendeurId = await this.perimetre.vendeurIdDe(user);
+    const where: Prisma.AdhesionWhereInput = vendeurId
+      ? { cooperative: { vendeurId } }
+      : {};
+
+    const [items, total] = await Promise.all([
+      this.prisma.adhesion.findMany({
+        where,
+        include: {
+          client: { select: { id: true, nom: true, prenom: true } },
+          cooperative: {
+            select: {
+              id: true,
+              numero: true,
+              nom: true,
+              cotisationMensuelle: true,
+              site: { select: { nom: true } },
+            },
           },
         },
-      },
-      orderBy: { createdAt: 'desc' },
-    });
+        orderBy: { createdAt: 'desc' },
+        take: limite,
+        skip: depart,
+      }),
+      this.prisma.adhesion.count({ where }),
+    ]);
+
+    return { items, total, take: limite, skip: depart };
   }
 
-  async findOne(id: string, requester?: { clientId?: string | null; role: string }) {
+  async findOne(
+    id: string,
+    requester?: { userId?: string; clientId?: string | null; role: string },
+  ) {
     const adhesion = await this.prisma.adhesion.findUnique({
       where: { id },
       include: {
@@ -385,6 +414,15 @@ export class AdhesionsService {
       adhesion.clientId !== requester.clientId
     ) {
       throw new ForbiddenException("Accès refusé à ce dossier.");
+    }
+
+    // Un vendeur ne consulte que les dossiers de ses coopératives
+    if (requester?.role === 'VENDEUR' && requester.userId) {
+      await this.perimetre.verifierAcces(
+        { userId: requester.userId, role: requester.role },
+        adhesion.cooperative.vendeurId,
+        'les dossiers des coopératives',
+      );
     }
     return adhesion;
   }

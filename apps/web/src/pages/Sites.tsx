@@ -29,7 +29,10 @@ const statutStyle: Record<string, string> = {
 export default function Sites() {
   const { user } = useAuth();
   const qc = useQueryClient();
-  const isAdmin = user?.role === 'ADMIN' || user?.role === 'GESTIONNAIRE';
+  const isAdmin =
+    user?.role === 'ADMIN' ||
+    user?.role === 'GESTIONNAIRE' ||
+    user?.role === 'VENDEUR';
   const [showForm, setShowForm] = useState(false);
   const [editing, setEditing] = useState<any | null>(null);
 

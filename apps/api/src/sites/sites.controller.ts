@@ -48,33 +48,37 @@ export class SitesController {
   constructor(private sitesService: SitesService) {}
 
   @Post()
-  @Roles(Role.ADMIN, Role.GESTIONNAIRE)
-  create(@Body() dto: CreateSiteDto) {
-    return this.sitesService.create(dto);
+  @Roles(Role.ADMIN, Role.GESTIONNAIRE, Role.VENDEUR)
+  create(@Body() dto: CreateSiteDto, @CurrentUser() user: AuthUser) {
+    return this.sitesService.create(dto, user);
   }
 
   @Get()
-  @Roles(Role.ADMIN, Role.GESTIONNAIRE, Role.COMPTABLE, Role.CLIENT)
-  findAll() {
-    return this.sitesService.findAll();
+  @Roles(Role.ADMIN, Role.GESTIONNAIRE, Role.COMPTABLE, Role.CLIENT, Role.VENDEUR)
+  findAll(@CurrentUser() user: AuthUser) {
+    return this.sitesService.findAll(user);
   }
 
   @Get(':id')
-  @Roles(Role.ADMIN, Role.GESTIONNAIRE, Role.COMPTABLE, Role.CLIENT)
+  @Roles(Role.ADMIN, Role.GESTIONNAIRE, Role.COMPTABLE, Role.CLIENT, Role.VENDEUR)
   findOne(@Param('id') id: string) {
     return this.sitesService.findOne(id);
   }
 
   @Get(':id/parcelles')
-  @Roles(Role.ADMIN, Role.GESTIONNAIRE, Role.COMPTABLE, Role.CLIENT)
+  @Roles(Role.ADMIN, Role.GESTIONNAIRE, Role.COMPTABLE, Role.CLIENT, Role.VENDEUR)
   parcelles(@Param('id') id: string, @CurrentUser() user: AuthUser) {
     return this.sitesService.parcelles(id, user.clientId);
   }
 
   @Patch(':id')
-  @Roles(Role.ADMIN, Role.GESTIONNAIRE)
-  update(@Param('id') id: string, @Body() dto: UpdateSiteDto) {
-    return this.sitesService.update(id, dto);
+  @Roles(Role.ADMIN, Role.GESTIONNAIRE, Role.VENDEUR)
+  update(
+    @Param('id') id: string,
+    @Body() dto: UpdateSiteDto,
+    @CurrentUser() user: AuthUser,
+  ) {
+    return this.sitesService.update(id, dto, user);
   }
 
   @Post(':id/media')
@@ -100,8 +104,8 @@ export class SitesController {
   }
 
   @Delete(':id')
-  @Roles(Role.ADMIN)
-  remove(@Param('id') id: string) {
-    return this.sitesService.remove(id);
+  @Roles(Role.ADMIN, Role.VENDEUR)
+  remove(@Param('id') id: string, @CurrentUser() user: AuthUser) {
+    return this.sitesService.remove(id, user);
   }
 }

@@ -5,14 +5,20 @@ import {
 } from '@nestjs/common';
 import { SiteType } from '@prisma/client';
 import { PrismaService } from '../prisma/prisma.service';
+import { PerimetreVendeurService } from '../common/perimetre-vendeur.service';
 import { CreateSiteDto, UpdateSiteDto } from './dto/site.dto';
 
 @Injectable()
 export class SitesService {
-  constructor(private prisma: PrismaService) {}
+  constructor(
+    private prisma: PrismaService,
+    private perimetre: PerimetreVendeurService,
+  ) {}
 
-  async create(dto: CreateSiteDto) {
+  async create(dto: CreateSiteDto, user?: { userId: string; role: string }) {
     const { cooperative, ...siteData } = dto;
+    // Un site créé par un vendeur lui est rattaché : il sera seul à le gérer
+    const vendeurId = await this.perimetre.vendeurIdDe(user);
     const type = dto.type ?? SiteType.COOPERATIVE;
 
     if (type === SiteType.COOPERATIVE && !cooperative) {
@@ -22,13 +28,12 @@ export class SitesService {
     }
 
     return this.prisma.$transaction(async (tx) => {
-      const site = await tx.site.create({ data: { ...siteData, type } });
+      const site = await tx.site.create({ data: { ...siteData, type, vendeurId } });
 
       if (type === SiteType.COOPERATIVE && cooperative) {
-        const count = await tx.cooperative.count();
         await tx.cooperative.create({
           data: {
-            numero: cooperative.numero ?? `COOP-${String(count + 1).padStart(3, '0')}`,
+            numero: cooperative.numero ?? (await this.prochainNumeroCoop(tx)),
             nom: cooperative.nom ?? `Coopérative ${site.nom}`,
             siteId: site.id,
             nbMaxAdherents: cooperative.nbMaxAdherents,
@@ -38,6 +43,8 @@ export class SitesService {
             nbMensualites: cooperative.nbMensualites,
             dureeRemboursement: cooperative.nbMensualites,
             responsable: cooperative.responsable,
+            // la coopérative suit le même gestionnaire que son site
+            vendeurId,
           },
         });
       }
@@ -46,8 +53,27 @@ export class SitesService {
     });
   }
 
-  findAll() {
+  /** Prochain numéro libre de coopérative (COOP-001), robuste aux suppressions. */
+  private async prochainNumeroCoop(tx: {
+    cooperative: {
+      findMany: (a: unknown) => Promise<{ numero: string }[]>;
+    };
+  }) {
+    const existants = await tx.cooperative.findMany({
+      where: { numero: { startsWith: 'COOP-' } },
+      select: { numero: true },
+    });
+    // On ignore les numéros saisis à la main (COOP-DIAMNIADIO…)
+    const numeros = existants
+      .map((c) => Number(c.numero.slice('COOP-'.length)))
+      .filter((n) => Number.isInteger(n));
+    const suivant = numeros.length ? Math.max(...numeros) + 1 : 1;
+    return `COOP-${String(suivant).padStart(3, '0')}`;
+  }
+
+  async findAll(user?: { userId: string; role: string }) {
     return this.prisma.site.findMany({
+      where: await this.perimetre.filtre(user),
       include: {
         photos: true,
         _count: { select: { cooperatives: true, terrains: true } },
@@ -113,14 +139,16 @@ export class SitesService {
     };
   }
 
-  async update(id: string, dto: UpdateSiteDto) {
-    await this.findOne(id);
+  async update(id: string, dto: UpdateSiteDto, user?: { userId: string; role: string }) {
+    const site = await this.findOne(id);
+    await this.perimetre.verifierAcces(user, site.vendeurId, 'les sites');
     const { cooperative, ...siteData } = dto;
     return this.prisma.site.update({ where: { id }, data: siteData });
   }
 
-  async remove(id: string) {
-    await this.findOne(id);
+  async remove(id: string, user?: { userId: string; role: string }) {
+    const site = await this.findOne(id);
+    await this.perimetre.verifierAcces(user, site.vendeurId, 'les sites');
     return this.prisma.site.delete({ where: { id } });
   }
 

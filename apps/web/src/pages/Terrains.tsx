@@ -27,7 +27,10 @@ const statutStyle: Record<string, string> = {
 export default function Terrains() {
   const { user } = useAuth();
   const navigate = useNavigate();
-  const isAdmin = user?.role === 'ADMIN' || user?.role === 'GESTIONNAIRE';
+  const isAdmin =
+    user?.role === 'ADMIN' ||
+    user?.role === 'GESTIONNAIRE' ||
+    user?.role === 'VENDEUR';
   const [showForm, setShowForm] = useState(false);
   const [filters, setFilters] = useState({
     statut: '',

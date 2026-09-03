@@ -6,6 +6,7 @@ import {
   Get,
   Param,
   Post,
+  Query,
   UploadedFiles,
   UseGuards,
   UseInterceptors,
@@ -123,9 +124,17 @@ export class AdhesionsController {
   }
 
   @Get()
-  @Roles(Role.ADMIN, Role.GESTIONNAIRE, Role.COMPTABLE)
-  findAll() {
-    return this.adhesionsService.findAll();
+  @Roles(Role.ADMIN, Role.GESTIONNAIRE, Role.COMPTABLE, Role.VENDEUR)
+  findAll(
+    @CurrentUser() user: AuthUser,
+    @Query('take') take?: string,
+    @Query('skip') skip?: string,
+  ) {
+    return this.adhesionsService.findAll(
+      take ? Number(take) : undefined,
+      skip ? Number(skip) : undefined,
+      user,
+    );
   }
 
   /** Demandes d'adhésion en attente de validation */
@@ -158,9 +167,10 @@ export class AdhesionsController {
   }
 
   @Get(':id')
-  @Roles(Role.ADMIN, Role.GESTIONNAIRE, Role.COMPTABLE, Role.CLIENT)
+  @Roles(Role.ADMIN, Role.GESTIONNAIRE, Role.COMPTABLE, Role.CLIENT, Role.VENDEUR)
   findOne(@Param('id') id: string, @CurrentUser() user: AuthUser) {
     return this.adhesionsService.findOne(id, {
+      userId: user.userId,
       clientId: user.clientId,
       role: user.role,
     });

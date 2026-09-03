@@ -19,6 +19,7 @@ import {
 import { JwtAuthGuard } from '../auth/guards/jwt-auth.guard';
 import { RolesGuard } from '../auth/guards/roles.guard';
 import { Roles } from '../auth/decorators/roles.decorator';
+import { AuthUser, CurrentUser } from '../auth/decorators/current-user.decorator';
 
 @ApiTags('Coopératives')
 @ApiBearerAuth()
@@ -28,38 +29,42 @@ export class CooperativesController {
   constructor(private cooperativesService: CooperativesService) {}
 
   @Post()
-  @Roles(Role.ADMIN, Role.GESTIONNAIRE)
-  create(@Body() dto: CreateCooperativeDto) {
-    return this.cooperativesService.create(dto);
+  @Roles(Role.ADMIN, Role.GESTIONNAIRE, Role.VENDEUR)
+  create(@Body() dto: CreateCooperativeDto, @CurrentUser() user: AuthUser) {
+    return this.cooperativesService.create(dto, user);
   }
 
   @Get()
-  @Roles(Role.ADMIN, Role.GESTIONNAIRE, Role.COMPTABLE, Role.CLIENT)
-  findAll(@Query('siteId') siteId?: string) {
-    return this.cooperativesService.findAll(siteId);
+  @Roles(Role.ADMIN, Role.GESTIONNAIRE, Role.COMPTABLE, Role.CLIENT, Role.VENDEUR)
+  findAll(@CurrentUser() user: AuthUser, @Query('siteId') siteId?: string) {
+    return this.cooperativesService.findAll(siteId, user);
   }
 
   @Get(':id')
-  @Roles(Role.ADMIN, Role.GESTIONNAIRE, Role.COMPTABLE, Role.CLIENT)
+  @Roles(Role.ADMIN, Role.GESTIONNAIRE, Role.COMPTABLE, Role.CLIENT, Role.VENDEUR)
   findOne(@Param('id') id: string) {
     return this.cooperativesService.findOne(id);
   }
 
   @Get(':id/disponibilite')
-  @Roles(Role.ADMIN, Role.GESTIONNAIRE, Role.COMPTABLE, Role.CLIENT)
+  @Roles(Role.ADMIN, Role.GESTIONNAIRE, Role.COMPTABLE, Role.CLIENT, Role.VENDEUR)
   disponibilite(@Param('id') id: string) {
     return this.cooperativesService.checkDisponibilite(id);
   }
 
   @Patch(':id')
-  @Roles(Role.ADMIN, Role.GESTIONNAIRE)
-  update(@Param('id') id: string, @Body() dto: UpdateCooperativeDto) {
-    return this.cooperativesService.update(id, dto);
+  @Roles(Role.ADMIN, Role.GESTIONNAIRE, Role.VENDEUR)
+  update(
+    @Param('id') id: string,
+    @Body() dto: UpdateCooperativeDto,
+    @CurrentUser() user: AuthUser,
+  ) {
+    return this.cooperativesService.update(id, dto, user);
   }
 
   @Delete(':id')
-  @Roles(Role.ADMIN)
-  remove(@Param('id') id: string) {
-    return this.cooperativesService.remove(id);
+  @Roles(Role.ADMIN, Role.VENDEUR)
+  remove(@Param('id') id: string, @CurrentUser() user: AuthUser) {
+    return this.cooperativesService.remove(id, user);
   }
 }

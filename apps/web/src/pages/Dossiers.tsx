@@ -2,6 +2,7 @@ import { useEffect, useState } from 'react';
 import { useSearchParams } from 'react-router-dom';
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { api, formatFCFA } from '../lib/api';
+import { useAuth } from '../context/AuthContext';
 
 interface AdhesionRow {
   id: string;
@@ -61,6 +62,9 @@ async function telechargerFacture(id: string, numero: string) {
 
 function DossierModal({ id, onClose }: { id: string; onClose: () => void }) {
   const qc = useQueryClient();
+  const { user } = useAuth();
+  // Le vendeur suit ses clients mais n'encaisse pas : consultation seule
+  const peutEncaisser = user?.role !== 'VENDEUR';
   const [montant, setMontant] = useState('');
   const [methode, setMethode] = useState('ESPECES');
   const [mois, setMois] = useState(new Date().getMonth());
@@ -138,7 +142,7 @@ function DossierModal({ id, onClose }: { id: string; onClose: () => void }) {
             </div>
 
             {/* Encaissement guichet */}
-            {d.statut !== 'EN_ATTENTE' && d.soldeRestant > 0 && (
+            {peutEncaisser && d.statut !== 'EN_ATTENTE' && d.soldeRestant > 0 && (
               <div className="rounded-xl border-2 border-brand-100 bg-brand-50/40 p-4">
                 <div className="mb-2 text-sm font-bold text-brand-800">💵 Encaisser un paiement (guichet)</div>
                 <div className="flex flex-wrap items-end gap-2">
@@ -202,10 +206,10 @@ function DossierModal({ id, onClose }: { id: string; onClose: () => void }) {
                             : <span className="text-slate-300">—</span>}
                         </td>
                         <td className="p-2">
-                          {p.statut === 'EN_ATTENTE' && (
+                          {peutEncaisser && p.statut === 'EN_ATTENTE' && (
                             <button onClick={() => action.mutate({ pid: p.id, verb: 'confirmer' })} className="rounded bg-brand-600 px-2 py-1 text-[11px] font-semibold text-white">Confirmer</button>
                           )}
-                          {p.statut === 'VALIDE' && (
+                          {peutEncaisser && p.statut === 'VALIDE' && (
                             <button onClick={() => action.mutate({ pid: p.id, verb: 'annuler' })} className="rounded bg-rose-50 px-2 py-1 text-[11px] font-semibold text-rose-600">Annuler</button>
                           )}
                         </td>
@@ -243,15 +247,20 @@ function DossierModal({ id, onClose }: { id: string; onClose: () => void }) {
 }
 
 export default function Dossiers() {
+  const { user } = useAuth();
   const [selected, setSelected] = useState<string | null>(null);
   const [q, setQ] = useState('');
   const [params, setParams] = useSearchParams();
   const coopId = params.get('cooperative') ?? '';
 
-  const { data = [], isLoading } = useQuery<AdhesionRow[]>({
+  // Les totaux affichés portent sur les dossiers chargés : on prend donc la
+  // tranche maximale autorisée plutôt qu'une pagination, qui les fausserait.
+  const { data: reponse, isLoading } = useQuery<{ items: AdhesionRow[]; total: number }>({
     queryKey: ['dossiers'],
-    queryFn: async () => (await api.get('/adhesions')).data,
+    queryFn: async () => (await api.get('/adhesions?take=200')).data,
   });
+  const data = reponse?.items ?? [];
+  const totalDossiers = reponse?.total ?? 0;
 
   // Coopératives distinctes présentes dans les dossiers
   const coops = Array.from(
@@ -285,13 +294,22 @@ export default function Dossiers() {
       <div className="flex flex-wrap items-center justify-between gap-3">
         <div>
           <h1 className="text-2xl font-bold text-slate-800">
-            Registre d'encaissement
+            {user?.role === 'VENDEUR'
+              ? 'Mes clients'
+              : "Registre d'encaissement"}
           </h1>
           <p className="text-sm text-slate-500">
             {coopSel
               ? `Coopérative ${coopSel.nom} — ${coopSel.site.nom}`
               : 'Sélectionnez une coopérative pour voir son registre d\'encaissement.'}
           </p>
+          {totalDossiers > data.length && (
+            <p className="mt-1 text-xs font-semibold text-amber-600">
+              ⚠️ {data.length} dossiers affichés sur {totalDossiers} — les totaux
+              ci-dessous ne portent que sur les dossiers affichés. Filtrez par
+              coopérative pour un calcul exact.
+            </p>
+          )}
         </div>
         <div className="flex flex-wrap gap-2">
           <select className="input max-w-xs" value={coopId} onChange={(e) => setCoop(e.target.value)}>

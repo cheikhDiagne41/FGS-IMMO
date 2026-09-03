@@ -187,12 +187,15 @@ function Row({
 export default function Cooperatives() {
   const { user } = useAuth();
   const qc = useQueryClient();
-  const isAdmin = user?.role === 'ADMIN' || user?.role === 'GESTIONNAIRE';
+  const isAdmin =
+    user?.role === 'ADMIN' ||
+    user?.role === 'GESTIONNAIRE' ||
+    user?.role === 'VENDEUR';
   const [preview, setPreview] = useState<Preview | null>(null);
   const [success, setSuccess] = useState<string>('');
   const [showForm, setShowForm] = useState(false);
   const [editCoop, setEditCoop] = useState<Cooperative | null>(null);
-  const isAdminOnly = user?.role === 'ADMIN';
+  const isAdminOnly = user?.role === 'ADMIN' || user?.role === 'VENDEUR';
 
   const delMut = useMutation({
     mutationFn: async (id: string) => (await api.delete(`/cooperatives/${id}`)).data,

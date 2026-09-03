@@ -238,9 +238,14 @@ model Site {
   cooperatives   Cooperative[]
   terrains       Terrain[]
 
+  // Vendeur qui gère ce site (vide = géré par l'agence)
+  vendeurId      String?
+  vendeur        Vendeur?   @relation("SiteVendeur", fields: [vendeurId], references: [id])
+
   // Filtre des sites actifs (liste publique) et regroupement par région (carte)
   @@index([statut])
   @@index([region])
+  @@index([vendeurId])
   @@map("sites")
 }
 
@@ -281,7 +286,12 @@ model Cooperative {
 
   adhesions         Adhesion[]
 
+  // Vendeur qui gère cette coopérative (vide = gérée par l'agence)
+  vendeurId         String?
+  vendeur           Vendeur?          @relation("CooperativeVendeur", fields: [vendeurId], references: [id])
+
   @@index([siteId])
+  @@index([vendeurId])
   @@map("cooperatives")
 }
 
@@ -564,6 +574,8 @@ model Vendeur {
   updatedAt     DateTime @updatedAt
 
   terrains      Terrain[]      @relation("TerrainVendeur")
+  sites         Site[]         @relation("SiteVendeur")
+  cooperatives  Cooperative[]  @relation("CooperativeVendeur")
   conversations Conversation[]
 
   @@map("vendeur")

@@ -55,19 +55,19 @@ export class TerrainsController {
   constructor(private terrainsService: TerrainsService) {}
 
   @Post()
-  @Roles(Role.ADMIN, Role.GESTIONNAIRE)
-  create(@Body() dto: CreateTerrainDto) {
-    return this.terrainsService.create(dto);
+  @Roles(Role.ADMIN, Role.GESTIONNAIRE, Role.VENDEUR)
+  create(@Body() dto: CreateTerrainDto, @CurrentUser() user: AuthUser) {
+    return this.terrainsService.create(dto, user);
   }
 
   @Get()
-  @Roles(Role.ADMIN, Role.GESTIONNAIRE, Role.COMPTABLE, Role.CLIENT)
-  search(@Query() filters: SearchTerrainDto) {
-    return this.terrainsService.search(filters);
+  @Roles(Role.ADMIN, Role.GESTIONNAIRE, Role.COMPTABLE, Role.CLIENT, Role.VENDEUR)
+  search(@Query() filters: SearchTerrainDto, @CurrentUser() user: AuthUser) {
+    return this.terrainsService.search(filters, user);
   }
 
   @Get(':id')
-  @Roles(Role.ADMIN, Role.GESTIONNAIRE, Role.COMPTABLE, Role.CLIENT)
+  @Roles(Role.ADMIN, Role.GESTIONNAIRE, Role.COMPTABLE, Role.CLIENT, Role.VENDEUR)
   findOne(@Param('id') id: string, @CurrentUser() user: AuthUser) {
     return this.terrainsService.detail(id, user.clientId);
   }
@@ -90,7 +90,7 @@ export class TerrainsController {
 
   /** Upload d'images / vidéos pour un terrain (max 10 fichiers, 50 Mo chacun) */
   @Post(':id/media')
-  @Roles(Role.ADMIN, Role.GESTIONNAIRE)
+  @Roles(Role.ADMIN, Role.GESTIONNAIRE, Role.VENDEUR)
   @UseInterceptors(
     FilesInterceptor('files', 10, {
       storage: mediaStorage,
@@ -112,9 +112,13 @@ export class TerrainsController {
   }
 
   @Patch(':id')
-  @Roles(Role.ADMIN, Role.GESTIONNAIRE)
-  update(@Param('id') id: string, @Body() dto: UpdateTerrainDto) {
-    return this.terrainsService.update(id, dto);
+  @Roles(Role.ADMIN, Role.GESTIONNAIRE, Role.VENDEUR)
+  update(
+    @Param('id') id: string,
+    @Body() dto: UpdateTerrainDto,
+    @CurrentUser() user: AuthUser,
+  ) {
+    return this.terrainsService.update(id, dto, user);
   }
 
   @Post(':id/reserver')
@@ -130,8 +134,8 @@ export class TerrainsController {
   }
 
   @Delete(':id')
-  @Roles(Role.ADMIN)
-  remove(@Param('id') id: string) {
-    return this.terrainsService.remove(id);
+  @Roles(Role.ADMIN, Role.VENDEUR)
+  remove(@Param('id') id: string, @CurrentUser() user: AuthUser) {
+    return this.terrainsService.remove(id, user);
   }
 }

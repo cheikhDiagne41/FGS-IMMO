@@ -6,6 +6,7 @@ import {
 import { Prisma, TerrainStatus } from '@prisma/client';
 import { PrismaService } from '../prisma/prisma.service';
 import { VendeurService } from '../vendeur/vendeur.service';
+import { PerimetreVendeurService } from '../common/perimetre-vendeur.service';
 import {
   CreateTerrainDto,
   SearchTerrainDto,
@@ -17,22 +18,57 @@ export class TerrainsService {
   constructor(
     private prisma: PrismaService,
     private vendeur: VendeurService,
+    private perimetre: PerimetreVendeurService,
   ) {}
 
-  async create(dto: CreateTerrainDto) {
+  async create(dto: CreateTerrainDto, user?: { userId: string; role: string }) {
     const site = await this.prisma.site.findUnique({
       where: { id: dto.siteId },
     });
     if (!site) throw new BadRequestException('Site introuvable.');
+    // Un vendeur ne peut ajouter un terrain que sur un site qu'il gère
+    await this.perimetre.verifierAcces(user, site.vendeurId, 'les sites');
+    // Un terrain créé par un vendeur lui est rattaché
+    const proprietaire = await this.perimetre.vendeurIdDe(user);
+
+    // La référence suit le dernier numéro de l'année : robuste aux
+    // suppressions et aux créations simultanées (nouvel essai si collision).
+    for (let essai = 0; essai < 5; essai++) {
+      const reference = await this.prochaineReference();
+      try {
+        return await this.prisma.terrain.create({
+          data: { ...dto, reference, vendeurId: proprietaire ?? dto.vendeurId },
+        });
+      } catch (e) {
+        const collision =
+          e instanceof Prisma.PrismaClientKnownRequestError &&
+          e.code === 'P2002';
+        if (!collision) throw e;
+      }
+    }
+    throw new BadRequestException(
+      'Impossible de générer une référence de terrain, réessayez.',
+    );
+  }
+
+  /** Prochaine référence disponible pour l'année en cours (TER-AAAA-00001). */
+  private async prochaineReference() {
     const annee = new Date().getFullYear();
-    const count = await this.prisma.terrain.count();
-    const reference = `TER-${annee}-${String(count + 1).padStart(5, '0')}`;
-    return this.prisma.terrain.create({ data: { ...dto, reference } });
+    const prefixe = `TER-${annee}-`;
+    const dernier = await this.prisma.terrain.findFirst({
+      where: { reference: { startsWith: prefixe } },
+      orderBy: { reference: 'desc' },
+      select: { reference: true },
+    });
+    const numero = dernier?.reference
+      ? Number(dernier.reference.slice(prefixe.length)) + 1
+      : 1;
+    return `${prefixe}${String(numero).padStart(5, '0')}`;
   }
 
   /** Recherche multicritère */
-  search(filters: SearchTerrainDto) {
-    const where: Prisma.TerrainWhereInput = {};
+  async search(filters: SearchTerrainDto, user?: { userId: string; role: string }) {
+    const where: Prisma.TerrainWhereInput = await this.perimetre.filtre(user);
     if (filters.siteId) where.siteId = filters.siteId;
     if (filters.statut) where.statut = filters.statut;
     if (filters.type) where.type = filters.type;
@@ -67,8 +103,9 @@ export class TerrainsService {
     return terrain;
   }
 
-  async update(id: string, dto: UpdateTerrainDto) {
-    await this.findOne(id);
+  async update(id: string, dto: UpdateTerrainDto, user?: { userId: string; role: string }) {
+    const existant = await this.findOne(id);
+    await this.perimetre.verifierAcces(user, existant.vendeurId, 'les terrains');
     return this.prisma.terrain.update({ where: { id }, data: dto });
   }
 
@@ -98,8 +135,9 @@ export class TerrainsService {
     });
   }
 
-  async remove(id: string) {
+  async remove(id: string, user?: { userId: string; role: string }) {
     const terrain = await this.findOne(id);
+    await this.perimetre.verifierAcces(user, terrain.vendeurId, 'les terrains');
     if (terrain.statut === TerrainStatus.VENDU) {
       throw new BadRequestException('Impossible de supprimer un terrain vendu.');
     }
