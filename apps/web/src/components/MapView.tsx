@@ -31,7 +31,8 @@ function FitBounds({ points }: { points: MapPoint[] }) {
   useEffect(() => {
     if (points.length === 0) return;
     if (points.length === 1) {
-      map.setView([points[0].lat, points[0].lng], 14);
+      // un seul point (bureau, parcelle) : on zoome au niveau de la rue
+      map.setView([points[0].lat, points[0].lng], 16);
     } else {
       const bounds = points.map((p) => [p.lat, p.lng]) as [number, number][];
       map.fitBounds(bounds, { padding: [40, 40] });
