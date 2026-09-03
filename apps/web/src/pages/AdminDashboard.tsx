@@ -88,9 +88,11 @@ export default function AdminDashboard() {
     queryFn: async () => (await api.get('/adhesions/demandes')).data,
     enabled: role === 'ADMIN' || role === 'GESTIONNAIRE',
   });
-  const { data: paiementsAtt = [] } = useQuery({
+  // Seul le nombre est affiché en pastille : inutile de charger les lignes
+  const { data: nbPaiementsAttente = 0 } = useQuery({
     queryKey: ['paiements-attente'],
-    queryFn: async () => (await api.get('/paiements?statut=EN_ATTENTE')).data,
+    queryFn: async () =>
+      (await api.get('/paiements?statut=EN_ATTENTE&take=1')).data.total as number,
     enabled: role !== 'CLIENT',
   });
 
@@ -107,7 +109,7 @@ export default function AdminDashboard() {
   const gestion: GestionItem[] = [
     { label: 'Demandes', path: '/demandes', icon: '📥', desc: 'Adhésions à valider', roles: ['ADMIN', 'GESTIONNAIRE'], badge: demandes.length },
     { label: 'Dossiers', path: '/dossiers', icon: '📂', desc: 'Clients & encaissements', roles: ['ADMIN', 'GESTIONNAIRE', 'COMPTABLE'] },
-    { label: 'Paiements', path: '/paiements', icon: '💳', desc: 'À confirmer', roles: ['ADMIN', 'GESTIONNAIRE', 'COMPTABLE'], badge: paiementsAtt.length },
+    { label: 'Paiements', path: '/paiements', icon: '💳', desc: 'À confirmer', roles: ['ADMIN', 'GESTIONNAIRE', 'COMPTABLE'], badge: nbPaiementsAttente },
     { label: 'Sites', path: '/sites', icon: '🏘️', desc: 'Gérer les sites', roles: ['ADMIN', 'GESTIONNAIRE'], count: stats?.totalSites },
     { label: 'Terrains', path: '/terrains', icon: '🗺️', desc: 'Gérer les parcelles', roles: ['ADMIN', 'GESTIONNAIRE', 'COMPTABLE'], count: `${stats?.terrainsDisponibles ?? '—'} dispo.` },
     { label: 'Coopératives', path: '/cooperatives', icon: '👥', desc: 'Gérer les coopératives', roles: ['ADMIN', 'GESTIONNAIRE', 'COMPTABLE'], count: stats?.totalCooperatives },

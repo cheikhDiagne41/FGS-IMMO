@@ -3,6 +3,7 @@ import {
   ForbiddenException,
   Get,
   Param,
+  Query,
   Res,
   UseGuards,
 } from '@nestjs/common';
@@ -27,8 +28,11 @@ export class FacturesController {
 
   @Get()
   @Roles(Role.ADMIN, Role.GESTIONNAIRE, Role.COMPTABLE)
-  findAll() {
-    return this.facturesService.findAll();
+  findAll(@Query('take') take?: string, @Query('skip') skip?: string) {
+    return this.facturesService.findAll(
+      take ? Number(take) : undefined,
+      skip ? Number(skip) : undefined,
+    );
   }
 
   @Get('mine')

@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { api, formatFCFA } from '../lib/api';
 
@@ -28,15 +28,29 @@ const statutStyle: Record<string, string> = {
   REMBOURSE: 'bg-slate-200 text-slate-600',
 };
 
+const PAR_PAGE = 50;
+
 export default function Paiements() {
   const qc = useQueryClient();
   const [filtre, setFiltre] = useState('');
+  const [nbAffiches, setNbAffiches] = useState(PAR_PAGE);
 
-  const { data: paiements = [], isLoading } = useQuery<Paiement[]>({
-    queryKey: ['paiements', filtre],
-    queryFn: async () =>
-      (await api.get(`/paiements${filtre ? `?statut=${filtre}` : ''}`)).data,
+  // Revenir au début quand le filtre change
+  useEffect(() => setNbAffiches(PAR_PAGE), [filtre]);
+
+  // Chargement par tranches : la table entière serait trop lourde
+  const { data, isLoading, isFetching } = useQuery<{ items: Paiement[]; total: number }>({
+    queryKey: ['paiements', filtre, nbAffiches],
+    queryFn: async () => {
+      const p = new URLSearchParams({ take: String(nbAffiches) });
+      if (filtre) p.set('statut', filtre);
+      return (await api.get(`/paiements?${p}`)).data;
+    },
+    placeholderData: (prec) => prec,
   });
+
+  const paiements = data?.items ?? [];
+  const total = data?.total ?? 0;
 
   const action = useMutation({
     mutationFn: async ({ id, verb }: { id: string; verb: string }) =>
@@ -162,6 +176,18 @@ export default function Paiements() {
           <div className="p-8 text-center text-slate-400">Aucun paiement.</div>
         )}
       </div>
+
+      {paiements.length < total && (
+        <div className="flex justify-center">
+          <button
+            onClick={() => setNbAffiches((n) => n + PAR_PAGE)}
+            disabled={isFetching}
+            className="btn-primary"
+          >
+            {isFetching ? 'Chargement…' : `Voir plus (${total - paiements.length} restant(s))`}
+          </button>
+        </div>
+      )}
     </div>
   );
 }

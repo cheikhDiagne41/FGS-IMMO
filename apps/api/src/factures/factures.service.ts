@@ -54,22 +54,33 @@ export class FacturesService {
     });
   }
 
-  findAll() {
-    return this.prisma.facture.findMany({
-      include: {
-        paiement: {
-          include: {
-            adhesion: {
-              include: {
-                client: { select: { nom: true, prenom: true } },
-                cooperative: { select: { nom: true } },
+  /** Liste paginée : la table des factures grossit à chaque encaissement. */
+  async findAll(take = 50, skip = 0) {
+    const limite = Math.min(Math.max(take, 1), 200);
+    const depart = Math.max(skip, 0);
+
+    const [items, total] = await Promise.all([
+      this.prisma.facture.findMany({
+        include: {
+          paiement: {
+            include: {
+              adhesion: {
+                include: {
+                  client: { select: { nom: true, prenom: true } },
+                  cooperative: { select: { nom: true } },
+                },
               },
             },
           },
         },
-      },
-      orderBy: { dateEmission: 'desc' },
-    });
+        orderBy: { dateEmission: 'desc' },
+        take: limite,
+        skip: depart,
+      }),
+      this.prisma.facture.count(),
+    ]);
+
+    return { items, total, take: limite, skip: depart };
   }
 
   findByClient(clientId: string) {

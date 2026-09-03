@@ -100,8 +100,16 @@ export class PaiementsController {
 
   @Get()
   @Roles(Role.ADMIN, Role.GESTIONNAIRE, Role.COMPTABLE)
-  findAll(@Query('statut') statut?: PaiementStatut) {
-    return this.paiementsService.findAll(statut);
+  findAll(
+    @Query('statut') statut?: PaiementStatut,
+    @Query('take') take?: string,
+    @Query('skip') skip?: string,
+  ) {
+    return this.paiementsService.findAll(
+      statut,
+      take ? Number(take) : undefined,
+      skip ? Number(skip) : undefined,
+    );
   }
 
   @Get('mine')

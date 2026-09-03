@@ -412,22 +412,37 @@ export class PaiementsService {
     });
   }
 
-  findAll(statut?: PaiementStatut) {
-    return this.prisma.paiement.findMany({
-      where: statut ? { statut } : undefined,
-      include: {
-        adhesion: {
-          include: {
-            client: { select: { nom: true, prenom: true } },
-            cooperative: { select: { nom: true } },
+  /**
+   * Liste paginée des paiements. Sans limite, l'écran chargeait la table
+   * entière : plus d'une seconde dès quelques milliers d'encaissements.
+   */
+  async findAll(statut?: PaiementStatut, take = 50, skip = 0) {
+    const limite = Math.min(Math.max(take, 1), 200);
+    const depart = Math.max(skip, 0);
+    const where = statut ? { statut } : undefined;
+
+    const [items, total] = await Promise.all([
+      this.prisma.paiement.findMany({
+        where,
+        include: {
+          adhesion: {
+            include: {
+              client: { select: { nom: true, prenom: true } },
+              cooperative: { select: { nom: true } },
+            },
           },
+          client: { select: { nom: true, prenom: true } },
+          terrain: { select: { numeroParcelle: true } },
+          facture: { select: { id: true, numero: true } },
         },
-        client: { select: { nom: true, prenom: true } },
-        terrain: { select: { numeroParcelle: true } },
-        facture: { select: { id: true, numero: true } },
-      },
-      orderBy: { datePaiement: 'desc' },
-    });
+        orderBy: { datePaiement: 'desc' },
+        take: limite,
+        skip: depart,
+      }),
+      this.prisma.paiement.count({ where }),
+    ]);
+
+    return { items, total, take: limite, skip: depart };
   }
 
   findByClient(clientId: string) {
