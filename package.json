@@ -15,11 +15,12 @@
     "db:migrate": "npm run prisma:migrate -w apps/api",
     "db:seed": "npm run prisma:seed -w apps/api",
     "db:studio": "npm run prisma:studio -w apps/api",
-    "verifier": "npm run typecheck && npm run build",
+    "verifier": "npm run typecheck && npm test && npm run build",
     "typecheck": "tsc --noEmit -p apps/api/tsconfig.json && tsc --noEmit -p apps/web/tsconfig.json",
     "test:securite": "npm run test:securite -w apps/api",
     "test:parametres": "npm run test:parametres -w apps/api",
-    "sauvegarde": "npm run sauvegarde -w apps/api"
+    "sauvegarde": "npm run sauvegarde -w apps/api",
+    "test": "npm test -w apps/api"
   },
   "devDependencies": {
     "concurrently": "^9.1.0"

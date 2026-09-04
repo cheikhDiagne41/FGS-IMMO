@@ -14,7 +14,8 @@ d'habitat, clients, paiements (Wave / Orange Money) et facturation automatique.
 
 ```bash
 npm run dev              # API + site en développement
-npm run verifier         # types et build des deux applications
+npm test                 # tests des calculs métier et des règles d'accès
+npm run verifier         # types, tests et build des deux applications
 npm run test:securite    # 23 contrôles de sécurité (serveur démarré)
 npm run test:parametres  # vérifie que les interrupteurs coupent bien
 npm run sauvegarde       # base + fichiers envoyés, dans sauvegardes/

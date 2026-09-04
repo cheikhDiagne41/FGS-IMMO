@@ -64,6 +64,9 @@ jobs:
       - name: Contrôle des types (site)
         run: npx tsc --noEmit -p apps/web/tsconfig.json
 
+      - name: Tests automatisés (calculs métier et règles d'accès)
+        run: npm test -w apps/api
+
       - name: Construire l'API
         run: npm run build -w apps/api
 

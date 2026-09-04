@@ -118,10 +118,23 @@ export class AdhesionsService {
     };
   }
 
+  /**
+   * Numéro de dossier de l'année en cours.
+   * On repart du dernier numéro utilisé, pas du nombre de dossiers : après
+   * une suppression, compter donnerait un numéro déjà pris.
+   */
   private async genererNumeroDossier(): Promise<string> {
     const annee = new Date().getFullYear();
-    const count = await this.prisma.adhesion.count();
-    return `ADH-${annee}-${String(count + 1).padStart(4, '0')}`;
+    const prefixe = `ADH-${annee}-`;
+    const dernier = await this.prisma.adhesion.findFirst({
+      where: { numeroDossier: { startsWith: prefixe } },
+      orderBy: { numeroDossier: 'desc' },
+      select: { numeroDossier: true },
+    });
+    const suivant = dernier?.numeroDossier
+      ? Number(dernier.numeroDossier.slice(prefixe.length)) + 1
+      : 1;
+    return `${prefixe}${String(suivant).padStart(4, '0')}`;
   }
 
   /**

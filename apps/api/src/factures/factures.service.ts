@@ -13,10 +13,23 @@ export class FacturesService {
     private vendeur: VendeurService,
   ) {}
 
+  /**
+   * Numéro de facture de l'année en cours.
+   * On repart du dernier numéro émis : compter les factures redonnerait un
+   * numéro déjà utilisé dès qu'une facture a été supprimée.
+   */
   private async genererNumero(tx: Prisma.TransactionClient): Promise<string> {
     const annee = new Date().getFullYear();
-    const count = await tx.facture.count();
-    return `FAC-${annee}-${String(count + 1).padStart(4, '0')}`;
+    const prefixe = `FAC-${annee}-`;
+    const derniere = await tx.facture.findFirst({
+      where: { numero: { startsWith: prefixe } },
+      orderBy: { numero: 'desc' },
+      select: { numero: true },
+    });
+    const suivant = derniere?.numero
+      ? Number(derniere.numero.slice(prefixe.length)) + 1
+      : 1;
+    return `${prefixe}${String(suivant).padStart(4, '0')}`;
   }
 
   /**

@@ -151,11 +151,23 @@ brute). **À lancer avant chaque mise en ligne.**
 ## 4. Le filet de sécurité
 
 ```bash
-npm run verifier          # types + build des deux applications
+npm test                  # 58 tests des calculs métier et des règles d'accès
+npm run verifier          # types + tests + build des deux applications
 npm run test:securite     # contrôles de sécurité (serveur démarré)
 npm run test:parametres   # les interrupteurs coupent bien les fonctionnalités
 npm run sauvegarde        # base + fichiers, dans sauvegardes/AAAA-MM-JJ-HH-MM-SS
 ```
+
+Les tests (`*.spec.ts`, à côté du service testé) tournent sans base de
+données : la base est simulée en mémoire, la suite passe en 2 secondes. Ils
+couvrent l'échéancier d'adhésion, l'affectation des paiements, la
+numérotation des dossiers, factures et terrains, le cloisonnement des
+vendeurs et la lecture des réglages.
+
+**Ajoutez un test dès que vous touchez à un calcul d'argent ou à une règle
+d'accès.** Modèle à suivre : un `describe` par règle métier, des noms de test
+qui décrivent le comportement attendu en français, une fausse base en mémoire
+plutôt qu'un vrai PostgreSQL.
 
 L'intégration continue (`.github/workflows/verification.yml`) rejoue types,
 build et cohérence des migrations à chaque envoi sur `main`.
@@ -184,8 +196,9 @@ Par ordre d'utilité, avec le point d'accroche déjà prêt :
    `penalite_retard_pourcent`.
 5. **Application mobile** — l'API est déjà séparée du site ; il faudrait
    surtout figer les routes publiques.
-6. **Tests automatisés du métier** — le point faible actuel : les scripts
-   couvrent la sécurité et les réglages, pas les calculs d'échéancier.
+6. **Étendre les tests** — l'échéancier, les paiements, la numérotation et le
+   cloisonnement sont couverts ; restent les attributions de parcelles et les
+   rapports.
 
 ---
 
