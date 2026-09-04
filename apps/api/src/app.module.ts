@@ -23,6 +23,7 @@ import { PartenairesModule } from './partenaires/partenaires.module';
 import { UsersModule } from './users/users.module';
 import { DocumentsModule } from './documents/documents.module';
 import { ParametresModule } from './parametres/parametres.module';
+import { SanteModule } from './sante/sante.module';
 
 @Module({
   imports: [
@@ -30,6 +31,7 @@ import { ParametresModule } from './parametres/parametres.module';
     PrismaModule,
     CommonModule,
     ParametresModule,
+    SanteModule,
     AuthModule,
     DashboardModule,
     SitesModule,

@@ -43,3 +43,6 @@ coverage/
 # Misc
 .cache/
 .turbo/
+
+# Sauvegardes locales (contiennent des données personnelles)
+sauvegardes/

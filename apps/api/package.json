@@ -15,7 +15,8 @@
     "prisma:seed": "ts-node prisma/seed.ts",
     "lint": "eslint \"src/**/*.ts\" --fix",
     "test:securite": "node scripts/test-securite.cjs",
-    "test:parametres": "node scripts/test-parametres.cjs"
+    "test:parametres": "node scripts/test-parametres.cjs",
+    "sauvegarde": "node scripts/sauvegarde.cjs"
   },
   "prisma": {
     "seed": "ts-node prisma/seed.ts"

@@ -1,0 +1,71 @@
+# Vérification automatique à chaque envoi de code.
+# Objectif : qu'une évolution ne casse pas silencieusement le site.
+name: Vérification
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+  workflow_dispatch:
+
+jobs:
+  verifier:
+    name: Types, build et migrations
+    runs-on: ubuntu-latest
+
+    services:
+      postgres:
+        image: postgres:17
+        env:
+          POSTGRES_USER: fgs
+          POSTGRES_PASSWORD: fgs
+          POSTGRES_DB: fgs_ci
+        ports: ['5432:5432']
+        options: >-
+          --health-cmd pg_isready
+          --health-interval 10s
+          --health-timeout 5s
+          --health-retries 5
+
+    env:
+      DATABASE_URL: postgresql://fgs:fgs@localhost:5432/fgs_ci?schema=public
+      JWT_SECRET: secret-de-test-ci-uniquement
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+
+      - name: Installer les dépendances
+        run: npm ci
+
+      - name: Générer le client Prisma
+        run: npm run prisma:generate -w apps/api
+
+      - name: Appliquer les migrations
+        run: npx prisma migrate deploy --schema apps/api/prisma/schema.prisma
+
+      - name: Vérifier que le schéma et les migrations concordent
+        run: |
+          npx prisma migrate diff \
+            --from-migrations apps/api/prisma/migrations \
+            --to-schema-datamodel apps/api/prisma/schema.prisma \
+            --shadow-database-url "$DATABASE_URL" \
+            --exit-code \
+          && echo "Schéma et migrations alignés" \
+          || (echo "::error::Le schéma Prisma a changé sans migration correspondante." && exit 1)
+
+      - name: Contrôle des types (API)
+        run: npx tsc --noEmit -p apps/api/tsconfig.json
+
+      - name: Contrôle des types (site)
+        run: npx tsc --noEmit -p apps/web/tsconfig.json
+
+      - name: Construire l'API
+        run: npm run build -w apps/api
+
+      - name: Construire le site
+        run: npm run build -w apps/web

@@ -3,6 +3,23 @@
 Plateforme web de gestion de vente de terrains, sites immobiliers, coopératives
 d'habitat, clients, paiements (Wave / Orange Money) et facturation automatique.
 
+## Documentation
+
+| Document | Pour quoi faire |
+|---|---|
+| [ARCHITECTURE.md](ARCHITECTURE.md) | Faire évoluer la plateforme : où brancher un réglage, un domaine, un écran, un rôle |
+| [DEPLOIEMENT-DEMO.md](DEPLOIEMENT-DEMO.md) | Mettre la démonstration en ligne |
+
+## Commandes utiles
+
+```bash
+npm run dev              # API + site en développement
+npm run verifier         # types et build des deux applications
+npm run test:securite    # 23 contrôles de sécurité (serveur démarré)
+npm run test:parametres  # vérifie que les interrupteurs coupent bien
+npm run sauvegarde       # base + fichiers envoyés, dans sauvegardes/
+```
+
 ## Stack technique
 
 | Couche | Technologie |
