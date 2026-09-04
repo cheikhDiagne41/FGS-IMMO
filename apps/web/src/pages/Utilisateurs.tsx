@@ -2,7 +2,8 @@ import { useState } from 'react';
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { api } from '../lib/api';
 import { useAuth } from '../context/AuthContext';
-import ImportComptes from '../components/ImportComptes';
+import ImportComptes, { PROFILS } from '../components/ImportComptes';
+import type { RoleImportable } from '../components/ImportComptes';
 
 type Role = 'ADMIN' | 'GESTIONNAIRE' | 'COMPTABLE' | 'VENDEUR' | 'CLIENT';
 
@@ -192,7 +193,7 @@ export default function UtilisateursPage() {
   const qc = useQueryClient();
   const { user: connecte } = useAuth();
   const [creation, setCreation] = useState(false);
-  const [importation, setImportation] = useState(false);
+  const [importation, setImportation] = useState<RoleImportable | null>(null);
   const [modification, setModification] = useState<Utilisateur | null>(null);
   const [filtre, setFiltre] = useState<Role | ''>('');
   const [erreur, setErreur] = useState('');
@@ -227,15 +228,23 @@ export default function UtilisateursPage() {
             vendeurs et clients.
           </p>
         </div>
-        <div className="flex gap-2">
+        <button onClick={() => setCreation(true)} className="btn-primary">＋ Nouveau compte</button>
+      </div>
+
+      {/* Un import par type de compte : le fichier n'a pas à porter le rôle */}
+      <div className="flex flex-wrap items-center gap-2 rounded-xl bg-slate-50 px-4 py-3">
+        <span className="text-sm font-semibold text-slate-500">
+          ⬆️ Importer depuis Excel :
+        </span>
+        {(['CLIENT', 'VENDEUR', 'GESTIONNAIRE', 'COMPTABLE'] as const).map((r) => (
           <button
-            onClick={() => setImportation(true)}
-            className="rounded-lg bg-slate-100 px-4 py-2 text-sm font-semibold text-slate-700 hover:bg-slate-200"
+            key={r}
+            onClick={() => setImportation(r)}
+            className={`rounded-lg px-3 py-1.5 text-sm font-semibold ring-1 ring-inset transition hover:brightness-95 ${infoRole(r).couleur} ring-slate-200`}
           >
-            ⬆️ Importer
+            {PROFILS[r].pluriel.charAt(0).toUpperCase() + PROFILS[r].pluriel.slice(1)}
           </button>
-          <button onClick={() => setCreation(true)} className="btn-primary">＋ Nouveau compte</button>
-        </div>
+        ))}
       </div>
 
       {erreur && (
@@ -372,7 +381,14 @@ export default function UtilisateursPage() {
         journal d'activité), simplement détaché.
       </div>
 
-      {importation && <ImportComptes onClose={() => setImportation(false)} />}
+      {importation && (
+        // la clé repart de zéro à chaque changement de type de compte
+        <ImportComptes
+          key={importation}
+          role={importation}
+          onClose={() => setImportation(null)}
+        />
+      )}
       {creation && <FormulaireCreation onClose={() => setCreation(false)} />}
       {modification && (
         <FormulaireModification u={modification} onClose={() => setModification(null)} />
