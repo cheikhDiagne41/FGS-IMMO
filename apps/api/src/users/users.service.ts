@@ -7,7 +7,13 @@ import {
 import { Role } from '@prisma/client';
 import * as bcrypt from 'bcryptjs';
 import { PrismaService } from '../prisma/prisma.service';
-import { CreateUserDto, UpdateUserDto } from './dto/user.dto';
+import { randomInt } from 'crypto';
+import {
+  CreateUserDto,
+  ImportUsersDto,
+  ROLES_IMPORTABLES,
+  UpdateUserDto,
+} from './dto/user.dto';
 
 @Injectable()
 export class UsersService {
@@ -75,6 +81,129 @@ export class UsersService {
       data: { email: dto.email, passwordHash, role: dto.role },
       select: { id: true, email: true, role: true, isActive: true, createdAt: true },
     });
+  }
+
+  /**
+   * Mot de passe temporaire lisible, à transmettre au titulaire du compte.
+   * Pas de caractères ambigus (0/O, 1/l) : il sera recopié à la main.
+   */
+  private motDePasseTemporaire() {
+    const lettres = 'ABCDEFGHJKMNPQRSTUVWXYZ';
+    const minuscules = 'abcdefghijkmnpqrstuvwxyz';
+    const chiffres = '23456789';
+    const tire = (src: string, n: number) =>
+      Array.from({ length: n }, () => src[randomInt(src.length)]).join('');
+    return `${tire(lettres, 2)}${tire(minuscules, 5)}${tire(chiffres, 3)}`;
+  }
+
+  /**
+   * Import de comptes en lot (clients, vendeurs, gestionnaires, comptables).
+   * Chaque ligne est traitée indépendamment : une ligne fautive n'empêche
+   * pas les autres d'être créées, et le rapport dit précisément pourquoi.
+   */
+  async importer(dto: ImportUsersDto) {
+    const crees: Array<{
+      email: string;
+      role: Role;
+      nom: string;
+      motDePasseTemporaire: string | null;
+    }> = [];
+    const ignores: Array<{ ligne: number; email: string; motif: string }> = [];
+
+    // Doublons à l'intérieur du fichier lui-même
+    const vus = new Set<string>();
+
+    for (const [index, ligne] of dto.comptes.entries()) {
+      const numero = index + 1;
+      const email = ligne.email.trim().toLowerCase();
+
+      if (!ROLES_IMPORTABLES.includes(ligne.role as never)) {
+        ignores.push({
+          ligne: numero,
+          email,
+          motif: `Rôle « ${ligne.role} » non importable (clients, vendeurs, gestionnaires et comptables uniquement).`,
+        });
+        continue;
+      }
+      if (vus.has(email)) {
+        ignores.push({ ligne: numero, email, motif: 'Email en double dans le fichier.' });
+        continue;
+      }
+      vus.add(email);
+
+      const existant = await this.prisma.user.findUnique({ where: { email } });
+      if (existant) {
+        ignores.push({ ligne: numero, email, motif: 'Un compte existe déjà avec cet email.' });
+        continue;
+      }
+
+      const nom = (ligne.nom ?? '').trim();
+      const prenom = (ligne.prenom ?? '').trim();
+      const telephone = (ligne.telephone ?? '').trim();
+
+      if (ligne.role === Role.CLIENT && (!nom || !prenom || !telephone)) {
+        ignores.push({
+          ligne: numero,
+          email,
+          motif: 'Nom, prénom et téléphone sont requis pour un client.',
+        });
+        continue;
+      }
+
+      const genere = !ligne.motDePasse;
+      const motDePasse = ligne.motDePasse ?? this.motDePasseTemporaire();
+      const passwordHash = await bcrypt.hash(motDePasse, 10);
+
+      try {
+        if (ligne.role === Role.CLIENT) {
+          await this.prisma.user.create({
+            data: {
+              email,
+              passwordHash,
+              role: Role.CLIENT,
+              client: { create: { nom, prenom, telephone } },
+            },
+          });
+        } else if (ligne.role === Role.VENDEUR) {
+          const enseigne =
+            (ligne.societe ?? '').trim() || `${prenom} ${nom}`.trim() || email;
+          await this.prisma.user.create({
+            data: {
+              email,
+              passwordHash,
+              role: Role.VENDEUR,
+              vendeurProfil: {
+                create: {
+                  nom: enseigne,
+                  telephone: telephone || null,
+                  email,
+                  responsable: `${prenom} ${nom}`.trim() || null,
+                },
+              },
+            },
+          });
+        } else {
+          await this.prisma.user.create({
+            data: { email, passwordHash, role: ligne.role },
+          });
+        }
+
+        crees.push({
+          email,
+          role: ligne.role,
+          nom: `${prenom} ${nom}`.trim() || (ligne.societe ?? '').trim() || email,
+          motDePasseTemporaire: genere ? motDePasse : null,
+        });
+      } catch (e: any) {
+        ignores.push({
+          ligne: numero,
+          email,
+          motif: e?.message?.slice(0, 120) ?? 'Création impossible.',
+        });
+      }
+    }
+
+    return { crees, ignores, total: dto.comptes.length };
   }
 
   async update(id: string, dto: UpdateUserDto, demandeurId: string) {

@@ -11,7 +11,7 @@ import {
 import { ApiBearerAuth, ApiTags } from '@nestjs/swagger';
 import { Role } from '@prisma/client';
 import { UsersService } from './users.service';
-import { CreateUserDto, UpdateUserDto } from './dto/user.dto';
+import { CreateUserDto, ImportUsersDto, UpdateUserDto } from './dto/user.dto';
 import { JwtAuthGuard } from '../auth/guards/jwt-auth.guard';
 import { RolesGuard } from '../auth/guards/roles.guard';
 import { Roles } from '../auth/decorators/roles.decorator';
@@ -34,6 +34,12 @@ export class UsersController {
   @Post()
   create(@Body() dto: CreateUserDto) {
     return this.usersService.create(dto);
+  }
+
+  /** Import en lot : clients, vendeurs, gestionnaires, comptables. */
+  @Post('import')
+  importer(@Body() dto: ImportUsersDto) {
+    return this.usersService.importer(dto);
   }
 
   @Patch(':id')

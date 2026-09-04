@@ -2,6 +2,7 @@ import { useState } from 'react';
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { api } from '../lib/api';
 import { useAuth } from '../context/AuthContext';
+import ImportComptes from '../components/ImportComptes';
 
 type Role = 'ADMIN' | 'GESTIONNAIRE' | 'COMPTABLE' | 'VENDEUR' | 'CLIENT';
 
@@ -191,6 +192,7 @@ export default function UtilisateursPage() {
   const qc = useQueryClient();
   const { user: connecte } = useAuth();
   const [creation, setCreation] = useState(false);
+  const [importation, setImportation] = useState(false);
   const [modification, setModification] = useState<Utilisateur | null>(null);
   const [filtre, setFiltre] = useState<Role | ''>('');
   const [erreur, setErreur] = useState('');
@@ -225,7 +227,15 @@ export default function UtilisateursPage() {
             vendeurs et clients.
           </p>
         </div>
-        <button onClick={() => setCreation(true)} className="btn-primary">＋ Nouveau compte</button>
+        <div className="flex gap-2">
+          <button
+            onClick={() => setImportation(true)}
+            className="rounded-lg bg-slate-100 px-4 py-2 text-sm font-semibold text-slate-700 hover:bg-slate-200"
+          >
+            ⬆️ Importer
+          </button>
+          <button onClick={() => setCreation(true)} className="btn-primary">＋ Nouveau compte</button>
+        </div>
       </div>
 
       {erreur && (
@@ -362,6 +372,7 @@ export default function UtilisateursPage() {
         journal d'activité), simplement détaché.
       </div>
 
+      {importation && <ImportComptes onClose={() => setImportation(false)} />}
       {creation && <FormulaireCreation onClose={() => setCreation(false)} />}
       {modification && (
         <FormulaireModification u={modification} onClose={() => setModification(null)} />
