@@ -722,3 +722,40 @@ model ActualiteMedia {
 
   @@map("actualite_medias")
 }
+
+// ============================================================
+// PARAMÈTRES
+// Réglages de la plateforme, modifiables par l'administrateur sans
+// toucher au code. Sert aussi d'interrupteur pour activer ou couper
+// une fonctionnalité, présente ou à venir.
+// ============================================================
+
+enum TypeParametre {
+  TEXTE
+  NOMBRE
+  BOOLEEN
+  LISTE // valeurs séparées par des virgules
+}
+
+model Parametre {
+  id          String        @id @default(uuid())
+  /** Identifiant technique, ex. « reservation_duree_jours » */
+  cle         String        @unique
+  valeur      String
+  type        TypeParametre @default(TEXTE)
+  /** Intitulé affiché dans l'écran de configuration */
+  libelle     String
+  description String?
+  /** Regroupement dans l'écran : Général, Fonctionnalités, Métier… */
+  groupe      String        @default("Général")
+  /** Lisible sans être connecté (affiché sur le site vitrine) */
+  public      Boolean       @default(false)
+  /** Un paramètre du socle ne peut pas être supprimé, seulement modifié */
+  systeme     Boolean       @default(false)
+  ordre       Int           @default(0)
+  createdAt   DateTime      @default(now())
+  updatedAt   DateTime      @updatedAt
+
+  @@index([groupe])
+  @@map("parametres")
+}

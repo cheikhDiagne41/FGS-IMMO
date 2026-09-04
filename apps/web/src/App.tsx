@@ -25,6 +25,7 @@ import GouvernancePage from './pages/Gouvernance';
 import PartenairesPage from './pages/Partenaires';
 import ReseauxSociauxPage from './pages/ReseauxSociaux';
 import UtilisateursPage from './pages/Utilisateurs';
+import ParametresPage from './pages/Parametres';
 // Public (visiteur)
 import PublicLayout from './components/PublicLayout';
 import PublicHome from './pages/public/PublicHome';
@@ -88,6 +89,7 @@ export default function App() {
           <Route path="partenaires" element={<PartenairesPage />} />
           <Route path="reseaux-sociaux" element={<ReseauxSociauxPage />} />
           <Route path="utilisateurs" element={<UtilisateursPage />} />
+          <Route path="parametres" element={<ParametresPage />} />
           <Route path="messagerie" element={<Messagerie />} />
         </Route>
       ) : (

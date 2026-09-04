@@ -6,6 +6,7 @@ import {
 import { MessageEmetteur } from '@prisma/client';
 import { PrismaService } from '../prisma/prisma.service';
 import { VendeurService } from '../vendeur/vendeur.service';
+import { ParametresService } from '../parametres/parametres.service';
 
 interface Requester {
   userId: string;
@@ -17,6 +18,7 @@ export class MessagesService {
   constructor(
     private prisma: PrismaService,
     private vendeur: VendeurService,
+    private parametres: ParametresService,
   ) {}
 
   private async resolveVendeurId(terrainId?: string): Promise<string> {
@@ -40,6 +42,11 @@ export class MessagesService {
     contenu: string;
     clientId?: string | null;
   }) {
+    if (!(await this.parametres.actif('messagerie_active', true))) {
+      throw new ForbiddenException(
+        "La messagerie est désactivée. Contactez l'agence par téléphone.",
+      );
+    }
     const vendeurId = await this.resolveVendeurId(dto.terrainId);
     const conv = await this.prisma.conversation.create({
       data: {

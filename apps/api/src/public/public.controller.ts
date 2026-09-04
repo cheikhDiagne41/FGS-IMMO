@@ -2,6 +2,7 @@ import { BadRequestException, Body, Controller, Get, Param, Post, Query } from '
 import { ApiTags } from '@nestjs/swagger';
 import { PublicService } from './public.service';
 import { MessagesService } from '../messages/messages.service';
+import { ParametresService } from '../parametres/parametres.service';
 
 /** Endpoints publics (sans authentification) pour les visiteurs */
 @ApiTags('Public')
@@ -10,6 +11,7 @@ export class PublicController {
   constructor(
     private publicService: PublicService,
     private messagesService: MessagesService,
+    private parametresService: ParametresService,
   ) {}
 
   /** Un visiteur envoie un message au vendeur d'une annonce */
@@ -105,6 +107,12 @@ export class PublicController {
   @Get('gouvernance')
   gouvernance() {
     return this.publicService.gouvernance();
+  }
+
+  /** Réglages visibles par le site vitrine (interrupteurs, coordonnées…) */
+  @Get('parametres')
+  parametres() {
+    return this.parametresService.publics();
   }
 
   @Get('regions')

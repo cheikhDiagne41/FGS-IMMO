@@ -55,6 +55,7 @@ export const navByRole: Record<Role, NavEntry[]> = {
         { label: 'Réseaux sociaux', path: '/reseaux-sociaux' },
       ],
     },
+    { label: 'Paramètres', path: '/parametres' },
   ],
   GESTIONNAIRE: [
     { label: 'Tableau de bord', path: '/' },

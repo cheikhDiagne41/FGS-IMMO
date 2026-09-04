@@ -1,19 +1,22 @@
 import {
+  ConflictException,
+  ForbiddenException,
   Injectable,
   UnauthorizedException,
-  ConflictException,
 } from '@nestjs/common';
 import { JwtService } from '@nestjs/jwt';
 import * as bcrypt from 'bcryptjs';
 import { Role } from '@prisma/client';
 import { PrismaService } from '../prisma/prisma.service';
 import { LoginDto, RegisterClientDto } from './dto/auth.dto';
+import { ParametresService } from '../parametres/parametres.service';
 
 @Injectable()
 export class AuthService {
   constructor(
     private prisma: PrismaService,
     private jwt: JwtService,
+    private parametres: ParametresService,
   ) {}
 
   private async signToken(user: {
@@ -29,6 +32,18 @@ export class AuthService {
   }
 
   async register(dto: RegisterClientDto) {
+    // Deux interrupteurs configurables ferment l'inscription des visiteurs
+    if (await this.parametres.actif('mode_maintenance')) {
+      throw new ForbiddenException(
+        'Le site est en maintenance, la création de compte est momentanément suspendue.',
+      );
+    }
+    if (!(await this.parametres.actif('inscription_publique', true))) {
+      throw new ForbiddenException(
+        "La création de compte en ligne est désactivée. Contactez l'agence.",
+      );
+    }
+
     const existing = await this.prisma.user.findUnique({
       where: { email: dto.email },
     });

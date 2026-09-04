@@ -1,5 +1,6 @@
 import {
   BadRequestException,
+  ForbiddenException,
   Injectable,
   NotFoundException,
 } from '@nestjs/common';
@@ -7,6 +8,7 @@ import { Prisma, TerrainStatus } from '@prisma/client';
 import { PrismaService } from '../prisma/prisma.service';
 import { VendeurService } from '../vendeur/vendeur.service';
 import { PerimetreVendeurService } from '../common/perimetre-vendeur.service';
+import { ParametresService } from '../parametres/parametres.service';
 import { supprimerFichiers } from '../common/upload.util';
 import {
   CreateTerrainDto,
@@ -20,6 +22,7 @@ export class TerrainsService {
     private prisma: PrismaService,
     private vendeur: VendeurService,
     private perimetre: PerimetreVendeurService,
+    private parametres: ParametresService,
   ) {}
 
   async create(dto: CreateTerrainDto, user?: { userId: string; role: string }) {
@@ -252,6 +255,11 @@ export class TerrainsService {
 
   /** Demande de visite : notifie les administrateurs */
   async demanderVisite(terrainId: string, clientId: string, message?: string) {
+    if (!(await this.parametres.actif('demande_visite_active', true))) {
+      throw new ForbiddenException(
+        'Les demandes de visite en ligne sont désactivées pour le moment.',
+      );
+    }
     const terrain = await this.findOne(terrainId);
     const client = await this.prisma.client.findUnique({
       where: { id: clientId },
